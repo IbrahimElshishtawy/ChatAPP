@@ -2,12 +2,7 @@ import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
 class CustomBtn extends StatelessWidget {
-  CustomBtn({
-    super.key,
-    this.textbtn,
-    required Null Function() onPressed,
-    required Null Function() ontap,
-  });
+  CustomBtn({super.key, this.textbtn, required Null Function() onPressed});
   String? textbtn;
   @override
   Widget build(BuildContext context) {

@@ -1,4 +1,3 @@
-import 'package:chat/Screen/resgister_page.dart';
 import 'package:chat/widget/custom_btn.dart';
 import 'package:chat/widget/custom_text_field.dart';
 import 'package:flutter/material.dart';
@@ -71,7 +70,7 @@ class loginpage extends StatelessWidget {
                 obscureText: true,
               ),
               const SizedBox(height: 20),
-              CustomBtn(textbtn: 'Login', onPressed: () {}, ontap: () {}),
+              CustomBtn(textbtn: 'Login', onPressed: () {}),
               Row(
                 children: [
                   const Text(
@@ -84,26 +83,14 @@ class loginpage extends StatelessWidget {
                   ),
                   TextButton(
                     onPressed: () {
-                      // Handle sign-up button press
+                      Navigator.pushNamed(context, '/register');
                     },
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return ResgisterPage();
-                            },
-                          ),
-                        );
-                      },
-                      child: const Text(
-                        'Sign Up',
-                        style: TextStyle(
-                          color: Color.fromRGBO(20, 160, 230, 0.816),
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    child: const Text(
+                      'Sign Up',
+                      style: TextStyle(
+                        color: Color.fromRGBO(20, 160, 230, 0.816),
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),

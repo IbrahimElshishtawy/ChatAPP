@@ -26,8 +26,8 @@ class ResgisterPage extends StatelessWidget {
           child: Column(
             children: [
               const SizedBox(height: 100), // أضفت مساحة فوق
-              Row(
-                children: const [
+              const Row(
+                children: [
                   Text(
                     'Please register to continue',
                     style: TextStyle(
@@ -82,12 +82,10 @@ class ResgisterPage extends StatelessWidget {
               ),
               const SizedBox(height: 30),
               CustomBtn(
-                ontap: () {
-                  Navigator.pushNamed(context, '/login');
-                  // Handle register button press
-                },
                 textbtn: 'Register',
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushNamed(context, '/login');
+                },
               ),
               const Spacer(),
               const Text(

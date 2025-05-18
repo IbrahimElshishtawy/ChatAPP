@@ -15,12 +15,12 @@ class ChatApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      initialRoute: '/register',
       routes: {
-        '/login': (context) => const loginpage(),
-        '/register': (context) => const ResgisterPage(),
+        '/login': (context) => loginpage(),
+        '/register': (context) => ResgisterPage(),
       },
       debugShowCheckedModeBanner: false,
-      home: Scaffold(body: loginpage()),
     );
   }
 }
