@@ -23,20 +23,17 @@ class ResgisterPage extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
+          child: ListView(
             children: [
-              const SizedBox(height: 100), // أضفت مساحة فوق
-              const Row(
-                children: [
-                  Text(
-                    'Please register to continue',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
+              Center(
+                child: Text(
+                  'Please register to continue',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
                   ),
-                ],
+                ),
               ),
               const SizedBox(height: 16),
               CustomTextField(
@@ -81,22 +78,32 @@ class ResgisterPage extends StatelessWidget {
                 obscureText: true,
               ),
               const SizedBox(height: 30),
-              CustomBtn(
-                textbtn: 'Register',
-                onPressed: () {
-                  Navigator.pushNamed(context, '/login');
-                },
+              CustomBtn(textbtn: 'Register', onPressed: () {}),
+              Row(
+                children: [
+                  const Text(
+                    'Already have an account?',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      'Login',
+                      style: TextStyle(
+                        color: Color.fromRGBO(20, 160, 230, 0.816),
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const Spacer(),
-              const Text(
-                'by Ibrahim El Shishtawy',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.black54,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-              const SizedBox(height: 8),
             ],
           ),
         ),

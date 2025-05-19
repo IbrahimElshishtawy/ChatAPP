@@ -24,9 +24,9 @@ class loginpage extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
+          child: ListView(
             children: [
-              const SizedBox(height: 180),
+              const SizedBox(height: 150),
               Center(
                 child: Image.asset(
                   'assets/image/MetroUI_Messaging.webp',
@@ -36,12 +36,14 @@ class loginpage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 1),
-              const Text(
-                'Welcome to Chat App',
-                style: TextStyle(
-                  fontSize: 27,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
+              Center(
+                child: const Text(
+                  'Welcome to Chat App',
+                  style: TextStyle(
+                    fontSize: 27,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
                 ),
               ),
               const SizedBox(height: 17),
@@ -96,16 +98,6 @@ class loginpage extends StatelessWidget {
                   ),
                 ],
               ),
-              const Spacer(),
-              const Text(
-                'by Ibrahim El Shishtawy',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.black54,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-              const SizedBox(height: 8),
             ],
           ),
         ),

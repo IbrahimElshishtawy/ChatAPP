@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Future.delayed(Duration(seconds: 3)); // تأخير لعرض السبلاتش شوية
+  await Future.delayed(Duration(seconds: 2)); // تأخير لعرض السبلاتش شوية
   runApp(const ChatApp());
 }
 
