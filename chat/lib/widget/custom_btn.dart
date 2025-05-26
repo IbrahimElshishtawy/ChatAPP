@@ -15,7 +15,7 @@ class CustomBtn extends StatelessWidget {
         width: 380,
         height: 60,
         decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 60, 155, 227),
+          color: const Color.fromARGB(255, 60, 163, 227),
           borderRadius: BorderRadius.circular(24),
         ),
         child: Center(

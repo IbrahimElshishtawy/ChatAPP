@@ -102,6 +102,7 @@ class ResgisterPage extends StatelessWidget {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 30),
                 ],
               ),
             ],
