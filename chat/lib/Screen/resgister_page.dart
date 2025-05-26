@@ -7,6 +7,7 @@ class ResgisterPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const sizedBox = SizedBox(height: 30);
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -102,7 +103,7 @@ class ResgisterPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 30),
+                  sizedBox,
                 ],
               ),
             ],
