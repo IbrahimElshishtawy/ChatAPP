@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
 class CustomTextField extends StatelessWidget {
-  CustomTextField({super.key, this.hintext, this.labeltext, this.obscureText});
-
+  CustomTextField({super.key,
+    this.hintext,
+    this.labeltext,
+    this.obscureText,
+    this.onChanged
+  });
+  Function(String)? onChanged;
   String? hintext;
   String? labeltext;
   bool? obscureText;
@@ -13,6 +18,7 @@ class CustomTextField extends StatelessWidget {
       width: 380,
       height: 60,
       child: TextField(
+        onChanged: onChanged,
         obscureText: obscureText ?? false,
         style: const TextStyle(
           fontSize: 16,
