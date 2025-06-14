@@ -1,7 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:developer';
-
 import 'package:chat/widget/custom_btn.dart';
 import 'package:chat/widget/custom_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -40,6 +39,11 @@ class _LoginPageState extends State<LoginPage> {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
 
+    log(
+      'Trying to login with Email: $email, Password: $password',
+      name: 'LoginPage',
+    );
+
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill in all fields')),
@@ -66,33 +70,55 @@ class _LoginPageState extends State<LoginPage> {
         );
       }
 
-      // جلب البيانات من Firestore
-      final uid = user.uid;
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(uid)
-          .get();
+      // جلب بيانات المستخدم من Firestore
+      final String uid = user.uid;
+      try {
+        final doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(uid)
+            .get();
 
-      if (doc.exists) {
-        final userData = doc.data()!;
+        if (doc.exists) {
+          final userData = doc.data()!;
+          log('User data loaded: $userData', name: 'LoginPage');
+
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Login successful')));
+
+          await Future.delayed(const Duration(milliseconds: 500));
+
+          Navigator.pushReplacementNamed(context, '/home', arguments: userData);
+        } else {
+          log('No Firestore document found for user $uid', name: 'LoginPage');
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('User data not found in Firestore')),
+          );
+          await FirebaseAuth.instance.signOut();
+        }
+      } on FirebaseException catch (e) {
+        log('Firestore error: ${e.message}', name: 'LoginPage');
+
+        String message = 'An error occurred';
+        if (e.code == 'permission-denied') {
+          message =
+              'You do not have permission to access this data. Please check Firestore rules.';
+        } else if (e.code == 'unavailable') {
+          message = 'Service unavailable. Please try again later.';
+        } else {
+          message = e.message ?? message;
+        }
 
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Login successful')));
-
-        // تأخير بسيط لعرض الرسالة قبل الانتقال
-        await Future.delayed(const Duration(seconds: 1));
-
-        Navigator.pushReplacementNamed(context, '/home', arguments: userData);
-      } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('User data not found')));
+        ).showSnackBar(SnackBar(content: Text(message)));
         await FirebaseAuth.instance.signOut();
       }
     } on FirebaseAuthException catch (e) {
-      String message = 'Login failed';
+      log('Login error: ${e.code} - ${e.message}', name: 'LoginPage');
 
+      String message = 'Login failed';
       if (e.code == 'user-not-found') {
         message = 'This email is not registered. Please create a new account.';
       } else if (e.code == 'wrong-password') {
@@ -210,7 +236,7 @@ class _LoginPageState extends State<LoginPage> {
                 textbtn: isLoading ? 'Loading...' : 'Login',
                 onPressed: () async {
                   if (!isLoading) {
-                    await loginUser(); // استدعاء الدالة
+                    await loginUser();
                   }
                 },
               ),

@@ -226,6 +226,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 .collection('users')
                                 .doc(uid)
                                 .set({
+                                  'uid': uid,
                                   'firstName': firstName,
                                   'lastName': lastName,
                                   'email': email,
@@ -237,7 +238,14 @@ class _RegisterPageState extends State<RegisterPage> {
                             hideLoading(context);
                             showSnack('Registration successful!');
 
-                            Navigator.pushReplacementNamed(context, '/profile');
+                            // امسح الحقول
+                            firstNameController.clear();
+                            lastNameController.clear();
+                            emailController.clear();
+                            addressController.clear();
+                            phoneController.clear();
+                            passwordController.clear();
+                            confirmPasswordController.clear();
                           } on FirebaseAuthException catch (e) {
                             hideLoading(context);
                             String message = 'Registration failed';
