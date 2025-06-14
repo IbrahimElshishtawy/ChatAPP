@@ -1,5 +1,6 @@
 import 'package:chat/widget/custom_btn.dart';
 import 'package:chat/widget/custom_text.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -12,14 +13,14 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-
   bool isPasswordVisible = false;
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
     emailController.addListener(() {
-      setState(() {}); // لتحديث الأيقونة عند تغيير الإيميل
+      setState(() {});
     });
   }
 
@@ -28,6 +29,47 @@ class _LoginPageState extends State<LoginPage> {
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> loginUser() async {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // ignore: use_build_context_synchronously
+      Navigator.pushReplacementNamed(context, '/home');
+    } on FirebaseAuthException catch (e) {
+      String message = 'Login failed';
+
+      if (e.code == 'user-not-found') {
+        message = 'This email is not registered. Please sign up first.';
+      } else if (e.code == 'wrong-password') {
+        message = 'Incorrect password. Please try again.';
+      } else {
+        message = e.message ?? message;
+      }
+
+      ScaffoldMessenger.of(
+        // ignore: use_build_context_synchronously
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    }
+
+    setState(() => isLoading = false);
   }
 
   @override
@@ -49,7 +91,6 @@ class _LoginPageState extends State<LoginPage> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(height: size.height * 0.17),
@@ -70,7 +111,6 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 15),
 
-              // Email Field
               const Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -101,7 +141,6 @@ class _LoginPageState extends State<LoginPage> {
 
               const SizedBox(height: 15),
 
-              // Password Field
               const Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -134,20 +173,11 @@ class _LoginPageState extends State<LoginPage> {
 
               const SizedBox(height: 30),
               CustomBtn(
-                textbtn: 'Login',
+                textbtn: isLoading ? 'Loading...' : 'Login',
                 onPressed: () {
-                  final email = emailController.text;
-                  final password = passwordController.text;
-
-                  if (email.isEmpty || password.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please fill all fields')),
-                    );
-                    return;
+                  if (!isLoading) {
+                    loginUser();
                   }
-
-                  // بعد التأكد من تعبئة الحقول، يدخل على صفحة الهوم
-                  Navigator.pushReplacementNamed(context, '/home');
                 },
               ),
               const SizedBox(height: 15),
