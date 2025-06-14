@@ -1,5 +1,6 @@
 import 'package:chat/widget/custom_btn.dart';
-import 'package:chat/widget/custom_text.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -162,22 +163,50 @@ class _RegisterPageState extends State<RegisterPage> {
                             showSnack('Please fill all fields');
                             return;
                           }
-
                           if (password != confirmPassword) {
                             showSnack('Passwords do not match');
                             return;
                           }
-
-                          showLoading(context);
-
-                          // TODO: Implement registration logic (Firebase or others)
-
-                          await Future.delayed(const Duration(seconds: 2));
-                          hideLoading(context);
-                          showSnack('Account created successfully');
-
-                          // Navigate to login or home
-                          // Navigator.pushReplacementNamed(context, '/login');
+                          try {
+                            if (kIsWeb) {
+                              await FirebaseAuth.instance.setPersistence(
+                                Persistence.LOCAL,
+                              );
+                            }
+                            // ignore: use_build_context_synchronously
+                            showLoading(context);
+                            UserCredential user = await FirebaseAuth.instance
+                                .createUserWithEmailAndPassword(
+                                  email: email!,
+                                  password: password!,
+                                );
+                            if (kDebugMode) {
+                              print('User created: ${user.user?.uid}');
+                            }
+                            await Future.delayed(const Duration(seconds: 2));
+                            // ignore: use_build_context_synchronously
+                            hideLoading(context);
+                            showSnack('Account created successfully');
+                            // Navigate to login page or home page
+                            // ignore: use_build_context_synchronously
+                            Navigator.pushReplacementNamed(context, '/login');
+                          } on FirebaseAuthException catch (e) {
+                            // ignore: use_build_context_synchronously
+                            hideLoading(context);
+                            if (e.code == 'email-already-in-use') {
+                              showSnack('This email is already in use.');
+                            } else if (e.code == 'weak-password') {
+                              showSnack('The password is too weak.');
+                            } else if (e.code == 'invalid-email') {
+                              showSnack('Invalid email address.');
+                            } else {
+                              showSnack('Error: ${e.message}');
+                            }
+                          } catch (e) {
+                            // ignore: use_build_context_synchronously
+                            hideLoading(context);
+                            showSnack('Unexpected error: ${e.toString()}');
+                          }
                         },
                       ),
                       const SizedBox(height: 8),

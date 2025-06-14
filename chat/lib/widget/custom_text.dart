@@ -8,6 +8,7 @@ class CustomTextField extends StatelessWidget {
     this.labeltext,
     this.obscureText,
     this.onChanged,
+    required IconButton suffixIcon,
   });
   Function(String)? onChanged;
   String? hintext;
@@ -38,6 +39,8 @@ class CustomTextField extends StatelessWidget {
               color: const Color.fromARGB(255, 60, 144, 200),
             ),
           ),
+          // Add suffixIcon here if needed, e.g.:
+          // suffixIcon: suffixIcon,
         ),
       ),
     );
