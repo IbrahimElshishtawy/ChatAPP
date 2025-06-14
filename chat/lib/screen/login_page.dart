@@ -1,5 +1,10 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'dart:developer';
+
 import 'package:chat/widget/custom_btn.dart';
 import 'package:chat/widget/custom_text.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -36,35 +41,71 @@ class _LoginPageState extends State<LoginPage> {
     final password = passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields')),
+      );
       return;
     }
 
     setState(() => isLoading = true);
 
     try {
+      // تسجيل الدخول
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      // ignore: use_build_context_synchronously
-      Navigator.pushReplacementNamed(context, '/home');
+      final user = FirebaseAuth.instance.currentUser;
+      log('User logged in: ${user?.email}', name: 'LoginPage');
+
+      if (user == null) {
+        throw FirebaseAuthException(
+          code: 'unknown-error',
+          message: 'Unexpected error occurred',
+        );
+      }
+
+      // جلب البيانات من Firestore
+      final uid = user.uid;
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .get();
+
+      if (doc.exists) {
+        final userData = doc.data()!;
+
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Login successful')));
+
+        // تأخير بسيط لعرض الرسالة قبل الانتقال
+        await Future.delayed(const Duration(seconds: 1));
+
+        Navigator.pushReplacementNamed(context, '/home', arguments: userData);
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('User data not found')));
+        await FirebaseAuth.instance.signOut();
+      }
     } on FirebaseAuthException catch (e) {
       String message = 'Login failed';
 
       if (e.code == 'user-not-found') {
-        message = 'This email is not registered. Please sign up first.';
+        message = 'This email is not registered. Please create a new account.';
       } else if (e.code == 'wrong-password') {
         message = 'Incorrect password. Please try again.';
+      } else if (e.code == 'invalid-email') {
+        message = 'The email format is invalid.';
+      } else if (e.code == 'too-many-requests') {
+        message = 'Too many login attempts. Try again later.';
       } else {
         message = e.message ?? message;
       }
 
       ScaffoldMessenger.of(
-        // ignore: use_build_context_synchronously
         context,
       ).showSnackBar(SnackBar(content: Text(message)));
     }
@@ -110,7 +151,6 @@ class _LoginPageState extends State<LoginPage> {
                 style: TextStyle(fontSize: 16, color: Colors.grey[700]),
               ),
               const SizedBox(height: 15),
-
               const Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -128,19 +168,14 @@ class _LoginPageState extends State<LoginPage> {
                 hintext: 'Enter your email',
                 labeltext: 'Email',
                 obscureText: false,
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    Icons.check_circle,
-                    color: emailController.text.isNotEmpty
-                        ? Colors.green
-                        : const Color.fromARGB(255, 100, 111, 119),
-                  ),
-                  onPressed: () {},
+                suffixIcon: Icon(
+                  Icons.check_circle,
+                  color: emailController.text.isNotEmpty
+                      ? Colors.green
+                      : const Color.fromARGB(255, 100, 111, 119),
                 ),
               ),
-
               const SizedBox(height: 15),
-
               const Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -170,18 +205,16 @@ class _LoginPageState extends State<LoginPage> {
                   },
                 ),
               ),
-
               const SizedBox(height: 30),
               CustomBtn(
                 textbtn: isLoading ? 'Loading...' : 'Login',
-                onPressed: () {
+                onPressed: () async {
                   if (!isLoading) {
-                    loginUser();
+                    await loginUser(); // استدعاء الدالة
                   }
                 },
               ),
               const SizedBox(height: 15),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

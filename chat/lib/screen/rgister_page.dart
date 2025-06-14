@@ -1,6 +1,10 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:chat/widget/custom_btn.dart';
 import 'package:chat/widget/custom_text.dart';
 import 'package:chat/widget/textedit.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -16,7 +20,6 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   void initState() {
     super.initState();
-
     for (var controller in controllers) {
       controller.addListener(() => setState(() {}));
     }
@@ -24,6 +27,14 @@ class _RegisterPageState extends State<RegisterPage> {
 
   void hideLoading(BuildContext context) {
     Navigator.of(context, rootNavigator: true).pop();
+  }
+
+  void showLoading(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
   }
 
   void showSnack(String message) {
@@ -84,7 +95,6 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       const SizedBox(height: 20),
 
-                      // First Name
                       CustomTextField(
                         hintext: 'Enter your first name',
                         labeltext: 'First Name',
@@ -97,7 +107,6 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       const SizedBox(height: 15),
 
-                      // Last Name
                       CustomTextField(
                         hintext: 'Enter your last name',
                         labeltext: 'Last Name',
@@ -110,7 +119,6 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       const SizedBox(height: 15),
 
-                      // Address
                       CustomTextField(
                         hintext: 'Enter your address',
                         labeltext: 'Address',
@@ -123,7 +131,6 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       const SizedBox(height: 15),
 
-                      // Email
                       CustomTextField(
                         hintext: 'Enter your email',
                         labeltext: 'Email',
@@ -136,7 +143,6 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       const SizedBox(height: 15),
 
-                      // Phone
                       CustomTextField(
                         hintext: 'Enter your phone number',
                         labeltext: 'Phone Number',
@@ -149,7 +155,6 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       const SizedBox(height: 15),
 
-                      // Password
                       CustomTextField(
                         hintext: 'Enter your password',
                         labeltext: 'Password',
@@ -162,7 +167,6 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       const SizedBox(height: 15),
 
-                      // Confirm Password
                       CustomTextField(
                         hintext: 'Confirm your password',
                         labeltext: 'Confirm Password',
@@ -207,11 +211,48 @@ class _RegisterPageState extends State<RegisterPage> {
                             return;
                           }
 
-                          showLoading(context);
-                          await Future.delayed(const Duration(seconds: 2));
-                          // ignore: use_build_context_synchronously
-                          hideLoading(context);
-                          showSnack('Account created successfully');
+                          try {
+                            showLoading(context);
+
+                            final userCredential = await FirebaseAuth.instance
+                                .createUserWithEmailAndPassword(
+                                  email: email,
+                                  password: password,
+                                );
+
+                            final uid = userCredential.user!.uid;
+
+                            await FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(uid)
+                                .set({
+                                  'firstName': firstName,
+                                  'lastName': lastName,
+                                  'email': email,
+                                  'address': address,
+                                  'phone': phone,
+                                  'createdAt': Timestamp.now(),
+                                });
+
+                            hideLoading(context);
+                            showSnack('Registration successful!');
+
+                            Navigator.pushReplacementNamed(context, '/profile');
+                          } on FirebaseAuthException catch (e) {
+                            hideLoading(context);
+                            String message = 'Registration failed';
+                            if (e.code == 'email-already-in-use') {
+                              message = 'This email is already in use.';
+                            } else if (e.code == 'weak-password') {
+                              message = 'Password is too weak.';
+                            } else if (e.code == 'invalid-email') {
+                              message = 'Invalid email format.';
+                            }
+                            showSnack(message);
+                          } catch (e) {
+                            hideLoading(context);
+                            showSnack('An error occurred. Please try again.');
+                          }
                         },
                       ),
                       const SizedBox(height: 8),
