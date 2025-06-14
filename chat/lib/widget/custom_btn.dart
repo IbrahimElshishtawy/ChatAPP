@@ -1,41 +1,35 @@
 import 'package:flutter/material.dart';
 
-class CustomTextField extends StatelessWidget {
-  final String hintext;
-  final String labeltext;
-  final bool obscureText;
-  final TextEditingController? controller;
-  final Widget? suffixIcon;
-  final Function(String)? onChanged; // ✅ تعريف onChanged هنا
+// ignore: must_be_immutable
+class CustomBtn extends StatelessWidget {
+  final String textbtn;
+  final VoidCallback onPressed;
 
-  const CustomTextField({
-    super.key,
-    required this.hintext,
-    required this.labeltext,
-    required this.obscureText,
-    this.controller,
-    this.suffixIcon,
-    this.onChanged, // ✅ تمريرها في الكونستركتور
-  });
+  const CustomBtn({super.key, required this.textbtn, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      obscureText: obscureText,
-      decoration: InputDecoration(
-        hintText: hintext,
-        labelText: labeltext,
-        border: const OutlineInputBorder(),
-        suffixIcon: suffixIcon,
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: onPressed,
+      child: Container(
+        width: 380,
+        height: 60,
+        decoration: BoxDecoration(
+          color: const Color.fromARGB(255, 60, 163, 227),
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Center(
+          child: Text(
+            textbtn,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        ),
       ),
-      onChanged: onChanged, // ✅ استخدام onChanged داخل الـ TextFormField
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'This field is required';
-        }
-        return null;
-      },
     );
   }
 }

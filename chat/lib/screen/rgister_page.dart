@@ -1,6 +1,6 @@
 import 'package:chat/widget/custom_btn.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
+import 'package:chat/widget/custom_text.dart';
+import 'package:chat/widget/textedit.dart';
 import 'package:flutter/material.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -13,15 +13,13 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
 
-  String? email, password, confirmPassword, firstName, lastName, address, phone;
+  @override
+  void initState() {
+    super.initState();
 
-  void showLoading(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) =>
-          const Center(child: CircularProgressIndicator(color: Colors.blue)),
-    );
+    for (var controller in controllers) {
+      controller.addListener(() => setState(() {}));
+    }
   }
 
   void hideLoading(BuildContext context) {
@@ -32,6 +30,12 @@ class _RegisterPageState extends State<RegisterPage> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Color getIconColor(String text) {
+    return text.trim().isEmpty
+        ? const Color.fromARGB(255, 150, 150, 150)
+        : Colors.green;
   }
 
   @override
@@ -80,60 +84,94 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       const SizedBox(height: 20),
 
-                      // Input Fields
+                      // First Name
                       CustomTextField(
                         hintext: 'Enter your first name',
                         labeltext: 'First Name',
+                        controller: firstNameController,
                         obscureText: false,
-                        onChanged: (data) => firstName = data,
+                        suffixIcon: Icon(
+                          Icons.check_circle,
+                          color: getIconColor(firstNameController.text),
+                        ),
                       ),
                       const SizedBox(height: 15),
 
+                      // Last Name
                       CustomTextField(
                         hintext: 'Enter your last name',
                         labeltext: 'Last Name',
+                        controller: lastNameController,
                         obscureText: false,
-                        onChanged: (data) => lastName = data,
+                        suffixIcon: Icon(
+                          Icons.check_circle,
+                          color: getIconColor(lastNameController.text),
+                        ),
                       ),
                       const SizedBox(height: 15),
 
+                      // Address
                       CustomTextField(
                         hintext: 'Enter your address',
                         labeltext: 'Address',
+                        controller: addressController,
                         obscureText: false,
-                        onChanged: (data) => address = data,
+                        suffixIcon: Icon(
+                          Icons.check_circle,
+                          color: getIconColor(addressController.text),
+                        ),
                       ),
                       const SizedBox(height: 15),
 
+                      // Email
                       CustomTextField(
                         hintext: 'Enter your email',
                         labeltext: 'Email',
+                        controller: emailController,
                         obscureText: false,
-                        onChanged: (data) => email = data,
+                        suffixIcon: Icon(
+                          Icons.check_circle,
+                          color: getIconColor(emailController.text),
+                        ),
                       ),
                       const SizedBox(height: 15),
 
+                      // Phone
                       CustomTextField(
                         hintext: 'Enter your phone number',
                         labeltext: 'Phone Number',
+                        controller: phoneController,
                         obscureText: false,
-                        onChanged: (data) => phone = data,
+                        suffixIcon: Icon(
+                          Icons.check_circle,
+                          color: getIconColor(phoneController.text),
+                        ),
                       ),
                       const SizedBox(height: 15),
 
+                      // Password
                       CustomTextField(
                         hintext: 'Enter your password',
                         labeltext: 'Password',
+                        controller: passwordController,
                         obscureText: true,
-                        onChanged: (data) => password = data,
+                        suffixIcon: Icon(
+                          Icons.check_circle,
+                          color: getIconColor(passwordController.text),
+                        ),
                       ),
                       const SizedBox(height: 15),
 
+                      // Confirm Password
                       CustomTextField(
                         hintext: 'Confirm your password',
                         labeltext: 'Confirm Password',
+                        controller: confirmPasswordController,
                         obscureText: true,
-                        onChanged: (data) => confirmPassword = data,
+                        suffixIcon: Icon(
+                          Icons.check_circle,
+                          color: getIconColor(confirmPasswordController.text),
+                        ),
                       ),
                       const SizedBox(height: 25),
 
@@ -142,71 +180,38 @@ class _RegisterPageState extends State<RegisterPage> {
                         onPressed: () async {
                           if (!_formKey.currentState!.validate()) return;
 
+                          final email = emailController.text.trim();
+                          final password = passwordController.text.trim();
+                          final confirmPassword = confirmPasswordController.text
+                              .trim();
+                          final firstName = firstNameController.text.trim();
+                          final lastName = lastNameController.text.trim();
+                          final address = addressController.text.trim();
+                          final phone = phoneController.text.trim();
+
                           if ([
-                                email,
-                                password,
-                                confirmPassword,
-                                firstName,
-                                lastName,
-                                address,
-                                phone,
-                              ].contains(null) ||
-                              [
-                                email,
-                                password,
-                                confirmPassword,
-                                firstName,
-                                lastName,
-                                address,
-                                phone,
-                              ].any((e) => e!.isEmpty)) {
+                            email,
+                            password,
+                            confirmPassword,
+                            firstName,
+                            lastName,
+                            address,
+                            phone,
+                          ].any((e) => e.isEmpty)) {
                             showSnack('Please fill all fields');
                             return;
                           }
+
                           if (password != confirmPassword) {
                             showSnack('Passwords do not match');
                             return;
                           }
-                          try {
-                            if (kIsWeb) {
-                              await FirebaseAuth.instance.setPersistence(
-                                Persistence.LOCAL,
-                              );
-                            }
-                            // ignore: use_build_context_synchronously
-                            showLoading(context);
-                            UserCredential user = await FirebaseAuth.instance
-                                .createUserWithEmailAndPassword(
-                                  email: email!,
-                                  password: password!,
-                                );
-                            if (kDebugMode) {
-                              print('User created: ${user.user?.uid}');
-                            }
-                            await Future.delayed(const Duration(seconds: 2));
-                            // ignore: use_build_context_synchronously
-                            hideLoading(context);
-                            showSnack('Account created successfully');
-                            // Navigate to login page or home page
-                            // ignore: use_build_context_synchronously
-                            Navigator.pushReplacementNamed(context, '/login');
-                          } on FirebaseAuthException catch (e) {
-                            // ignore: use_build_context_synchronously
-                            hideLoading(context);
-                            if (e.code == 'email-already-in-use') {
-                              showSnack('This email is already in use.');
-                            } else if (e.code == 'weak-password') {
-                              showSnack('The password is too weak.');
-                            } else if (e.code == 'invalid-email') {
-                              showSnack('Invalid email address.');
-                            } else {
-                              showSnack('Error: ${e.message}');
-                            }
-                          } catch (e) {
-                            // ignore: use_build_context_synchronously
-                            hideLoading(context);
-                            showSnack('Unexpected error: ${e.toString()}');
-                          }
+
+                          showLoading(context);
+                          await Future.delayed(const Duration(seconds: 2));
+                          // ignore: use_build_context_synchronously
+                          hideLoading(context);
+                          showSnack('Account created successfully');
                         },
                       ),
                       const SizedBox(height: 8),

@@ -23,12 +23,14 @@ class ChatApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
+      // استخدم initialRoute بدل home
+      initialRoute: '/',
       routes: {
+        '/': (context) => const LoginPage(), // صفحة البداية
         '/login': (context) => const LoginPage(),
         '/register': (context) => const RegisterPage(),
-        '/home': (context) => const HomePage(), // أضف دي
+        '/home': (context) => const HomePage(),
       },
-      home: const LoginPage(),
     );
   }
 }
