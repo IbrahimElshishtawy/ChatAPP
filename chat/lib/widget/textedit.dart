@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 final TextEditingController emailController = TextEditingController();
 final TextEditingController passwordController = TextEditingController();
@@ -7,6 +9,7 @@ final TextEditingController firstNameController = TextEditingController();
 final TextEditingController lastNameController = TextEditingController();
 final TextEditingController addressController = TextEditingController();
 final TextEditingController phoneController = TextEditingController();
+
 final controllers = [
   emailController,
   passwordController,
@@ -16,15 +19,15 @@ final controllers = [
   addressController,
   phoneController,
 ];
-void dispose() {
-  emailController.dispose();
-  passwordController.dispose();
-  confirmPasswordController.dispose();
-  firstNameController.dispose();
-  lastNameController.dispose();
-  addressController.dispose();
-  phoneController.dispose();
+
+void clearAllFields() {
+  for (final controller in controllers) {
+    controller.clear();
+  }
 }
+
+final FirebaseFirestore firestore = FirebaseFirestore.instance;
+final FirebaseAuth auth = FirebaseAuth.instance;
 
 void showLoading(BuildContext context) {
   showDialog(

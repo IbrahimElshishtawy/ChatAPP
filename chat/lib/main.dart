@@ -8,8 +8,8 @@ import 'package:chat/screen/rgister_page.dart';
 import 'package:chat/screen/home_page.dart';
 import 'package:chat/screen/profile_page.dart';
 import 'package:chat/screen/EditProfile_page.dart';
-
 import 'package:chat/screen/chat_page.dart';
+
 import 'package:chat/widget/custom_modelD.dart'; // يحتوي على كلاس UserProfile
 
 void main() async {

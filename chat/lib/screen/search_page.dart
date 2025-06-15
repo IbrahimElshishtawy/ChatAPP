@@ -34,7 +34,7 @@ class _SearchPageState extends State<SearchPage> {
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('✅ تم إرسال الطلب بنجاح'),
+          content: Text('✅ Request sent successfully'),
           backgroundColor: Colors.green,
         ),
       );
@@ -42,7 +42,7 @@ class _SearchPageState extends State<SearchPage> {
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('ℹ️ تم إرسال طلب مسبقًا'),
+          content: Text('ℹ️ Request already sent'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -52,40 +52,45 @@ class _SearchPageState extends State<SearchPage> {
   Stream<QuerySnapshot> getUserStream() {
     final usersRef = FirebaseFirestore.instance.collection('users');
 
-    if (searchTerm.trim().isEmpty) {
-      // عرض جميع المستخدمين ما عدا الحالي
-      return usersRef.snapshots();
-    } else {
-      return usersRef
-          .where('searchKeywords', arrayContains: searchTerm.toLowerCase())
-          .snapshots();
-    }
+    return searchTerm.trim().isEmpty
+        ? usersRef.snapshots()
+        : usersRef
+              .where('searchKeywords', arrayContains: searchTerm.toLowerCase())
+              .snapshots();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFEFF3F6),
       appBar: AppBar(
-        title: const Text("البحث عن مستخدمين"),
+        title: const Text("Search Users"),
+        centerTitle: true,
+        elevation: 0,
         backgroundColor: const Color(0xFF2C688E),
         foregroundColor: Colors.white,
       ),
-      backgroundColor: const Color(0xFF4CA6DF),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: "اكتب الاسم أو البريد الإلكتروني...",
-                hintStyle: const TextStyle(color: Colors.black54),
-                filled: true,
-                fillColor: Colors.white,
-                prefixIcon: const Icon(Icons.search, color: Colors.black),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+          Container(
+            margin: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 10,
+                  offset: Offset(0, 4),
                 ),
+              ],
+            ),
+            child: TextField(
+              decoration: const InputDecoration(
+                hintText: "Search by name or email...",
+                border: InputBorder.none,
+                icon: Icon(Icons.search, color: Colors.grey),
               ),
               onChanged: (val) {
                 setState(() {
@@ -117,54 +122,74 @@ class _SearchPageState extends State<SearchPage> {
                 if (docs.isEmpty) {
                   return const Center(
                     child: Text(
-                      "لا يوجد مستخدمين مطابقين",
-                      style: TextStyle(color: Colors.white, fontSize: 16),
+                      "No matching users found.",
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
                     ),
                   );
                 }
 
-                return ListView.builder(
+                return ListView.separated(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   itemCount: docs.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final data = docs[index].data() as Map<String, dynamic>;
-                    final name = data['firstName'] ?? 'بدون اسم';
+                    final name = data['firstName'] ?? 'No name';
                     final email = data['email'] ?? '';
                     final userId = docs[index].id;
 
-                    return Card(
-                      // ignore: deprecated_member_use
-                      color: Colors.white.withOpacity(0.15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 8,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
                       ),
                       child: ListTile(
-                        leading: const CircleAvatar(
-                          radius: 22,
-                          backgroundColor: Colors.white24,
-                          child: Icon(Icons.person, color: Colors.white),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 16,
+                        ),
+                        leading: CircleAvatar(
+                          radius: 26,
+                          backgroundColor: const Color(0xFF2C688E),
+                          child: const Icon(
+                            Icons.person,
+                            color: Colors.white,
+                            size: 24,
+                          ),
                         ),
                         title: Text(
                           name,
                           style: const TextStyle(
-                            color: Colors.white,
+                            fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         subtitle: Text(
                           email,
-                          style: const TextStyle(color: Colors.white70),
+                          style: const TextStyle(color: Colors.grey),
                         ),
                         trailing: ElevatedButton.icon(
                           onPressed: () => sendRequest(userId),
                           icon: const Icon(Icons.send),
-                          label: const Text("إرسال"),
+                          label: const Text("Send"),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: Colors.black,
+                            backgroundColor: const Color(0xFF2C688E),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),

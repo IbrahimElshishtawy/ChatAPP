@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,24 +9,39 @@ class HomePage extends StatelessWidget {
 
   Future<String> getUserName() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) return 'User';
+    if (uid == null) {
+      if (kDebugMode) {
+        print('No user is logged in.');
+      }
+      return 'User';
+    }
 
+    if (kDebugMode) {
+      print('Fetching user name for UID: $uid');
+    }
     final doc = await FirebaseFirestore.instance
         .collection('users')
         .doc(uid)
         .get();
     final data = doc.data();
-    return data != null ? data['firstName'] ?? 'User' : 'User';
+    final name = data != null ? data['firstName'] ?? 'User' : 'User';
+    if (kDebugMode) {
+      print('User name fetched: $name');
+    }
+    return name;
   }
 
   @override
   Widget build(BuildContext context) {
     final User? currentUser = FirebaseAuth.instance.currentUser;
+    if (kDebugMode) {
+      print('HomePage build started');
+    }
 
     return Scaffold(
-      backgroundColor: const Color(0xFF4CA6DF),
+      backgroundColor: const Color(0xFFEEF5FF),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF2C688E),
+        backgroundColor: const Color(0xFF1A374D),
         elevation: 0,
         title: FutureBuilder<String>(
           future: getUserName(),
@@ -37,7 +53,7 @@ class HomePage extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Welcome $name',
+                    'Welcome, $name',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -53,15 +69,28 @@ class HomePage extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.search, color: Colors.white),
-            onPressed: () => Navigator.pushNamed(context, '/search'),
+            onPressed: () {
+              if (kDebugMode) {
+                print('Search button pressed');
+              }
+              Navigator.pushNamed(context, '/search');
+            },
           ),
           IconButton(
             icon: const Icon(Icons.person_add_alt_1, color: Colors.white),
-            onPressed: () => Navigator.pushNamed(context, '/requests'),
+            onPressed: () {
+              if (kDebugMode) {
+                print('Requests button pressed');
+              }
+              Navigator.pushNamed(context, '/requests');
+            },
           ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert, color: Colors.white),
             onSelected: (value) async {
+              if (kDebugMode) {
+                print('PopupMenu selected: $value');
+              }
               if (value == 'profile') {
                 final uid = FirebaseAuth.instance.currentUser?.uid;
                 if (uid != null) {
@@ -78,8 +107,9 @@ class HomePage extends StatelessWidget {
                       email: data?['email'] ?? '',
                       phone: data?['phone'] ?? '',
                     );
-
-                    // ignore: use_build_context_synchronously
+                    if (kDebugMode) {
+                      print('Navigating to profile page');
+                    }
                     Navigator.pushNamed(
                       // ignore: use_build_context_synchronously
                       context,
@@ -89,124 +119,146 @@ class HomePage extends StatelessWidget {
                   }
                 }
               } else if (value == 'logout') {
-                FirebaseAuth.instance.signOut();
+                if (kDebugMode) {
+                  print('Logging out...');
+                }
+                await FirebaseAuth.instance.signOut();
+                // ignore: use_build_context_synchronously
                 Navigator.pushReplacementNamed(context, '/login');
               }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'profile',
-                child: Text('الملف الشخصي'),
-              ),
-              const PopupMenuItem(value: 'logout', child: Text('تسجيل الخروج')),
+              const PopupMenuItem(value: 'profile', child: Text('Profile')),
+              const PopupMenuItem(value: 'logout', child: Text('Logout')),
             ],
           ),
         ],
       ),
-      body: Column(
-        children: [
-          const SizedBox(height: 20),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: Text(
-                "المستخدمين الذين تم قبولهم:",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('requests')
+              .where('status', isEqualTo: 'accepted')
+              .where(
+                Filter.or(
+                  Filter('from', isEqualTo: currentUser!.uid),
+                  Filter('to', isEqualTo: currentUser.uid),
                 ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('requests')
-                  .where('from', isEqualTo: currentUser!.uid)
-                  .where('status', isEqualTo: 'accepted')
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
+              )
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (kDebugMode) {
+              print('Listening to accepted requests stream...');
+            }
+            if (!snapshot.hasData) {
+              return const Center(
+                child: CircularProgressIndicator(color: Colors.blueGrey),
+              );
+            }
+
+            final acceptedUsers = snapshot.data!.docs.map((doc) {
+              final data = doc.data() as Map<String, dynamic>;
+              final from = data['from'];
+              final to = data['to'];
+              final otherUserId = currentUser.uid == from ? to : from;
+              if (kDebugMode) {
+                print('Accepted user ID: $otherUserId');
+              }
+              return otherUserId;
+            }).toList();
+
+            if (acceptedUsers.isEmpty) {
+              if (kDebugMode) {
+                print('No accepted users found.');
+              }
+              return const Center(
+                child: Text(
+                  "No accepted users yet.",
+                  style: TextStyle(color: Colors.black87, fontSize: 16),
+                ),
+              );
+            }
+
+            return FutureBuilder<QuerySnapshot>(
+              future: FirebaseFirestore.instance
+                  .collection('users')
+                  .where(FieldPath.documentId, whereIn: acceptedUsers)
+                  .get(),
+              builder: (context, usersSnapshot) {
+                if (!usersSnapshot.hasData) {
                   return const Center(
-                    child: CircularProgressIndicator(color: Colors.white),
+                    child: CircularProgressIndicator(color: Colors.blueGrey),
                   );
                 }
 
-                final acceptedUsers = snapshot.data!.docs
-                    .map((doc) => doc['to'] as String)
-                    .toList();
-
-                if (acceptedUsers.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      "لا يوجد مستخدمين تم قبولهم.",
-                      style: TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                  );
+                final users = usersSnapshot.data!.docs;
+                if (kDebugMode) {
+                  print('Fetched ${users.length} users to display');
                 }
 
-                return FutureBuilder<QuerySnapshot>(
-                  future: FirebaseFirestore.instance
-                      .collection('users')
-                      .where(FieldPath.documentId, whereIn: acceptedUsers)
-                      .get(),
-                  builder: (context, usersSnapshot) {
-                    if (!usersSnapshot.hasData) {
-                      return const Center(
-                        child: CircularProgressIndicator(color: Colors.white),
-                      );
-                    }
+                return ListView.separated(
+                  itemCount: users.length,
+                  padding: const EdgeInsets.only(top: 20),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 10),
+                  itemBuilder: (context, index) {
+                    final doc = users[index];
+                    final data = doc.data() as Map<String, dynamic>;
+                    final name = data['firstName'] ?? 'User';
+                    final id = doc.id;
 
-                    return ListView.builder(
-                      itemCount: usersSnapshot.data!.docs.length,
-                      padding: const EdgeInsets.all(12),
-                      itemBuilder: (context, index) {
-                        final doc = usersSnapshot.data!.docs[index];
-                        final data = doc.data() as Map<String, dynamic>;
-                        final name = data['firstName'] ?? 'مستخدم';
-                        final id = doc.id;
-
-                        return Card(
-                          color: Colors.white10,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.shade300,
+                            blurRadius: 5,
+                            offset: const Offset(0, 3),
                           ),
-                          child: ListTile(
-                            leading: const CircleAvatar(
-                              backgroundColor: Colors.white24,
-                              child: Icon(Icons.person, color: Colors.white),
-                            ),
-                            title: Text(
-                              name,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            trailing: const Icon(
-                              Icons.message,
-                              color: Colors.white70,
-                            ),
-                            onTap: () {
-                              Navigator.pushNamed(
-                                context,
-                                '/chat',
-                                arguments: {'id': id, 'name': name},
-                              );
-                            },
+                        ],
+                      ),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        leading: const CircleAvatar(
+                          backgroundColor: Colors.blueGrey,
+                          child: Icon(Icons.person, color: Colors.white),
+                        ),
+                        title: Text(
+                          name,
+                          style: const TextStyle(
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
                           ),
-                        );
-                      },
+                        ),
+                        trailing: const Icon(
+                          Icons.message,
+                          color: Colors.blueGrey,
+                        ),
+                        onTap: () {
+                          if (kDebugMode) {
+                            print('Tapped on user: $name (ID: $id)');
+                          }
+                          Navigator.pushNamed(
+                            context,
+                            '/chat',
+                            arguments: {'id': id, 'name': name},
+                          );
+                        },
+                      ),
                     );
                   },
                 );
               },
-            ),
-          ),
-        ],
+            );
+          },
+        ),
       ),
     );
   }
