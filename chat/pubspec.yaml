@@ -26,6 +26,7 @@ dependencies:
   intl: ^0.20.2
 
 dev_dependencies:
+  flutter_native_splash: ^2.3.10
   flutter_launcher_icons: ^0.13.1
   flutter_test:
     sdk: flutter
@@ -45,7 +46,16 @@ flutter:
     # - assets/image/google_logo.png  # Uncomment and ensure this file exists if you want to use it
 
 
-flutter_icons:
+flutter_icon:
   android: true
   ios: true
   image_path: "assets/image/chat-app-icon-24.jpg"
+
+
+
+flutter_native_splash:
+  color: "#ffffff"
+  image: assets/image/chat-app-icon-24.jpg
+  android_gravity: center
+  android: true
+  ios: true
