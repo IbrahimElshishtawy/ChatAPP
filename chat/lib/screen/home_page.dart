@@ -3,11 +3,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:chat/widget/custom_modelD.dart';
+import 'package:chat/widget/custom_modelD.dart'; // تأكد أن هذا المسار صحيح عندك
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
+  // دالة لجلب اسم المستخدم الحالي
   Future<String> getUserName() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return 'User';
@@ -19,18 +20,9 @@ class HomePage extends StatelessWidget {
     return data != null ? data['firstName'] ?? 'User' : 'User';
   }
 
-  Future<bool> hasNewMessage(String otherUserId) async {
-    final currentUserId = FirebaseAuth.instance.currentUser!.uid;
-
-    final messagesSnapshot = await FirebaseFirestore.instance
-        .collection('messages')
-        .where('senderId', isEqualTo: otherUserId)
-        .where('receiverId', isEqualTo: currentUserId)
-        .where('isRead', isEqualTo: false)
-        .limit(1)
-        .get();
-
-    return messagesSnapshot.docs.isNotEmpty;
+  // دالة لتوليد معرّف الشات بين المستخدمين بشكل ثابت (لترتيبهم أبجديًا)
+  String _generateChatId(String user1, String user2) {
+    return user1.compareTo(user2) < 0 ? '${user1}_$user2' : '${user2}_$user1';
   }
 
   @override
@@ -178,10 +170,18 @@ class HomePage extends StatelessWidget {
                     final name = data['firstName'] ?? 'User';
                     final id = doc.id;
 
-                    return FutureBuilder<bool>(
-                      future: hasNewMessage(id),
+                    return StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection(
+                            'chats/${_generateChatId(currentUser.uid, id)}/messages',
+                          )
+                          .where('senderId', isEqualTo: id)
+                          .where('receiverId', isEqualTo: currentUser.uid)
+                          .where('isRead', isEqualTo: false)
+                          .snapshots(),
                       builder: (context, snapshot) {
-                        final hasNew = snapshot.data ?? false;
+                        final hasNew =
+                            snapshot.hasData && snapshot.data!.docs.isNotEmpty;
 
                         return Container(
                           decoration: BoxDecoration(
@@ -214,9 +214,9 @@ class HomePage extends StatelessWidget {
                             ),
                             trailing: Icon(
                               hasNew
-                                  ? Icons.chat_bubble
+                                  ? Icons.mark_chat_unread
                                   : Icons.chat_bubble_outline,
-                              color: hasNew ? Colors.blueAccent : Colors.grey,
+                              color: hasNew ? Colors.red : Colors.grey,
                             ),
                             onTap: () {
                               Navigator.pushNamed(
