@@ -26,6 +26,7 @@ dependencies:
   intl: ^0.20.2
 
 dev_dependencies:
+  flutter_launcher_icons: ^0.13.1
   flutter_test:
     sdk: flutter
 
@@ -42,5 +43,9 @@ flutter:
   assets:
     - assets/image/MetroUI_Messaging.webp
     # - assets/image/google_logo.png  # Uncomment and ensure this file exists if you want to use it
-    
-  
+
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/image/chat-app-icon-24.jpg"
