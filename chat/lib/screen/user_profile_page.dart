@@ -15,7 +15,7 @@ class UserProfilePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
-        title: const Text("الملف الشخصي"),
+        title: const Text("User Profile"),
         backgroundColor: const Color(0xFF2C688E),
         centerTitle: true,
         elevation: 3,
@@ -28,18 +28,18 @@ class UserProfilePage extends StatelessWidget {
           }
 
           if (!snapshot.hasData || !snapshot.data!.exists) {
-            return const Center(child: Text("❌ لم يتم العثور على المستخدم."));
+            return const Center(child: Text("❌ not found data user."));
           }
 
           final data = snapshot.data!.data() as Map<String, dynamic>;
           final firstName = data['firstName'] ?? '';
           final lastName = data['lastName'] ?? '';
           final name = '$firstName $lastName'.trim().isEmpty
-              ? 'لا يوجد اسم'
+              ? 'not found name'
               : '$firstName $lastName';
-          final email = data['email'] ?? 'لا يوجد بريد';
-          final phone = data['phone'] ?? 'لا يوجد رقم';
-          final address = data['address'] ?? 'لا يوجد عنوان';
+          final email = data['email'] ?? 'not found email';
+          final phone = data['phone'] ?? 'not found phone';
+          final address = data['address'] ?? 'not found address';
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(20),
@@ -90,9 +90,9 @@ class UserProfilePage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 30),
-                _buildInfoCard(Icons.phone, "رقم الهاتف", phone),
+                _buildInfoCard(Icons.phone, "Phone number", phone),
                 const SizedBox(height: 10),
-                _buildInfoCard(Icons.home, "العنوان", address),
+                _buildInfoCard(Icons.home, "Address", address),
               ],
             ),
           );

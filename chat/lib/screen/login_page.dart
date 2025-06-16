@@ -82,9 +82,12 @@ class _LoginPageState extends State<LoginPage> {
           final userData = doc.data()!;
           log('User data loaded: $userData', name: 'LoginPage');
 
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Login successful')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Login successful'),
+              backgroundColor: Colors.green,
+            ),
+          );
 
           await Future.delayed(const Duration(milliseconds: 500));
 

@@ -5,37 +5,44 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-class RequestsPage extends StatelessWidget {
+class RequestsPage extends StatefulWidget {
   const RequestsPage({super.key});
 
+  @override
+  State<RequestsPage> createState() => _RequestsPageState();
+}
+
+class _RequestsPageState extends State<RequestsPage> {
+  final currentUser = FirebaseAuth.instance.currentUser;
+
   Future<void> respondToRequest(String requestId, String status) async {
-    if (kDebugMode) {
-      print('Responding to request $requestId with status: $status');
+    try {
+      await FirebaseFirestore.instance
+          .collection('requests')
+          .doc(requestId)
+          .update({'status': status});
+
+      if (kDebugMode) {
+        print('✅ Responded to request $requestId with status: $status');
+      }
+
+      setState(() {}); // لإعادة بناء الصفحة وإخفاء الطلب المقبول أو المرفوض
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error responding to request: $e');
+      }
     }
-    await FirebaseFirestore.instance
-        .collection('requests')
-        .doc(requestId)
-        .update({'status': status});
   }
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = FirebaseAuth.instance.currentUser;
-
     if (currentUser == null) {
-      if (kDebugMode) {
-        print('No user logged in.');
-      }
-      return const Center(child: Text("Please login first"));
-    }
-
-    if (kDebugMode) {
-      print('Fetching friend requests for UID: ${currentUser.uid}');
+      return const Scaffold(body: Center(child: Text("Please login first")));
     }
 
     final requestsStream = FirebaseFirestore.instance
         .collection('requests')
-        .where('to', isEqualTo: currentUser.uid)
+        .where('to', isEqualTo: currentUser!.uid)
         .where('status', isEqualTo: 'pending')
         .snapshots();
 
@@ -51,16 +58,10 @@ class RequestsPage extends StatelessWidget {
         stream: requestsStream,
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            if (kDebugMode) {
-              print('Loading requests...');
-            }
             return const Center(child: CircularProgressIndicator());
           }
 
           final requests = snapshot.data!.docs;
-          if (kDebugMode) {
-            print('Received ${requests.length} requests.');
-          }
 
           if (requests.isEmpty) {
             return const Center(
@@ -78,9 +79,6 @@ class RequestsPage extends StatelessWidget {
               final request = requests[index];
               final data = request.data() as Map<String, dynamic>;
               final fromUserId = data['from'];
-              if (kDebugMode) {
-                print('Request from user ID: $fromUserId');
-              }
 
               return FutureBuilder<DocumentSnapshot>(
                 future: FirebaseFirestore.instance
@@ -89,22 +87,13 @@ class RequestsPage extends StatelessWidget {
                     .get(),
                 builder: (context, userSnapshot) {
                   if (!userSnapshot.hasData) {
-                    return const ListTile(
-                      title: Text(
-                        "Loading...",
-                        style: TextStyle(color: Colors.black87),
-                      ),
-                    );
+                    return const ListTile(title: Text("Loading..."));
                   }
 
                   final userData =
                       userSnapshot.data!.data() as Map<String, dynamic>;
                   final name = userData['firstName'] ?? 'User';
                   final email = userData['email'] ?? '';
-
-                  if (kDebugMode) {
-                    print('User name: $name, email: $email');
-                  }
 
                   return Container(
                     margin: const EdgeInsets.symmetric(
@@ -151,14 +140,14 @@ class RequestsPage extends StatelessWidget {
                         children: [
                           IconButton(
                             icon: const Icon(Icons.check, color: Colors.green),
-                            onPressed: () {
-                              respondToRequest(request.id, 'accepted');
+                            onPressed: () async {
+                              await respondToRequest(request.id, 'accepted');
                             },
                           ),
                           IconButton(
                             icon: const Icon(Icons.close, color: Colors.red),
-                            onPressed: () {
-                              respondToRequest(request.id, 'rejected');
+                            onPressed: () async {
+                              await respondToRequest(request.id, 'rejected');
                             },
                           ),
                         ],

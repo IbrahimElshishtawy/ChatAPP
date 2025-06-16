@@ -1,9 +1,12 @@
+import 'package:chat/widget/custom_modelD.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({super.key});
+  final UserProfile? user;
+
+  const SearchPage({super.key, this.user});
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -12,23 +15,28 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   String searchTerm = "";
   final currentUser = FirebaseAuth.instance.currentUser;
+  Set<String> sentRequestUserIds = {};
 
   Future<void> sendRequest(String toUserId) async {
-    if (currentUser == null || currentUser?.uid == toUserId) return;
+    if (currentUser == null || currentUser!.uid == toUserId) return;
 
     final requestRef = FirebaseFirestore.instance.collection('requests');
 
     final existingRequest = await requestRef
-        .where('from', isEqualTo: currentUser?.uid)
+        .where('from', isEqualTo: currentUser!.uid)
         .where('to', isEqualTo: toUserId)
         .get();
 
     if (existingRequest.docs.isEmpty) {
       await requestRef.add({
-        'from': currentUser?.uid,
+        'from': currentUser!.uid,
         'to': toUserId,
         'status': 'pending',
         'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      setState(() {
+        sentRequestUserIds.add(toUserId);
       });
 
       // ignore: use_build_context_synchronously
@@ -52,11 +60,13 @@ class _SearchPageState extends State<SearchPage> {
   Stream<QuerySnapshot> getUserStream() {
     final usersRef = FirebaseFirestore.instance.collection('users');
 
-    return searchTerm.trim().isEmpty
-        ? usersRef.snapshots()
-        : usersRef
-              .where('searchKeywords', arrayContains: searchTerm.toLowerCase())
-              .snapshots();
+    if (searchTerm.trim().isEmpty) {
+      return usersRef.snapshots();
+    } else {
+      return usersRef
+          .where('searchKeywords', arrayContains: searchTerm.toLowerCase())
+          .snapshots();
+    }
   }
 
   @override
@@ -108,9 +118,10 @@ class _SearchPageState extends State<SearchPage> {
                 }
 
                 final docs = snapshot.data!.docs.where((doc) {
-                  final data = doc.data() as Map<String, dynamic>;
-                  if (doc.id == currentUser?.uid) return false;
+                  final userId = doc.id;
+                  if (sentRequestUserIds.contains(userId)) return false;
 
+                  final data = doc.data() as Map<String, dynamic>;
                   final name = (data['firstName'] ?? '').toLowerCase();
                   final email = (data['email'] ?? '').toLowerCase();
 
@@ -137,9 +148,21 @@ class _SearchPageState extends State<SearchPage> {
                   separatorBuilder: (_, __) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final data = docs[index].data() as Map<String, dynamic>;
-                    final name = data['firstName'] ?? 'No name';
-                    final email = data['email'] ?? '';
                     final userId = docs[index].id;
+                    final isCurrentUser = userId == currentUser?.uid;
+
+                    final rawName = data['firstName'];
+                    String name =
+                        (rawName != null &&
+                            rawName.toString().trim().isNotEmpty)
+                        ? rawName.toString()
+                        : '🚫 No name (incomplete profile)';
+
+                    if (isCurrentUser) {
+                      name += " (you)";
+                    }
+
+                    final email = data['email'] ?? '';
 
                     return AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
@@ -180,7 +203,9 @@ class _SearchPageState extends State<SearchPage> {
                           style: const TextStyle(color: Colors.grey),
                         ),
                         trailing: ElevatedButton.icon(
-                          onPressed: () => sendRequest(userId),
+                          onPressed: isCurrentUser
+                              ? null
+                              : () => sendRequest(userId),
                           icon: const Icon(Icons.send),
                           label: const Text("Send"),
                           style: ElevatedButton.styleFrom(

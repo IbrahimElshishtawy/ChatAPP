@@ -37,10 +37,10 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  void showSnack(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+  void showSnack(String message, {Color? backgroundColor}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: backgroundColor),
+    );
   }
 
   Color getIconColor(String text) {
@@ -231,12 +231,14 @@ class _RegisterPageState extends State<RegisterPage> {
                                   'lastName': lastName,
                                   'email': email,
                                   'address': address,
-                                  'phone': phone,
                                   'createdAt': Timestamp.now(),
                                 });
 
                             hideLoading(context);
-                            showSnack('Registration successful!');
+                            showSnack(
+                              'Registration successful!',
+                              backgroundColor: Colors.green,
+                            );
 
                             // امسح الحقول
                             firstNameController.clear();

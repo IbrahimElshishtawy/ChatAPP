@@ -1,18 +1,33 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:chat/widget/custom_modelD.dart'; // تأكد أن هذا الملف يحتوي على الكلاس UserProfile
+import 'package:chat/widget/custom_modelD.dart'; // تأكد أن فيه كلاس UserProfile
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key, required UserProfile user});
+  const ProfilePage({
+    super.key,
+    required UserProfile user,
+  }); // ✅ تم إزالة user من الكونستركتور
 
   @override
   Widget build(BuildContext context) {
-    // استقبال البيانات من الصفحة السابقة
-    final user = ModalRoute.of(context)!.settings.arguments as UserProfile?;
+    final args = ModalRoute.of(context)!.settings.arguments;
+
+    // تحقق من صحة البيانات
+    if (args == null || args is! UserProfile) {
+      if (kDebugMode) {
+        print("❌ No user data provided to ProfilePage.");
+      }
+      return Scaffold(
+        appBar: AppBar(title: const Text('Error')),
+        body: const Center(child: Text('No user data found.')),
+      );
+    }
+
+    final user = args;
 
     if (kDebugMode) {
       print("🧾 ProfilePage opened");
-      print("👤 User Data: ${user?.firstName} ${user?.lastName}");
+      print("👤 User Data: ${user.firstName} ${user.lastName}");
     }
 
     return Scaffold(
@@ -41,23 +56,18 @@ class ProfilePage extends StatelessWidget {
               child: Icon(Icons.person, size: 70, color: Colors.blueGrey[700]),
             ),
             const SizedBox(height: 20),
-            if (user != null)
-              Text(
-                '${user.firstName} ${user.lastName}',
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2C688E),
-                ),
+            Text(
+              '${user.firstName} ${user.lastName}',
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF2C688E),
               ),
-            const SizedBox(height: 30),
-            buildInfoCard(Icons.email, 'Email', user?.email ?? 'Not provided'),
-            buildInfoCard(Icons.phone, 'Phone', user?.phone ?? 'Not provided'),
-            buildInfoCard(
-              Icons.location_on,
-              'Address',
-              user?.address ?? 'Not provided',
             ),
+            const SizedBox(height: 30),
+            buildInfoCard(Icons.email, 'Email', user.email),
+            buildInfoCard(Icons.phone, 'Phone', user.phone),
+            buildInfoCard(Icons.location_on, 'Address', user.address),
             const SizedBox(height: 30),
             const Text(
               'Your account has been created successfully.',
@@ -70,20 +80,11 @@ class ProfilePage extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      if (user != null) {
-                        if (kDebugMode) {
-                          print("✏️ Navigating to EditProfile with user data");
-                        }
-                        Navigator.pushNamed(
-                          context,
-                          '/editProfile',
-                          arguments: user,
-                        );
-                      } else {
-                        if (kDebugMode) {
-                          print("❌ User is null. Cannot edit profile.");
-                        }
-                      }
+                      Navigator.pushNamed(
+                        context,
+                        '/editProfile',
+                        arguments: user,
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange,
@@ -103,9 +104,6 @@ class ProfilePage extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      if (kDebugMode) {
-                        print("↩️ Back to previous screen");
-                      }
                       Navigator.pop(context);
                     },
                     style: ElevatedButton.styleFrom(

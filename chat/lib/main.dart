@@ -1,16 +1,16 @@
-import 'package:chat/screen/Requests_Page.dart';
-import 'package:chat/screen/search_page.dart';
+import 'package:chat/screen/EditProfile_page.dart';
+import 'package:chat/widget/custom_modelD.dart'
+    as profile_page; // يحتوي على UserProfile
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-
 import 'package:chat/screen/login_page.dart';
 import 'package:chat/screen/rgister_page.dart';
 import 'package:chat/screen/home_page.dart';
 import 'package:chat/screen/profile_page.dart';
-import 'package:chat/screen/EditProfile_page.dart';
 import 'package:chat/screen/chat_page.dart';
-
-import 'package:chat/widget/custom_modelD.dart'; // يحتوي على كلاس UserProfile
+import 'package:chat/screen/Requests_Page.dart';
+import 'package:chat/screen/search_page.dart';
+import 'package:chat/widget/incoming_requests_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,47 +38,52 @@ class ChatApp extends StatelessWidget {
         '/home': (context) => const HomePage(),
         '/requests': (context) => const RequestsPage(),
         '/search': (context) => const SearchPage(),
+        '/incoming_requests': (context) => const IncomingRequestsPage(),
       },
       onGenerateRoute: (settings) {
-        if (settings.name == '/profile') {
-          if (settings.arguments is UserProfile) {
-            final user = settings.arguments as UserProfile;
-            return MaterialPageRoute(
-              builder: (context) => ProfilePage(user: user),
-            );
-          } else {
-            return _errorRoute('Invalid data for ProfilePage');
-          }
-        }
+        switch (settings.name) {
+          case '/profile':
+            final args = settings.arguments;
+            if (args is profile_page.UserProfile) {
+              // ignore: unnecessary_cast
+              return MaterialPageRoute(
+                builder: (_) =>
+                    // ignore: unnecessary_cast
+                    ProfilePage(user: args as profile_page.UserProfile),
+                settings: settings,
+              );
+            }
+            return _errorRoute('Invalid arguments for ProfilePage');
 
-        if (settings.name == '/editProfile') {
-          if (settings.arguments is UserProfile) {
-            final user = settings.arguments as UserProfile;
-            return MaterialPageRoute(
-              builder: (context) => EditProfilePage(user: user),
-            );
-          } else {
-            return _errorRoute('Invalid data for EditProfilePage');
-          }
-        }
+          case '/editProfile':
+            if (settings.arguments is profile_page.UserProfile) {
+              return MaterialPageRoute(
+                builder: (context) => EditProfilePage(
+                  user: settings.arguments as profile_page.UserProfile,
+                ),
+              );
+            } else {
+              return _errorRoute('Invalid data for EditProfilePage');
+            }
 
-        if (settings.name == '/chat') {
-          final args = settings.arguments as Map<String, dynamic>?;
-          if (args != null &&
-              args.containsKey('id') &&
-              args.containsKey('name')) {
-            return MaterialPageRoute(
-              builder: (context) => ChatPage(
-                otherUserId: args['id'],
-                otherUserName: args['name'],
-              ),
-            );
-          } else {
-            return _errorRoute('Invalid data for ChatPage');
-          }
-        }
+          case '/chat':
+            final args = settings.arguments as Map<String, dynamic>?;
+            if (args != null &&
+                args.containsKey('id') &&
+                args.containsKey('name')) {
+              return MaterialPageRoute(
+                builder: (context) => ChatPage(
+                  otherUserId: args['id'],
+                  otherUserName: args['name'],
+                ),
+              );
+            } else {
+              return _errorRoute('Invalid data for ChatPage');
+            }
 
-        return _errorRoute('Page Not Found');
+          default:
+            return _errorRoute('Page Not Found');
+        }
       },
     );
   }

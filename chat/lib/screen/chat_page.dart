@@ -61,7 +61,7 @@ class _ChatPageState extends State<ChatPage> {
 
       _messageController.clear();
     } catch (e) {
-      if (kDebugMode) print("❌ فشل إرسال الرسالة: $e");
+      if (kDebugMode) print("❌ Error sending message: $e");
     }
   }
 
@@ -261,7 +261,7 @@ class _ChatPageState extends State<ChatPage> {
                   child: TextField(
                     controller: _messageController,
                     decoration: InputDecoration(
-                      hintText: 'اكتب رسالتك هنا...',
+                      hintText: ' write massage here ...',
                       filled: true,
                       fillColor: const Color(0xFFF0F4F8),
                       contentPadding: const EdgeInsets.symmetric(
