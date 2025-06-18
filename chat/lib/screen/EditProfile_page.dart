@@ -50,7 +50,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     try {
       final user = widget.user;
 
-      // تحديث البيانات في Firestore
       await FirebaseFirestore.instance.collection('users').doc(user.id).update({
         'firstName': firstNameController.text.trim(),
         'lastName': lastNameController.text.trim(),
@@ -59,7 +58,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
         'address': addressController.text.trim(),
       });
 
-      // تحديث الباسورد (لو المستخدم كتبه)
       if (passwordController.text.trim().isNotEmpty) {
         try {
           await FirebaseAuth.instance.currentUser?.updatePassword(
@@ -81,7 +79,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
         }
       }
 
-      // إرسال البيانات المعدلة إلى الصفحة السابقة
       Navigator.pop(context, {
         'firstName': firstNameController.text.trim(),
         'lastName': lastNameController.text.trim(),

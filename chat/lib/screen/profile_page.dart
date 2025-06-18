@@ -64,7 +64,7 @@ class ProfilePage extends StatelessWidget {
             buildInfoCard(Icons.email, 'Email', user.email),
             buildInfoCard(Icons.phone, 'Phone', user.phone),
             buildInfoCard(Icons.location_on, 'Address', user.address),
-            const SizedBox(height: 120),
+            const SizedBox(height: 10),
             const SizedBox(height: 30),
             Row(
               children: [

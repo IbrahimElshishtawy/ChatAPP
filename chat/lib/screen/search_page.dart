@@ -58,15 +58,8 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Stream<QuerySnapshot> getUserStream() {
-    final usersRef = FirebaseFirestore.instance.collection('users');
-
-    if (searchTerm.trim().isEmpty) {
-      return usersRef.snapshots();
-    } else {
-      return usersRef
-          .where('searchKeywords', arrayContains: searchTerm.toLowerCase())
-          .snapshots();
-    }
+    // ❌ حذف البحث باستخدام searchKeywords
+    return FirebaseFirestore.instance.collection('users').snapshots();
   }
 
   @override
@@ -145,7 +138,7 @@ class _SearchPageState extends State<SearchPage> {
                     vertical: 8,
                   ),
                   itemCount: docs.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 12),
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final data = docs[index].data() as Map<String, dynamic>;
                     final userId = docs[index].id;
@@ -156,11 +149,9 @@ class _SearchPageState extends State<SearchPage> {
                         (rawName != null &&
                             rawName.toString().trim().isNotEmpty)
                         ? rawName.toString()
-                        : 'No name (this profile test ui only)';
+                        : 'No name';
 
-                    if (isCurrentUser) {
-                      name += " (you)";
-                    }
+                    if (isCurrentUser) name += " (you)";
 
                     final email = data['email'] ?? '';
 
@@ -182,10 +173,10 @@ class _SearchPageState extends State<SearchPage> {
                           vertical: 10,
                           horizontal: 16,
                         ),
-                        leading: CircleAvatar(
+                        leading: const CircleAvatar(
                           radius: 26,
-                          backgroundColor: const Color(0xFF2C688E),
-                          child: const Icon(
+                          backgroundColor: Color(0xFF2C688E),
+                          child: Icon(
                             Icons.person,
                             color: Colors.white,
                             size: 24,

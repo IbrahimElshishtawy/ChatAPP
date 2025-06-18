@@ -2,6 +2,7 @@ import 'package:chat/screen/EditProfile_page.dart';
 import 'package:chat/widget/custom_modelD.dart' as profile_page;
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // ✅ مهم
 import 'package:chat/screen/login_page.dart';
 import 'package:chat/screen/rgister_page.dart';
 import 'package:chat/screen/home_page.dart';
@@ -37,12 +38,25 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> initializeApp() async {
     WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp();
-    // بعد التهيئة انتقل للتطبيق
-    Navigator.pushReplacement(
-      // ignore: use_build_context_synchronously
-      context,
-      MaterialPageRoute(builder: (_) => const ChatApp()),
-    );
+
+    final currentUser = FirebaseAuth.instance.currentUser;
+
+    // ignore: use_build_context_synchronously
+    if (currentUser != null) {
+      Navigator.pushReplacement(
+        // ignore: use_build_context_synchronously
+        context,
+        MaterialPageRoute(builder: (_) => const ChatApp(initialRoute: '/home')),
+      );
+    } else {
+      Navigator.pushReplacement(
+        // ignore: use_build_context_synchronously
+        context,
+        MaterialPageRoute(
+          builder: (_) => const ChatApp(initialRoute: '/login'),
+        ),
+      );
+    }
   }
 
   @override
@@ -55,7 +69,8 @@ class _SplashScreenState extends State<SplashScreen> {
 }
 
 class ChatApp extends StatelessWidget {
-  const ChatApp({super.key});
+  final String initialRoute;
+  const ChatApp({super.key, required this.initialRoute});
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +81,7 @@ class ChatApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      initialRoute: '/',
+      initialRoute: initialRoute, // ✅ يجي من SplashScreen
       routes: {
         '/': (context) => const LoginPage(),
         '/login': (context) => const LoginPage(),
@@ -82,9 +97,7 @@ class ChatApp extends StatelessWidget {
             final args = settings.arguments;
             if (args is profile_page.UserProfile) {
               return MaterialPageRoute(
-                builder: (_) =>
-                    // ignore: unnecessary_cast
-                    ProfilePage(user: args as profile_page.UserProfile),
+                builder: (_) => ProfilePage(user: args),
                 settings: settings,
               );
             }

@@ -73,16 +73,14 @@ class _LoginPageState extends State<LoginPage> {
         if (kDebugMode) {
           print("✅ User Data Loaded: $userData");
         }
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Login successful')));
+
         await Future.delayed(const Duration(milliseconds: 500));
         Navigator.pushReplacementNamed(context, '/home', arguments: userData);
       } else {
+        await FirebaseAuth.instance.signOut();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('User data not found in Firestore')),
         );
-        await FirebaseAuth.instance.signOut();
       }
     } on FirebaseAuthException catch (e) {
       String message = 'Login failed';
@@ -151,14 +149,12 @@ class _LoginPageState extends State<LoginPage> {
                 labeltext: 'Email',
                 obscureText: false,
                 onChanged: (val) {
-                  setState(() {}); // يحدث الأيقونة أثناء الكتابة
+                  setState(() {});
                 },
                 suffixIcon: Builder(
                   builder: (context) {
                     final email = emailController.text.trim();
-                    final emailRegex = RegExp(
-                      r'^[\w-\.]+@gmail\.com$',
-                    ); // تحقق من @gmail.com فقط
+                    final emailRegex = RegExp(r'^[\w-\.]+@gmail\.com$');
 
                     if (email.isEmpty) {
                       return const Icon(
@@ -206,14 +202,15 @@ class _LoginPageState extends State<LoginPage> {
               ),
 
               const SizedBox(height: 30),
-              CustomBtn(
-                textbtn: isLoading ? 'Loading...' : 'Login',
-                onPressed: () async {
-                  if (!isLoading) {
-                    await loginUser();
-                  }
-                },
-              ),
+
+              isLoading
+                  ? const CircularProgressIndicator()
+                  : CustomBtn(
+                      textbtn: 'Login',
+                      onPressed: () async {
+                        await loginUser();
+                      },
+                    ),
 
               const SizedBox(height: 15),
               Row(
