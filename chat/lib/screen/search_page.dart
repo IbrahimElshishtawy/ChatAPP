@@ -145,7 +145,7 @@ class _SearchPageState extends State<SearchPage> {
                     vertical: 8,
                   ),
                   itemCount: docs.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  separatorBuilder: (_, _) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final data = docs[index].data() as Map<String, dynamic>;
                     final userId = docs[index].id;
@@ -156,7 +156,7 @@ class _SearchPageState extends State<SearchPage> {
                         (rawName != null &&
                             rawName.toString().trim().isNotEmpty)
                         ? rawName.toString()
-                        : '🚫 No name (incomplete profile)';
+                        : 'No name (this profile test ui only)';
 
                     if (isCurrentUser) {
                       name += " (you)";

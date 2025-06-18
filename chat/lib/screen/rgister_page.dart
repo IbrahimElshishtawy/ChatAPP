@@ -17,12 +17,44 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
 
+  final firstNameController = TextEditingController();
+  final lastNameController = TextEditingController();
+  final addressController = TextEditingController();
+  final emailController = TextEditingController();
+  final phoneController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+
+  late final List<TextEditingController> controllers = [
+    firstNameController,
+    lastNameController,
+    addressController,
+    emailController,
+    phoneController,
+    passwordController,
+    confirmPasswordController,
+  ];
+
+  late final VoidCallback _listener;
+
   @override
   void initState() {
     super.initState();
+    _listener = () {
+      if (mounted) setState(() {});
+    };
     for (var controller in controllers) {
-      controller.addListener(() => setState(() {}));
+      controller.addListener(_listener);
     }
+  }
+
+  @override
+  void dispose() {
+    for (var controller in controllers) {
+      controller.removeListener(_listener);
+      controller.dispose();
+    }
+    super.dispose();
   }
 
   void hideLoading(BuildContext context) {
@@ -182,7 +214,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       CustomBtn(
                         textbtn: 'Register',
                         onPressed: () async {
-                          if (!_formKey.currentState!.validate()) return;
+                          if (!_formKey.currentState!.validate()) {
+                            return;
+                          }
 
                           final email = emailController.text.trim();
                           final password = passwordController.text.trim();
@@ -234,22 +268,26 @@ class _RegisterPageState extends State<RegisterPage> {
                                   'createdAt': Timestamp.now(),
                                 });
 
+                            if (!mounted) return;
                             hideLoading(context);
                             showSnack(
                               'Registration successful!',
                               backgroundColor: Colors.green,
                             );
 
-                            // امسح الحقول
-                            firstNameController.clear();
-                            lastNameController.clear();
-                            emailController.clear();
-                            addressController.clear();
-                            phoneController.clear();
-                            passwordController.clear();
-                            confirmPasswordController.clear();
+                            Navigator.pop(context);
+
+                            if (mounted) {
+                              firstNameController.clear();
+                              lastNameController.clear();
+                              emailController.clear();
+                              addressController.clear();
+                              phoneController.clear();
+                              passwordController.clear();
+                              confirmPasswordController.clear();
+                            }
                           } on FirebaseAuthException catch (e) {
-                            hideLoading(context);
+                            if (mounted) hideLoading(context);
                             String message = 'Registration failed';
                             if (e.code == 'email-already-in-use') {
                               message = 'This email is already in use.';
@@ -258,10 +296,12 @@ class _RegisterPageState extends State<RegisterPage> {
                             } else if (e.code == 'invalid-email') {
                               message = 'Invalid email format.';
                             }
-                            showSnack(message);
+                            if (mounted) showSnack(message);
                           } catch (e) {
-                            hideLoading(context);
-                            showSnack('An error occurred. Please try again.');
+                            if (mounted) {
+                              hideLoading(context);
+                              showSnack('An error occurred. Please try again.');
+                            }
                           }
                         },
                       ),

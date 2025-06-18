@@ -1,18 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:chat/widget/custom_modelD.dart'; // تأكد أن فيه كلاس UserProfile
+import 'package:chat/widget/custom_modelD.dart'; // يحتوي على كلاس UserProfile
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({
-    super.key,
-    required UserProfile user,
-  }); // ✅ تم إزالة user من الكونستركتور
+  const ProfilePage({super.key, required UserProfile user});
 
   @override
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)!.settings.arguments;
 
-    // تحقق من صحة البيانات
     if (args == null || args is! UserProfile) {
       if (kDebugMode) {
         print("❌ No user data provided to ProfilePage.");
@@ -68,26 +64,37 @@ class ProfilePage extends StatelessWidget {
             buildInfoCard(Icons.email, 'Email', user.email),
             buildInfoCard(Icons.phone, 'Phone', user.phone),
             buildInfoCard(Icons.location_on, 'Address', user.address),
-            const SizedBox(height: 30),
-            const Text(
-              'Your account has been created successfully.',
-              style: TextStyle(color: Colors.grey, fontSize: 14),
-              textAlign: TextAlign.center,
-            ),
+            const SizedBox(height: 120),
             const SizedBox(height: 30),
             Row(
               children: [
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.pushNamed(
+                    onPressed: () async {
+                      final result = await Navigator.pushNamed(
                         context,
                         '/editProfile',
                         arguments: user,
                       );
+
+                      if (result != null && result is Map) {
+                        Navigator.pushReplacementNamed(
+                          // ignore: use_build_context_synchronously
+                          context,
+                          '/profile',
+                          arguments: UserProfile(
+                            id: user.id,
+                            firstName: result['firstName'] ?? user.firstName,
+                            lastName: result['lastName'] ?? user.lastName,
+                            email: result['email'] ?? user.email,
+                            phone: result['phone'] ?? user.phone,
+                            address: result['address'] ?? user.address,
+                          ),
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
+                      backgroundColor: const Color.fromARGB(255, 206, 202, 198),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -101,22 +108,6 @@ class ProfilePage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    icon: const Icon(Icons.arrow_back),
-                    label: const Text('Back', style: TextStyle(fontSize: 16)),
-                  ),
-                ),
               ],
             ),
           ],
@@ -126,10 +117,6 @@ class ProfilePage extends StatelessWidget {
   }
 
   Widget buildInfoCard(IconData icon, String title, String value) {
-    if (kDebugMode) {
-      print("📌 Displaying $title: $value");
-    }
-
     return Card(
       elevation: 3,
       shadowColor: Colors.black26,

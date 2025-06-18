@@ -32,7 +32,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     emailController = TextEditingController(text: user.email);
     phoneController = TextEditingController(text: user.phone);
     addressController = TextEditingController(text: user.address);
-    passwordController = TextEditingController(); // فارغ في البداية
+    passwordController = TextEditingController(); // مبدأيًا فاضي
   }
 
   @override
@@ -59,7 +59,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         'address': addressController.text.trim(),
       });
 
-      // إذا المستخدم كتب باسورد جديد
+      // تحديث الباسورد (لو المستخدم كتبه)
       if (passwordController.text.trim().isNotEmpty) {
         try {
           await FirebaseAuth.instance.currentUser?.updatePassword(
@@ -81,11 +81,18 @@ class _EditProfilePageState extends State<EditProfilePage> {
         }
       }
 
+      // إرسال البيانات المعدلة إلى الصفحة السابقة
+      Navigator.pop(context, {
+        'firstName': firstNameController.text.trim(),
+        'lastName': lastNameController.text.trim(),
+        'email': emailController.text.trim(),
+        'phone': phoneController.text.trim(),
+        'address': addressController.text.trim(),
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profile updated successfully')),
       );
-
-      Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(
         context,

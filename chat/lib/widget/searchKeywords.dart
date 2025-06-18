@@ -31,7 +31,7 @@ Future<void> registerUser() async {
   });
 }
 
-generateSearchKeywords(String firstName, String email) {
+List<String> generateSearchKeywords(String firstName, String email) {
   final keywords = <String>[];
 
   if (firstName.isNotEmpty) {
