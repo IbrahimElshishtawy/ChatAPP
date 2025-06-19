@@ -2,7 +2,7 @@ import 'package:chat/screen/EditProfile_page.dart';
 import 'package:chat/widget/custom_modelD.dart' as profile_page;
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // ✅ مهم
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:chat/screen/login_page.dart';
 import 'package:chat/screen/rgister_page.dart';
 import 'package:chat/screen/home_page.dart';
@@ -14,10 +14,7 @@ import 'package:chat/widget/incoming_requests_page.dart';
 
 void main() {
   runApp(
-    const MaterialApp(
-      home: SplashScreen(), // شاشة تحميل مؤقتة بدل شاشة سوداء
-      debugShowCheckedModeBanner: false,
-    ),
+    const MaterialApp(home: SplashScreen(), debugShowCheckedModeBanner: false),
   );
 }
 
