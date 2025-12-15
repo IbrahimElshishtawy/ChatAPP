@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'routes.dart';
-import 'bindings.dart';
+import 'routes/routes.dart';
+import 'bindings/bindings.dart';
 
 class ChatApp extends StatelessWidget {
   const ChatApp({super.key});
