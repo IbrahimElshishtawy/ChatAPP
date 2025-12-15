@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/auth/auth_controller.dart';
-import '../../app/routes.dart';
+import '../../app/routes/routes.dart';
 
 class SplashPage extends StatelessWidget {
   const SplashPage({super.key});
