@@ -1,3 +1,4 @@
+import 'package:chat/core/services/notification_service.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../core/services/auth_service.dart';
@@ -11,6 +12,11 @@ class AuthController extends GetxController {
   @override
   void onInit() {
     user.bindStream(_service.authStateChanges());
+    ever(user, (u) {
+      if (u != null) {
+        NotificationService().initAndSaveToken();
+      }
+    });
     super.onInit();
   }
 
