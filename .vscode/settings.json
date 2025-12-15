@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "D:/chz/ChatAPP/chat/linux"
+    "cmake.sourceDirectory": "D:/chz/ChatAPP/chat/linux",
+    "cmake.ignoreCMakeListsMissing": true
 }
