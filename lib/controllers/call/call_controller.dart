@@ -8,12 +8,13 @@ import '../../core/services/call_service.dart';
 class CallController extends GetxController {
   final CallService _service = CallService();
   final String _uid = FirebaseAuth.instance.currentUser!.uid;
-
+  final calls = <CallModel>[].obs;
   Rx<CallModel?> incomingCall = Rx<CallModel?>(null);
   StreamSubscription? _sub;
 
   @override
   void onInit() {
+    calls.bindStream(_service.callHistory(_uid));
     super.onInit();
     _listenIncomingCalls();
   }
@@ -45,6 +46,9 @@ class CallController extends GetxController {
     await _service.updateCallStatus(callId, CallStatus.ended);
     incomingCall.value = null;
   }
+
+  bool isMissed(CallModel call) =>
+      call.status == CallStatus.missed && call.receiverId == _uid;
 
   @override
   void onClose() {
