@@ -28,7 +28,7 @@ class ChatPage extends StatelessWidget {
         title: Text(otherUserName),
         actions: [
           IconButton(
-            icon: const Icon(Icons.call),
+            icon: const Icon(Icons.videocam),
             onPressed: () async {
               final callId = DateTime.now().millisecondsSinceEpoch.toString();
 
@@ -38,7 +38,7 @@ class ChatPage extends StatelessWidget {
                   callerId: currentUserId,
                   receiverId: otherUserId,
                   channelName: callId,
-                  type: CallType.voice,
+                  type: CallType.video,
                   status: CallStatus.ringing,
                 ),
               );
