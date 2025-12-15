@@ -1,3 +1,4 @@
+import 'package:chat/screens/call/video_call_page.dart';
 import 'package:chat/screens/call/voice_call_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -52,11 +53,19 @@ class IncomingCallPage extends StatelessWidget {
                         onPressed: () async {
                           await ctrl.acceptCall(call.callId);
 
-                          Get.off(
-                            () => VoiceCallPage(channelName: call.channelName),
-                          );
-                          ;
+                          if (call.type == CallType.voice) {
+                            Get.off(
+                              () =>
+                                  VoiceCallPage(channelName: call.channelName),
+                            );
+                          } else {
+                            Get.off(
+                              () =>
+                                  VideoCallPage(channelName: call.channelName),
+                            );
+                          }
                         },
+
                         icon: const Icon(Icons.call),
                         label: const Text('قبول'),
                       ),
