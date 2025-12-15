@@ -20,6 +20,7 @@ class ChatPage extends StatelessWidget {
     final ctrl = Get.find<ChatController>();
     final chatId = ctrl.openChat(otherUserId);
     final textCtrl = TextEditingController();
+    final createdAt = DateTime.now();
 
     final currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
@@ -40,6 +41,7 @@ class ChatPage extends StatelessWidget {
                   channelName: callId,
                   type: CallType.video,
                   status: CallStatus.ringing,
+                  createdAt: createdAt,
                 ),
               );
             },
