@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../core/services/call_service.dart';
