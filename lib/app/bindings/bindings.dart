@@ -15,5 +15,8 @@ class InitialBinding extends Bindings {
     Get.put(CallController(), permanent: true);
     Get.put(CallHistoryController(), permanent: true);
     Get.put(SettingsController(), permanent: true);
+    Get.lazyPut(() => ChatController(), fenix: true);
+    Get.lazyPut(() => CallController(), fenix: true);
+    Get.lazyPut(() => CallHistoryController(), fenix: true);
   }
 }
