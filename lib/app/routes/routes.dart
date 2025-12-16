@@ -1,23 +1,20 @@
-import 'package:chat/core/models/user_model.dart';
-import 'package:chat/screen/chat_page.dart';
-import 'package:chat/screen/home_page.dart';
-import 'package:chat/screen/login_page.dart';
-import 'package:chat/screen/rgister_page.dart';
-import 'package:chat/screens/auth/login_page.dart';
-import 'package:chat/screens/auth/register_page.dart';
-import 'package:chat/screens/call/call_history_page.dart';
-import 'package:chat/screens/chat/chat_page.dart';
-import 'package:chat/screens/community/community_page.dart';
-import 'package:chat/screens/group/groups_page.dart';
-import 'package:chat/screens/home/home_page.dart';
-import 'package:chat/screens/notifications/notifications_page.dart';
-import 'package:chat/screens/settings/settings_page.dart';
-import 'package:chat/screens/splash/splash_page.dart';
-import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-// ===== Screens =====
+import 'route_animations.dart';
+
+// Screens (استخدم المسارات الجديدة فقط)
+import '../../screens/splash/splash_page.dart';
+import '../../screens/auth/login_page.dart';
+import '../../screens/auth/register_page.dart';
+import '../../screens/home/home_page.dart';
 import '../../screens/profile/profile_page.dart';
+import '../../screens/settings/settings_page.dart';
+import '../../screens/chat/chat_page.dart';
+import '../../screens/group/groups_page.dart';
+import '../../screens/community/community_page.dart';
+import '../../screens/notifications/notifications_page.dart';
+import '../../screens/call/call_history_page.dart';
 
 class AppRoutes {
   // ===== Route Names =====
@@ -40,63 +37,61 @@ class AppRoutes {
 
   // ===== Pages =====
   static final pages = <GetPage>[
-    /// Splash
+    // Splash
     GetPage(name: splash, page: () => const SplashPage()),
 
-    /// Auth
+    // Auth
     GetPage(name: login, page: () => const LoginPage()),
-    GetPage(name: register, page: () => const RegisterPage()),
 
-    /// Home (Main Navigation)
-    GetPage(name: home, page: () => const HomePage()),
-
-    /// Profile (with arguments)
     GetPage(
-      name: profile,
-      page: () {
-        final args = Get.arguments;
-
-        if (args == null || args is! UserModel) {
-          return const Scaffold(
-            body: Center(child: Text('❌ لم يتم تمرير بيانات المستخدم')),
-          );
-        }
-
-        return ProfilePage();
-      },
+      name: AppRoutes.register,
+      page: () => const RegisterPage(),
+      customTransition: ScaleFadeTransition(),
+      transitionDuration: const Duration(milliseconds: 600),
     ),
 
-    /// Settings
+    // Home
+    GetPage(name: home, page: () => const HomePage()),
+
+    // Profile
+    GetPage(name: profile, page: () => const ProfilePage()),
+
+    // Settings
     GetPage(name: settings, page: () => const SettingsPage()),
 
-    /// Chat (Private Chat)
+    // Chat
     GetPage(
       name: chat,
       page: () {
         final args = Get.arguments as Map<String, dynamic>?;
 
         if (args == null ||
-            !args.containsKey('id') ||
-            !args.containsKey('name')) {
+            args['id'] == null ||
+            args['name'] == null ||
+            args['id'] is! String ||
+            args['name'] is! String) {
           return const Scaffold(
             body: Center(child: Text('❌ بيانات الشات غير صحيحة')),
           );
         }
 
-        return ChatPage(otherUserId: args['id'], otherUserName: args['name']);
+        return ChatPage(
+          otherUserId: args['id'] as String,
+          otherUserName: args['name'] as String,
+        );
       },
     ),
 
-    /// Groups
+    // Groups
     GetPage(name: groups, page: () => const GroupsPage()),
 
-    /// Community
+    // Community
     GetPage(name: community, page: () => const CommunityPage()),
 
-    /// Notifications
+    // Notifications
     GetPage(name: notifications, page: () => const NotificationsPage()),
 
-    /// Call History
+    // Call History
     GetPage(name: callHistory, page: () => const CallHistoryPage()),
   ];
 }
