@@ -1,10 +1,10 @@
 import 'package:chat/controllers/chat/chat_controller.dart';
-import 'package:chat/screen/chat_page.dart';
 import 'package:chat/screens/chat/chat_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../../controllers/auth/auth_controller.dart';
 import '../../controllers/user/user_controller.dart';
 import '../../app/routes/routes.dart';
@@ -16,19 +16,26 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final auth = Get.find<AuthController>();
     final userCtrl = Get.find<UserController>();
+    final chatCtrl = Get.find<ChatController>();
 
-    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      return const Scaffold(body: Center(child: Text('User not logged in')));
+    }
+
+    final uid = currentUser.uid;
 
     final chatsRef = FirebaseFirestore.instance
         .collection('chats')
         .where('members', arrayContains: uid);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: const Text('Chats'),
         actions: [
           IconButton(
             icon: const Icon(Icons.person),
-            onPressed: () => Get.toNamed('/profile'),
+            onPressed: () => Get.toNamed(AppRoutes.profile),
           ),
           IconButton(
             icon: const Icon(Icons.logout),
@@ -40,40 +47,66 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-      body: StreamBuilder(
+      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
         stream: chatsRef.snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
+          }
+
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text('No chats yet'));
           }
 
           final chats = snapshot.data!.docs;
 
-          if (chats.isEmpty) {
-            return const Center(child: Text('No chats yet'));
-          }
-
           return ListView.builder(
             itemCount: chats.length,
             itemBuilder: (_, i) {
-              final chat = chats[i];
-              final chatId = chat.id;
-              final members = List<String>.from(chat['members']);
-              final otherUserId = members.firstWhere((e) => e != uid);
+              final chatDoc = chats[i];
+              final chatId = chatDoc.id;
 
-              final chatCtrl = Get.find<ChatController>();
+              final members = List<String>.from(
+                chatDoc.data()['members'] ?? [],
+              );
+
+              final otherUserId = members.firstWhere(
+                (id) => id != uid,
+                orElse: () => '',
+              );
+
+              if (otherUserId.isEmpty) {
+                return const SizedBox();
+              }
 
               return ListTile(
-                title: Text('Chat'),
-                subtitle: StreamBuilder(
-                  stream: chatCtrl.getLastMessage(chatId),
-                  builder: (_, snap) => Text(snap.data ?? ''),
+                leading: const CircleAvatar(child: Icon(Icons.person)),
+
+                title: const Text(
+                  'Chat',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
+
+                // ✅ Last message as Stream
+                subtitle: StreamBuilder<String>(
+                  stream: chatCtrl.getLastMessageStream(chatId),
+                  builder: (_, snap) {
+                    return Text(
+                      snap.data ?? '',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    );
+                  },
+                ),
+
+                // ✅ Unread message count as Stream
                 trailing: StreamBuilder<int>(
-                  stream: chatCtrl.getUnread(chatId),
+                  stream: chatCtrl.getUnreadMessagesStream(chatId),
                   builder: (_, snap) {
                     final count = snap.data ?? 0;
                     if (count == 0) return const SizedBox();
+
                     return CircleAvatar(
                       radius: 12,
                       backgroundColor: Colors.red,
@@ -87,7 +120,10 @@ class HomePage extends StatelessWidget {
                     );
                   },
                 ),
+
                 onTap: () {
+                  if (!chatCtrl.canOpenChat(otherUserId)) return;
+
                   Get.to(
                     () => ChatPage(
                       otherUserId: otherUserId,
