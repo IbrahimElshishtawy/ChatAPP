@@ -1,3 +1,4 @@
+import 'package:chat/app/bindings/auth_bindings.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -41,11 +42,16 @@ class AppRoutes {
     GetPage(name: splash, page: () => const SplashPage()),
 
     // Auth
-    GetPage(name: login, page: () => const LoginPage()),
+    GetPage(
+      name: AppRoutes.login,
+      page: () => const LoginPage(),
+      binding: AuthBindings(),
+    ),
 
     GetPage(
       name: AppRoutes.register,
       page: () => const RegisterPage(),
+      binding: AuthBindings(),
       customTransition: ScaleFadeTransition(),
       transitionDuration: const Duration(milliseconds: 600),
     ),
