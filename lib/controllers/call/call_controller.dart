@@ -2,36 +2,69 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+
 import '../../core/models/call_model.dart';
 import '../../core/services/call_service.dart';
 
 class CallController extends GetxController {
   final CallService _service = CallService();
-  final String _uid = FirebaseAuth.instance.currentUser!.uid;
+
   final calls = <CallModel>[].obs;
-  Rx<CallModel?> incomingCall = Rx<CallModel?>(null);
-  StreamSubscription? _sub;
+  final Rx<CallModel?> incomingCall = Rx<CallModel?>(null);
+
+  StreamSubscription<User?>? _authSub;
+  StreamSubscription? _incomingSub;
+  StreamSubscription? _historySub;
+
+  String? get _uid => FirebaseAuth.instance.currentUser?.uid;
 
   @override
   void onInit() {
-    calls.bindStream(_service.callHistory(_uid));
     super.onInit();
-    _listenIncomingCalls();
+
+    // ✅ نسمع لتغير حالة تسجيل الدخول
+    _authSub = FirebaseAuth.instance.authStateChanges().listen((user) {
+      if (user != null) {
+        _start(user.uid);
+      } else {
+        _clear();
+      }
+    });
   }
 
-  void _listenIncomingCalls() {
-    _sub?.cancel();
-    _sub = _service.listenIncomingCalls(_uid).listen((QuerySnapshot snap) {
+  void _start(String uid) {
+    _incomingSub?.cancel();
+    _historySub?.cancel();
+
+    // 📞 سجل المكالمات
+    _historySub = _service.callHistory(uid).listen((list) {
+      calls.assignAll(list);
+    });
+
+    // 📲 مكالمة واردة
+    _incomingSub = _service.listenIncomingCalls(uid).listen((
+      QuerySnapshot snap,
+    ) {
       if (snap.docs.isEmpty) {
         incomingCall.value = null;
         return;
       }
 
-      final doc = snap.docs.first;
-      final data = doc.data() as Map<String, dynamic>;
+      final data = snap.docs.first.data() as Map<String, dynamic>;
       incomingCall.value = CallModel.fromMap(data);
     });
   }
+
+  void _clear() {
+    calls.clear();
+    incomingCall.value = null;
+    _incomingSub?.cancel();
+    _historySub?.cancel();
+  }
+
+  // =========================
+  // Actions
+  // =========================
 
   Future<void> acceptCall(String callId) async {
     await _service.updateCallStatus(callId, CallStatus.accepted);
@@ -47,12 +80,17 @@ class CallController extends GetxController {
     incomingCall.value = null;
   }
 
-  bool isMissed(CallModel call) =>
-      call.status == CallStatus.missed && call.receiverId == _uid;
+  bool isMissed(CallModel call) {
+    final uid = _uid;
+    if (uid == null) return false;
+    return call.status == CallStatus.missed && call.receiverId == uid;
+  }
 
   @override
   void onClose() {
-    _sub?.cancel();
+    _authSub?.cancel();
+    _incomingSub?.cancel();
+    _historySub?.cancel();
     super.onClose();
   }
 }
