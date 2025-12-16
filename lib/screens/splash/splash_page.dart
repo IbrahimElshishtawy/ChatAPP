@@ -1,23 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../../controllers/auth/auth_controller.dart';
 import '../../app/routes/routes.dart';
 
-class SplashPage extends StatelessWidget {
+class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final auth = Get.find<AuthController>();
+  State<SplashPage> createState() => _SplashPageState();
+}
 
-    return Obx(() {
-      if (auth.user.value == null) {
-        Future.microtask(() => Get.offAllNamed(AppRoutes.login));
-      } else {
-        Future.microtask(() => Get.offAllNamed(AppRoutes.home));
-      }
+class _SplashPageState extends State<SplashPage> {
+  late final AuthController auth;
 
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+  @override
+  void initState() {
+    super.initState();
+    auth = Get.find<AuthController>();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // ⏳ نفذ بعد أول frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _handleNavigation();
     });
+  }
+
+  void _handleNavigation() {
+    final user = auth.user.value;
+
+    if (user == null) {
+      Get.offAllNamed(AppRoutes.login);
+    } else {
+      Get.offAllNamed(AppRoutes.home);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }
