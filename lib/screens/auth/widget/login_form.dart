@@ -9,7 +9,7 @@ class LoginForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = Get.put(LoginFormController());
+    final c = Get.find<LoginFormController>();
 
     return Form(
       key: c.formKey,
