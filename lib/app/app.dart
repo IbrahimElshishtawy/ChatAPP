@@ -1,7 +1,8 @@
+import 'package:chat/app/bindings/bindings.dart';
 import 'package:chat/app/routes/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/theme/theme_controller.dart';
+
 import '../core/theme/app_theme.dart';
 
 class ChatApp extends StatelessWidget {
@@ -9,18 +10,18 @@ class ChatApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeCtrl = Get.find<ThemeController>();
+    return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Chat App',
 
-    return Obx(
-      () => GetMaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Chat App',
-        theme: AppTheme.light,
-        darkTheme: AppTheme.dark,
-        themeMode: themeCtrl.themeMode,
-        initialRoute: AppRoutes.splash,
-        getPages: AppRoutes.pages,
-      ),
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: ThemeMode.light, // default
+
+      initialRoute: AppRoutes.splash,
+      getPages: AppRoutes.pages,
+
+      initialBinding: InitialBinding(),
     );
   }
 }
