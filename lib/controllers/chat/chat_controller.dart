@@ -1,57 +1,67 @@
-import 'package:chat/core/utils/password_helper.dart';
-import 'package:get/get.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../core/services/chat_service.dart';
-import '../../core/models/message_model.dart';
+import 'package:get/get.dart';
 
 class ChatController extends GetxController {
-  final ChatService _service = ChatService();
-  final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  RxString activeChatId = ''.obs;
+  /// ❌ لا تعمل ! هنا
+  String? get currentUserId => _auth.currentUser?.uid;
 
+  /// فتح شات
   String openChat(String otherUserId) {
-    final chatId = _service.getChatId(currentUserId, otherUserId);
-    activeChatId.value = chatId;
-    return chatId;
+    final uid = currentUserId;
+    if (uid == null) {
+      throw Exception('User not logged in');
+    }
+
+    final ids = [uid, otherUserId]..sort();
+    return ids.join('_');
   }
 
-  Stream getMessagesStream(String chatId) {
-    return _service.getMessages(chatId);
+  /// Stream الرسائل
+  Stream<QuerySnapshot<Map<String, dynamic>>> getMessagesStream(String chatId) {
+    return _firestore
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .orderBy('createdAt', descending: true)
+        .snapshots();
   }
 
+  /// إرسال رسالة
   Future<void> send(String chatId, String text, List<String> members) async {
-    final msg = MessageModel(
-      id: '',
-      senderId: currentUserId,
-      text: text,
-      createdAt: DateTime.now(),
-      isSeen: false,
+    final uid = currentUserId;
+    if (uid == null) return;
+
+    await _firestore.collection('chats').doc(chatId).collection('messages').add(
+      {
+        'text': text,
+        'senderId': uid,
+        'members': members,
+        'createdAt': FieldValue.serverTimestamp(),
+        'seenBy': [uid],
+      },
     );
-
-    await _service.sendMessage(chatId: chatId, message: msg, members: members);
   }
 
+  /// تعليم الرسائل كمقروءة
   Future<void> markSeen(String chatId) async {
-    await _service.markMessagesAsSeen(chatId, currentUserId);
-  }
+    final uid = currentUserId;
+    if (uid == null) return;
 
-  Future<bool> canOpenChat(String chatId, String enteredPassword) async {
-    final data = await _service.getChatSecurity(chatId);
-    if (data == null) return false;
+    final snap = await _firestore
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .where('seenBy', arrayContains: uid)
+        .get();
 
-    final hasPassword = data['hasPassword'] ?? false;
-    if (!hasPassword) return true;
-
-    final hash = data['passwordHash'];
-    return PasswordHelper.verify(enteredPassword, hash);
-  }
-
-  Stream<int> getUnread(String chatId) {
-    return _service.unreadCount(chatId, currentUserId);
-  }
-
-  Stream<String> getLastMessage(String chatId) {
-    return _service.lastMessage(chatId);
+    for (final doc in snap.docs) {
+      doc.reference.update({
+        'seenBy': FieldValue.arrayUnion([uid]),
+      });
+    }
   }
 }
