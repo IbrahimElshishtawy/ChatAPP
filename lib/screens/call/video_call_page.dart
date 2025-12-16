@@ -32,13 +32,13 @@ class _VideoCallPageState extends State<VideoCallPage> {
 
     _engine.registerEventHandler(
       RtcEngineEventHandler(
-        onJoinChannelSuccess: (_, __) {
+        onJoinChannelSuccess: (_, _) {
           setState(() => localJoined = true);
         },
-        onUserJoined: (_, uid, __) {
+        onUserJoined: (_, uid, _) {
           setState(() => remoteUid = uid);
         },
-        onUserOffline: (_, __, ___) {
+        onUserOffline: (_, _, _) {
           setState(() => remoteUid = null);
         },
       ),
