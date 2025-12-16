@@ -106,7 +106,7 @@ class ChatPage extends StatelessWidget {
                 onPressed: () {
                   if (textCtrl.text.trim().isEmpty) return;
                   ctrl.send(chatId, textCtrl.text.trim(), [
-                    ctrl.currentUserId,
+                    ?ctrl.currentUserId,
                     otherUserId,
                   ]);
                   textCtrl.clear();
