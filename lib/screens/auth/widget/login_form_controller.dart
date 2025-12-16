@@ -32,8 +32,12 @@ class LoginFormController extends GetxController {
     super.onClose();
   }
 
+  void toggleRemember() {
+    rememberMe.toggle();
+  }
+
   void toggleObscure() => obscure.value = !obscure.value;
-  void toggleRemember(bool v) => rememberMe.value = v;
+  // void toggleRemember(bool v) => rememberMe.value = v;
 
   void _validateEmail() {
     final text = emailCtrl.text.trim();
