@@ -21,17 +21,14 @@ class SettingsPage extends StatelessWidget {
           children: [
             const SizedBox(height: 8),
 
-            /// 🌗 Theme
             SwitchListTile(
-              title: const Text('الوضع الداكن'),
+              title: const Text('Dark Mode'),
               value: themeCtrl.isDark.value,
               onChanged: (_) => themeCtrl.toggleTheme(),
-              secondary: const Icon(Icons.dark_mode),
             ),
 
             const Divider(),
 
-            /// 🔔 Notifications
             SwitchListTile(
               title: const Text('الإشعارات'),
               value: settingsCtrl.notificationsEnabled.value,
@@ -48,7 +45,6 @@ class SettingsPage extends StatelessWidget {
 
             const Divider(),
 
-            /// 🌍 Language (جاهزة للتوسعة)
             ListTile(
               leading: const Icon(Icons.language),
               title: const Text('اللغة'),
@@ -60,7 +56,6 @@ class SettingsPage extends StatelessWidget {
 
             const Divider(),
 
-            /// 🚪 Logout
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.red),
               title: const Text(
