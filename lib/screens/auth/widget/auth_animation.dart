@@ -5,7 +5,7 @@ class AuthAnimation extends StatelessWidget {
   final String asset;
   final double height;
 
-  const AuthAnimation({super.key, required this.asset, this.height = 200});
+  const AuthAnimation({super.key, required this.asset, this.height = 230});
 
   @override
   Widget build(BuildContext context) {
