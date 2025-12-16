@@ -8,10 +8,10 @@ import '../../../controllers/auth/auth_controller.dart';
 class LoginButton extends StatelessWidget {
   final VoidCallback onPressed;
 
-  const LoginButton({super.key, required this.onPressed});
+  const LoginButton({super.key, required this.onPressed, required String text});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     final auth = Get.find<AuthController>();
 
     return Obx(() {
