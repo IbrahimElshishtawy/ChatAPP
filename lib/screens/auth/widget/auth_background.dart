@@ -30,7 +30,7 @@ class AuthBackground extends StatelessWidget {
             width: 260,
             height: 260,
             decoration: BoxDecoration(
-              color: Colors.white.(0.12),
+              color: Colors.white.withOpacity(0.12),
               shape: BoxShape.circle,
             ),
           ),
