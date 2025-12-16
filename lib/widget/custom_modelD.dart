@@ -8,6 +8,8 @@
 //   final String email;
 //   final String phone;
 
+// ignore_for_file: file_names
+
 //   UserProfile({
 //     required this.id,
 //     required this.firstName,
