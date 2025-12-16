@@ -95,6 +95,8 @@
 //                   final name = userData['firstName'] ?? 'User';
 //                   final email = userData['email'] ?? '';
 
+// ignore_for_file: file_names
+
 //                   return Container(
 //                     margin: const EdgeInsets.symmetric(
 //                       horizontal: 16,
