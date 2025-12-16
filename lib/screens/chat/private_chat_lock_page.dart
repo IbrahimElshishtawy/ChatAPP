@@ -29,7 +29,7 @@ class PrivateChatLockPage extends StatelessWidget {
             final password = await showPasswordDialog(context);
             if (password == null) return;
 
-            final allowed = await ctrl.canOpenChat(chatId, password);
+            final allowed = ctrl.canOpenChat(chatId, password);
 
             if (allowed) {
               Get.off(
