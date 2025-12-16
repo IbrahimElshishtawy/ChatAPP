@@ -1,13 +1,15 @@
+import 'package:chat/screens/auth/widget/login_form_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
 
-import 'package:chat/screens/auth/widget/auth_background.dart';
-import 'package:chat/screens/auth/widget/auth_card.dart';
 import '../../controllers/auth/auth_controller.dart';
-import '../../app/routes/routes.dart';
+import 'register_page.dart';
+import 'widget/auth_background.dart';
 import 'widget/auth_animation.dart';
-import 'widget/login_button.dart';
 import 'widget/login_form.dart';
+import 'widget/login_button.dart';
+import 'widget/animated_auth_card.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -15,17 +17,12 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final auth = Get.find<AuthController>();
-
-    final emailCtrl = TextEditingController();
-    final passCtrl = TextEditingController();
+    final formCtrl = Get.find<LoginFormController>();
 
     Future<void> onLogin() async {
-      if (emailCtrl.text.isEmpty || passCtrl.text.isEmpty) {
-        Get.snackbar('خطأ', 'من فضلك أدخل البريد الإلكتروني وكلمة المرور');
-        return;
-      }
+      if (!formCtrl.formKey.currentState!.validate()) return;
 
-      await auth.login(emailCtrl.text.trim(), passCtrl.text);
+      await auth.login(formCtrl.emailCtrl.text.trim(), formCtrl.passCtrl.text);
     }
 
     return Scaffold(
@@ -36,40 +33,49 @@ class LoginPage extends StatelessWidget {
             child: Column(
               children: [
                 const AuthAnimation(asset: 'assets/anim/Phoenix Dancing.json'),
-                const SizedBox(height: 2),
+                const SizedBox(height: 16),
 
-                // 📦 Card
-                AuthCard(
+                AnimatedAuthCard(
+                  flip: false,
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
-                        'Welcome Back ',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
+                      AnimatedTextKit(
+                        isRepeatingAnimation: false,
+                        animatedTexts: [
+                          TypewriterAnimatedText(
+                            'Welcome Back',
+                            speed: const Duration(milliseconds: 80),
+                            textStyle: const TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
-
                       const SizedBox(height: 24),
 
-                      // 📝 Form
-                      LoginForm(emailCtrl: emailCtrl, passCtrl: passCtrl),
-
+                      const LoginForm(),
                       const SizedBox(height: 24),
 
-                      // 🔘 Button
-                      LoginButton(onPressed: onLogin),
+                      LoginButton(onPressed: onLogin, text: 'تسجيل الدخول'),
 
                       const SizedBox(height: 12),
 
                       TextButton(
-                        onPressed: () => Get.toNamed(AppRoutes.register),
+                        onPressed: () {
+                          Get.to(
+                            () => const RegisterPage(),
+                            transition: Transition.fade,
+                            curve: Curves.easeInOut,
+                            duration: const Duration(milliseconds: 500),
+                          );
+                        },
                         child: const Text(
                           'إنشاء حساب جديد',
                           style: TextStyle(
-                            color: Colors.blueAccent,
                             fontWeight: FontWeight.w600,
+                            color: Colors.blueAccent,
                           ),
                         ),
                       ),
