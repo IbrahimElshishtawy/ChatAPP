@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 
 import 'widget/auth_background.dart';
 import 'widget/register_form.dart';
-import 'widget/animated_auth_card.dart';
 
 class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});
@@ -15,30 +14,31 @@ class RegisterPage extends StatelessWidget {
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(20),
-            child: AnimatedAuthCard(
-              flip: true,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    'Create Account ✨',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 24),
 
-                  const RegisterForm(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Create Account ',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 24),
 
-                  const SizedBox(height: 16),
+                const RegisterForm(),
 
-                  TextButton(
-                    onPressed: () => Get.back(),
-                    child: const Text(
-                      'لديك حساب؟ تسجيل الدخول',
-                      style: TextStyle(fontWeight: FontWeight.w600),
+                const SizedBox(height: 16),
+
+                TextButton(
+                  onPressed: () => Get.back(),
+                  child: const Text(
+                    'لديك حساب؟ تسجيل الدخول',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Color.fromARGB(254, 255, 254, 254),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
