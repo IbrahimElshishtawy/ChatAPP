@@ -148,7 +148,7 @@ class LoginForm extends StatelessWidget {
                               borderRadius: BorderRadius.circular(6),
                               color: c.rememberMe.value
                                   ? Theme.of(context).primaryColor
-                                  : const Color.fromARGB(189, 63, 232, 11),
+                                  : const Color.fromARGB(188, 253, 253, 253),
                               border: Border.all(
                                 color: c.rememberMe.value
                                     ? Theme.of(context).primaryColor
