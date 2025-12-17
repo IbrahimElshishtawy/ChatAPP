@@ -5,9 +5,13 @@ import '../../core/services/auth_service.dart';
 
 class AuthController extends GetxController {
   final AuthService _service = AuthService();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Rx<User?> user = Rx<User?>(null);
   RxBool isLoading = false.obs;
+
+  // للـ OTP
+  RxString verificationId = ''.obs;
 
   @override
   void onInit() {
@@ -36,7 +40,84 @@ class AuthController extends GetxController {
   ) async {
     try {
       isLoading.value = true;
+
       await _service.register(email: email, password: password, userData: data);
+
+      Get.snackbar('تم', 'تم إنشاء الحساب بنجاح');
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'email-already-in-use') {
+        Get.snackbar('خطأ', 'البريد الإلكتروني مستخدم بالفعل');
+      } else {
+        Get.snackbar('خطأ', e.message ?? 'حدث خطأ');
+      }
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> registerWithPhone(
+    String phone,
+    String password,
+    Map<String, dynamic> data,
+  ) async {
+    await sendPhoneOtp(phone);
+
+    // وتستدعي confirmPhoneOtpAndCreateUser(...)
+  }
+
+  /// 1) إرسال كود OTP للهاتف
+  Future<void> sendPhoneOtp(String phone) async {
+    try {
+      isLoading.value = true;
+
+      await _auth.verifyPhoneNumber(
+        phoneNumber: phone, // لازم يكون بصيغة +20...
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          // Android أحياناً بيعمل auto-verify
+          await _auth.signInWithCredential(credential);
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          Get.snackbar('خطأ', e.message ?? e.toString());
+        },
+        codeSent: (String verId, int? resendToken) {
+          verificationId.value = verId;
+          Get.snackbar('تم', 'تم إرسال كود التفعيل');
+        },
+        codeAutoRetrievalTimeout: (String verId) {
+          verificationId.value = verId;
+        },
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  /// 2) تأكيد OTP + إنشاء حساب + حفظ بياناتك
+  Future<void> confirmPhoneOtpAndCreateUser({
+    required String smsCode,
+    required Map<String, dynamic> data,
+  }) async {
+    try {
+      isLoading.value = true;
+
+      if (verificationId.value.isEmpty) {
+        Get.snackbar('خطأ', 'أرسل كود التفعيل أولاً');
+        return;
+      }
+
+      final credential = PhoneAuthProvider.credential(
+        verificationId: verificationId.value,
+        smsCode: smsCode,
+      );
+
+      final userCred = await _auth.signInWithCredential(credential);
+
+      // await _service.saveUserData(userCred.user!.uid, data);
+
+      Get.snackbar('تم', 'تم إنشاء الحساب بنجاح');
+      Get.back();
+    } on FirebaseAuthException catch (e) {
+      Get.snackbar('خطأ', e.message ?? e.toString());
     } finally {
       isLoading.value = false;
     }
