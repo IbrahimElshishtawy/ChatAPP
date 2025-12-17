@@ -6,7 +6,7 @@ import '../../core/services/user_service.dart';
 class UserController extends GetxController {
   final UserService _service = UserService();
   Rx<UserModel?> user = Rx<UserModel?>(null);
-
+  RxList<UserModel> filteredUsers = <UserModel>[].obs;
   @override
   void onInit() {
     final uid = FirebaseAuth.instance.currentUser?.uid;
