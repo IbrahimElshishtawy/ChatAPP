@@ -1,3 +1,4 @@
+import 'package:chat/screens/auth/widget/confirm_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../controllers/auth/auth_controller.dart';
@@ -62,21 +63,28 @@ class _RegisterFormState extends State<RegisterForm> {
       return;
     }
 
+    bool success;
+
     if (method == RegisterMethod.phone) {
-      await auth.registerWithPhone(phoneCtrl.text.trim(), passCtrl.text, {
-        'name': nameCtrl.text.trim(),
-        'phone': phoneCtrl.text.trim(),
-        'role': 'user',
-        'createdAt': DateTime.now(),
-      });
+      success = await auth
+          .registerWithPhone(phoneCtrl.text.trim(), passCtrl.text, {
+            'name': nameCtrl.text.trim(),
+            'phone': phoneCtrl.text.trim(),
+            'role': 'user',
+            'createdAt': DateTime.now(),
+          });
     } else {
-      await auth.register(emailCtrl.text.trim(), passCtrl.text, {
+      success = await auth.register(emailCtrl.text.trim(), passCtrl.text, {
         'name': nameCtrl.text.trim(),
         'email': emailCtrl.text.trim(),
         'role': 'user',
         'createdAt': DateTime.now(),
       });
     }
+
+    if (!success) return;
+
+    Get.off(() => ConfirmPage(onDone: () => Get.offAllNamed('/home')));
   }
 
   @override
@@ -169,7 +177,7 @@ class _RegisterFormState extends State<RegisterForm> {
 
         const SizedBox(height: 10),
 
-        /// ✅ Password Rules
+        ///  Password Rules
         _rule('٨ أحرف على الأقل', hasMinLength),
         _rule('حرف كابتل (A-Z)', hasUpper),
         _rule('رقم (0-9)', hasNumber),
@@ -177,8 +185,8 @@ class _RegisterFormState extends State<RegisterForm> {
 
         const SizedBox(height: 24),
 
-        /// 🔘 Button
-        LoginButton(text: 'إنشاء حساب', onPressed: onRegister),
+        ///  Button
+        LoginButton(onPressed: onRegister),
       ],
     );
   }
