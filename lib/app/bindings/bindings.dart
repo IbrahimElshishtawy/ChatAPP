@@ -1,3 +1,4 @@
+import 'package:chat/controllers/notification/notification_controller.dart';
 import 'package:chat/controllers/user/user_controller.dart';
 import 'package:get/get.dart';
 
@@ -14,6 +15,7 @@ class InitialBinding extends Bindings {
   void dependencies() {
     // 🔐 لازم يبقى أول Controller
     Get.put(AuthController(), permanent: true);
+    Get.put(NotificationController(), permanent: true);
 
     // 🎨 Navigation & Theme
     Get.put(ThemeController(), permanent: true);
