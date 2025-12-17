@@ -15,7 +15,7 @@ class AuthService {
     return cred.user;
   }
 
-  Future<User?> register({
+  Future<void> register({
     required String email,
     required String password,
     required Map<String, dynamic> userData,
@@ -24,10 +24,11 @@ class AuthService {
       email: email,
       password: password,
     );
-
-    await _firestore.collection('users').doc(cred.user!.uid).set(userData);
-
-    return cred.user;
+    await _firestore.collection('users').doc(cred.user!.uid).set({
+      ...userData,
+      'uid': cred.user!.uid,
+      'createdAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
   }
 
   Future<void> logout() async {
