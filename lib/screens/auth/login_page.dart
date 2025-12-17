@@ -1,3 +1,4 @@
+import 'package:chat/screens/auth/widget/confirm_page.dart';
 import 'package:chat/screens/auth/widget/login_form_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -17,11 +18,20 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final auth = Get.find<AuthController>();
     final formCtrl = Get.put(LoginFormController());
-
     Future<void> onLogin() async {
-      if (!formCtrl.formKey.currentState!.validate()) return;
+      final c = Get.find<LoginFormController>();
+      final auth = Get.find<AuthController>();
 
-      await auth.login(formCtrl.emailCtrl.text.trim(), formCtrl.passCtrl.text);
+      if (!c.formKey.currentState!.validate()) return;
+
+      final success = await auth.login(
+        c.emailCtrl.text.trim(),
+        c.passCtrl.text,
+      );
+
+      if (!success) return;
+
+      Get.off(() => ConfirmPage(onDone: () => Get.offAllNamed('/home')));
     }
 
     return Scaffold(
@@ -55,7 +65,7 @@ class LoginPage extends StatelessWidget {
                     const LoginForm(),
                     const SizedBox(height: 24),
 
-                    LoginButton(onPressed: onLogin, text: 'تسجيل الدخول'),
+                    LoginButton(onPressed: onLogin),
 
                     const SizedBox(height: 12),
 
