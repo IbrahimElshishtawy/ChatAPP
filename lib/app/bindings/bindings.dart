@@ -1,3 +1,4 @@
+import 'package:chat/controllers/user/user_controller.dart';
 import 'package:get/get.dart';
 
 import '../../controllers/auth/auth_controller.dart';
@@ -19,6 +20,8 @@ class InitialBinding extends Bindings {
     Get.put(NavigationController(), permanent: true);
 
     // 💬 الباقي lazy
+    Get.lazyPut<UserController>(() => UserController());
+
     Get.lazyPut(() => ChatController(), fenix: true);
     Get.lazyPut(() => CallController(), fenix: true);
     Get.lazyPut(() => CallHistoryController(), fenix: true);
