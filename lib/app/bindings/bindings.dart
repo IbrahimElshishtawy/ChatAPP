@@ -13,15 +13,15 @@ import '../../controllers/settings/settings_controller.dart';
 class InitialBinding extends Bindings {
   @override
   void dependencies() {
-    // 🔐 لازم يبقى أول Controller
+    //  لازم يبقى أول Controller
     Get.put(AuthController(), permanent: true);
     Get.put(NotificationController(), permanent: true);
 
-    // 🎨 Navigation & Theme
+    //  Navigation & Theme
     Get.put(ThemeController(), permanent: true);
     Get.put(NavigationController(), permanent: true);
 
-    // 💬 الباقي lazy
+    // الباقي lazy
     Get.lazyPut<UserController>(() => UserController());
 
     Get.lazyPut(() => ChatController(), fenix: true);
