@@ -9,6 +9,7 @@ class AuthController extends GetxController {
 
   Rx<User?> user = Rx<User?>(null);
   RxBool isLoading = false.obs;
+  RxBool loginSuccess = false.obs;
 
   // للـ OTP
   RxString verificationId = ''.obs;
@@ -24,16 +25,20 @@ class AuthController extends GetxController {
     super.onInit();
   }
 
-  Future<void> login(String email, String password) async {
+  Future<bool> login(String email, String password) async {
     try {
       isLoading.value = true;
       await _service.login(email, password);
+      return true;
+    } catch (e) {
+      Get.snackbar('خطأ', 'بيانات الدخول غير صحيحة');
+      return false;
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> register(
+  Future<bool> register(
     String email,
     String password,
     Map<String, dynamic> data,
@@ -44,25 +49,37 @@ class AuthController extends GetxController {
       await _service.register(email: email, password: password, userData: data);
 
       Get.snackbar('تم', 'تم إنشاء الحساب بنجاح');
+      return true;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
         Get.snackbar('خطأ', 'البريد الإلكتروني مستخدم بالفعل');
       } else {
         Get.snackbar('خطأ', e.message ?? 'حدث خطأ');
       }
+      return false;
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> registerWithPhone(
+  Future<bool> registerWithPhone(
     String phone,
     String password,
     Map<String, dynamic> data,
   ) async {
-    await sendPhoneOtp(phone);
+    try {
+      isLoading.value = true;
 
-    // وتستدعي confirmPhoneOtpAndCreateUser(...)
+      // مؤقت (إلى أن تربط OTP حقيقي)
+      await Future.delayed(const Duration(seconds: 1));
+
+      return true;
+    } catch (e) {
+      Get.snackbar('خطأ', e.toString());
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   /// 1) إرسال كود OTP للهاتف
