@@ -2,17 +2,15 @@ import 'package:chat/controllers/chat/chat_controller.dart';
 import 'package:chat/screens/chat/chat_page.dart';
 import 'package:chat/screens/home/widgets/home_fab.dart';
 import 'package:chat/screens/home/widgets/home_header.dart';
+import 'package:chat/screens/home/widgets/floating_nav_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../controllers/auth/auth_controller.dart';
-import '../../controllers/user/user_controller.dart';
-import '../../app/routes/routes.dart';
-
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     final chatCtrl = Get.find<ChatController>();
@@ -24,7 +22,9 @@ class HomePage extends StatelessWidget {
 
     return Stack(
       children: [
+        /// الصفحة الأساسية
         Scaffold(
+          backgroundColor: const Color(0xFFF6F7F9),
           body: Column(
             children: [
               const HomeHeader(),
@@ -45,7 +45,7 @@ class HomePage extends StatelessWidget {
                     final chats = snapshot.data!.docs;
 
                     return ListView.builder(
-                      padding: const EdgeInsets.only(bottom: 120),
+                      padding: const EdgeInsets.only(bottom: 140),
                       itemCount: chats.length,
                       itemBuilder: (_, i) {
                         final chatId = chats[i].id;
@@ -83,8 +83,11 @@ class HomePage extends StatelessWidget {
           ),
         ),
 
-        /// FAB
+        /// 🔵 Floating Action Button
         const HomeFAB(),
+
+        /// 🔥 Floating Navigation Bar
+        const FloatingNavBar(),
       ],
     );
   }
