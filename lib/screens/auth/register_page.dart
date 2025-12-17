@@ -1,3 +1,4 @@
+import 'package:chat/screens/auth/widget/auth_animation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -18,6 +19,7 @@ class RegisterPage extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                const AuthAnimation(asset: 'assets/anim/Welcome.json'),
                 const Text(
                   'Create Account ',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
