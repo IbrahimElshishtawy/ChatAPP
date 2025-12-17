@@ -148,7 +148,7 @@ class LoginForm extends StatelessWidget {
                               borderRadius: BorderRadius.circular(6),
                               color: c.rememberMe.value
                                   ? Theme.of(context).primaryColor
-                                  : Colors.transparent,
+                                  : const Color.fromARGB(189, 63, 232, 11),
                               border: Border.all(
                                 color: c.rememberMe.value
                                     ? Theme.of(context).primaryColor
@@ -175,9 +175,12 @@ class LoginForm extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {},
-                  child: const Text(
+                  child: Text(
                     'نسيت كلمة المرور؟',
-                    style: TextStyle(fontSize: 13.5),
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      color: Color.fromARGB(232, 255, 253, 253),
+                    ),
                   ),
                 ),
               ],
