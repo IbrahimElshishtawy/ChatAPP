@@ -9,7 +9,6 @@ import 'widget/auth_background.dart';
 import 'widget/auth_animation.dart';
 import 'widget/login_form.dart';
 import 'widget/login_button.dart';
-import 'widget/animated_auth_card.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -35,52 +34,49 @@ class LoginPage extends StatelessWidget {
                 const AuthAnimation(asset: 'assets/anim/Phoenix Dancing.json'),
                 const SizedBox(height: 16),
 
-                AnimatedAuthCard(
-                  flip: false,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      AnimatedTextKit(
-                        isRepeatingAnimation: false,
-                        animatedTexts: [
-                          TypewriterAnimatedText(
-                            'Welcome Back',
-                            speed: const Duration(milliseconds: 80),
-                            textStyle: const TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-
-                      const LoginForm(),
-                      const SizedBox(height: 24),
-
-                      LoginButton(onPressed: onLogin, text: 'تسجيل الدخول'),
-
-                      const SizedBox(height: 12),
-
-                      TextButton(
-                        onPressed: () {
-                          Get.to(
-                            () => const RegisterPage(),
-                            transition: Transition.fade,
-                            curve: Curves.easeInOut,
-                            duration: const Duration(milliseconds: 500),
-                          );
-                        },
-                        child: const Text(
-                          'إنشاء حساب جديد',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Colors.blueAccent,
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AnimatedTextKit(
+                      isRepeatingAnimation: false,
+                      animatedTexts: [
+                        TypewriterAnimatedText(
+                          'Welcome Back',
+                          speed: const Duration(milliseconds: 80),
+                          textStyle: const TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+
+                    const LoginForm(),
+                    const SizedBox(height: 24),
+
+                    LoginButton(onPressed: onLogin, text: 'تسجيل الدخول'),
+
+                    const SizedBox(height: 12),
+
+                    TextButton(
+                      onPressed: () {
+                        Get.to(
+                          () => const RegisterPage(),
+                          transition: Transition.fade,
+                          curve: Curves.easeInOut,
+                          duration: const Duration(milliseconds: 500),
+                        );
+                      },
+                      child: const Text(
+                        'إنشاء حساب جديد',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: Color.fromARGB(255, 255, 255, 255),
+                        ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ],
             ),
