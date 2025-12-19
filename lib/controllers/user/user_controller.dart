@@ -6,14 +6,10 @@ import '../../core/services/user_service.dart';
 class UserController extends GetxController {
   final UserService _service = UserService();
 
-  /// 👤 المستخدم الحالي
   Rx<UserModel?> user = Rx<UserModel?>(null);
-
-  /// 👥 كل المستخدمين
-  RxList<UserModel> users = <UserModel>[].obs;
-
-  /// 🔍 نتائج البحث
+  RxList<UserModel> allUsers = <UserModel>[].obs;
   RxList<UserModel> filteredUsers = <UserModel>[].obs;
+  RxList<UserModel> users = <UserModel>[].obs;
 
   @override
   void onInit() {
@@ -32,31 +28,32 @@ class UserController extends GetxController {
   }
 
   /// تحميل كل المستخدمين (ماعدا نفسي)
-  Future<void> loadAllUsers(String myUid) async {
-    final list = await _service.getAllUsers();
+  Future<void> loadAllUsers(String uid) async {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final users = await _service.getAllUsers();
 
-    users.assignAll(list.where((u) => u.id != myUid));
-
-    filteredUsers.assignAll(users);
+    //  شيل نفسك من الليست
+    allUsers.assignAll(users.where((u) => u.id != uid));
+    filteredUsers.assignAll(allUsers);
   }
 
-  /// 🔍 البحث
+  ///  البحث
   void search(String q) {
     if (q.isEmpty) {
-      filteredUsers.assignAll(users);
+      filteredUsers.assignAll(allUsers);
     } else {
       filteredUsers.assignAll(
-        users.where(
+        allUsers.where(
           (u) =>
               u.name.toLowerCase().contains(q.toLowerCase()) ||
-              (u.email?.toLowerCase().contains(q.toLowerCase()) ?? false) ||
-              (u.phone!.contains(q)),
+              u.email!.toLowerCase().contains(q.toLowerCase()) ||
+              u.phone!.toLowerCase().contains(q.toLowerCase()),
         ),
       );
     }
   }
 
-  /// ✏️ تعديل البروفايل
+  /// تعديل البروفايل
   Future<void> updateProfile(String name) async {
     if (user.value == null) return;
 
