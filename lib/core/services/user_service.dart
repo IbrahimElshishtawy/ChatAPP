@@ -18,7 +18,8 @@ class UserService {
 
   /// 🔥 GET ALL USERS (دي الجديدة)
   Future<List<UserModel>> getAllUsers() async {
-    final snap = await _users.get();
-    return snap.docs.map((e) => UserModel.fromMap(e.id, e.data())).toList();
+    final snap = await FirebaseFirestore.instance.collection('users').get();
+
+    return snap.docs.map((d) => UserModel.fromMap(d.id, d.data())).toList();
   }
 }
