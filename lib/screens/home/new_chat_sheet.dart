@@ -78,7 +78,6 @@ class NewChatSheet extends StatelessWidget {
                     onTap: () {
                       Get.back();
                       Get.snackbar('تم', 'بدء شات مع ${u.name}');
-                      // TODO: create/open chat
                     },
                   );
                 },
