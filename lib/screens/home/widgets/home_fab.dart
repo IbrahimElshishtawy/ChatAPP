@@ -21,16 +21,22 @@ class HomeFAB extends StatelessWidget {
           heroTag: 'new_chat',
           elevation: 12,
           backgroundColor: Theme.of(context).primaryColor,
-          icon: const Icon(Icons.chat_bubble_outline),
+          icon: const Icon(
+            Icons.chat_bubble,
+            color: Color.fromARGB(241, 251, 248, 248),
+          ),
           label: const Text(
-            'شات جديد',
-            style: TextStyle(fontWeight: FontWeight.w700),
+            'الاصدقاء',
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              color: Color.fromARGB(249, 250, 248, 248),
+            ),
           ),
           onPressed: () {
             showModalBottomSheet(
               context: context,
               isScrollControlled: true,
-              backgroundColor: Colors.transparent,
+              backgroundColor: const Color.fromARGB(0, 86, 105, 225),
               builder: (_) => const NewChatSheet(),
             );
           },
