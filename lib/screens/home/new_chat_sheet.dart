@@ -72,7 +72,17 @@ class NewChatSheet extends StatelessWidget {
                   final u = users[i];
 
                   return ListTile(
-                    leading: CircleAvatar(child: Text(u.name[0])),
+                    leading: CircleAvatar(
+                      backgroundColor: Theme.of(context).primaryColor,
+                      child: Text(
+                        u.name.isNotEmpty ? u.name[0].toUpperCase() : '?',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+
                     title: Text(u.name),
                     subtitle: Text(u.email ?? u.phone ?? ''),
                     onTap: () {
