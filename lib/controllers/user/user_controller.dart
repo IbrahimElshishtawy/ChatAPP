@@ -9,7 +9,6 @@ class UserController extends GetxController {
   Rx<UserModel?> user = Rx<UserModel?>(null);
   RxList<UserModel> allUsers = <UserModel>[].obs;
   RxList<UserModel> filteredUsers = <UserModel>[].obs;
-  RxList<UserModel> users = <UserModel>[].obs;
 
   @override
   void onInit() {
@@ -22,38 +21,41 @@ class UserController extends GetxController {
     }
   }
 
-  /// تحميل المستخدم الحالي
+  /// 👤 تحميل المستخدم الحالي
   Future<void> loadUser(String uid) async {
     user.value = await _service.getUser(uid);
   }
 
-  /// تحميل كل المستخدمين (ماعدا نفسي)
-  Future<void> loadAllUsers(String uid) async {
-    final uid = FirebaseAuth.instance.currentUser!.uid;
+  /// 👥 تحميل كل المستخدمين (ما عدا نفسي)
+  Future<void> loadAllUsers(String myUid) async {
     final users = await _service.getAllUsers();
 
-    //  شيل نفسك من الليست
-    allUsers.assignAll(users.where((u) => u.id != uid));
-    filteredUsers.assignAll(allUsers);
+    final others = users.where((u) => u.id != myUid).toList();
+
+    allUsers.assignAll(others);
+    filteredUsers.assignAll(others);
   }
 
-  ///  البحث
+  /// 🔍 البحث
   void search(String q) {
-    if (q.isEmpty) {
+    if (q.trim().isEmpty) {
       filteredUsers.assignAll(allUsers);
-    } else {
-      filteredUsers.assignAll(
-        allUsers.where(
-          (u) =>
-              u.name.toLowerCase().contains(q.toLowerCase()) ||
-              u.email!.toLowerCase().contains(q.toLowerCase()) ||
-              u.phone!.toLowerCase().contains(q.toLowerCase()),
-        ),
-      );
+      return;
     }
+
+    final query = q.toLowerCase();
+
+    filteredUsers.assignAll(
+      allUsers.where(
+        (u) =>
+            u.name.toLowerCase().contains(query) ||
+            (u.email?.toLowerCase().contains(query) ?? false) ||
+            (u.phone?.contains(query) ?? false),
+      ),
+    );
   }
 
-  /// تعديل البروفايل
+  /// ✏️ تعديل البروفايل
   Future<void> updateProfile(String name) async {
     if (user.value == null) return;
 
@@ -64,7 +66,7 @@ class UserController extends GetxController {
 
   void clear() {
     user.value = null;
-    users.clear();
+    allUsers.clear();
     filteredUsers.clear();
   }
 }
