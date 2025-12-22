@@ -1,5 +1,6 @@
 import 'package:chat/controllers/chat/chat_controller.dart';
 import 'package:chat/screens/chat/chat_page.dart';
+import 'package:chat/screens/home/widgets/empty_chats_view.dart';
 import 'package:chat/screens/home/widgets/home_fab.dart';
 import 'package:chat/screens/home/widgets/home_header.dart';
 import 'package:chat/screens/home/widgets/floating_nav_bar.dart';
@@ -39,7 +40,7 @@ class HomePage extends StatelessWidget {
                     }
 
                     if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                      return const Center(child: Text('لا توجد محادثات'));
+                      return EmptyChatsView();
                     }
 
                     final chats = snapshot.data!.docs;
