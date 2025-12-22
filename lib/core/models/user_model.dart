@@ -10,7 +10,7 @@ class UserModel {
     required this.name,
     this.email,
     this.phone,
-    this.role = 'user',
+    required this.role,
   });
 
   factory UserModel.fromMap(String id, Map<String, dynamic> map) {
