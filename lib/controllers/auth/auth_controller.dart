@@ -28,10 +28,10 @@ class AuthController extends GetxController {
   Future<bool> login(String email, String password) async {
     try {
       isLoading.value = true;
-      await _service.login(email, password);
-      return true;
-    } catch (e) {
-      Get.snackbar('خطأ', 'بيانات الدخول غير صحيحة');
+      final user = await _service.login(email, password);
+      return user != null;
+    } on FirebaseAuthException catch (e) {
+      Get.snackbar('خطأ', e.message ?? 'تعذر تسجيل الدخول');
       return false;
     } finally {
       isLoading.value = false;
