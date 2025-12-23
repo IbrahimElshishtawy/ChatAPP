@@ -1,30 +1,33 @@
-class ChatModel {
-  final String chatId;
-  final List<String> members;
-  final String lastMessage;
-  final DateTime? lastMessageTime;
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-  ChatModel({
-    required this.chatId,
-    required this.members,
-    required this.lastMessage,
-    this.lastMessageTime,
+class MessageModel {
+  final String text;
+  final String senderId;
+  final DateTime createdAt;
+  final bool isSeen;
+
+  MessageModel({
+    required this.text,
+    required this.senderId,
+    required this.createdAt,
+    required this.isSeen,
   });
 
   Map<String, dynamic> toMap() {
     return {
-      'members': members,
-      'lastMessage': lastMessage,
-      'lastMessageTime': lastMessageTime,
+      'text': text,
+      'senderId': senderId,
+      'createdAt': createdAt,
+      'isSeen': isSeen,
     };
   }
 
-  factory ChatModel.fromMap(String id, Map<String, dynamic> map) {
-    return ChatModel(
-      chatId: id,
-      members: List<String>.from(map['members']),
-      lastMessage: map['lastMessage'] ?? '',
-      lastMessageTime: map['lastMessageTime']?.toDate(),
+  factory MessageModel.fromMap(Map<String, dynamic> map) {
+    return MessageModel(
+      text: map['text'] ?? '',
+      senderId: map['senderId'],
+      createdAt: (map['createdAt'] as Timestamp).toDate(),
+      isSeen: map['isSeen'] ?? false,
     );
   }
 }
