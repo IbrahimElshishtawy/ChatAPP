@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_underscores
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../controllers/user/user_controller.dart';
