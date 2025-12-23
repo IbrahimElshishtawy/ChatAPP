@@ -19,7 +19,7 @@ class AuthController extends GetxController {
     user.bindStream(_service.authStateChanges());
     ever(user, (u) {
       if (u != null) {
-        NotificationService().initAndSaveToken();
+        NotificationService.instance.initAndSaveToken();
       }
     });
     super.onInit();
