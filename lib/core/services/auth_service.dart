@@ -5,8 +5,10 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  /// 🔄 Auth state
   Stream<User?> authStateChanges() => _auth.authStateChanges();
 
+  /// 🔐 LOGIN
   Future<User?> login(String email, String password) async {
     try {
       final cred = await _auth.signInWithEmailAndPassword(
@@ -15,44 +17,73 @@ class AuthService {
       );
       return cred.user;
     } on FirebaseAuthException catch (e) {
-      String msg = 'حدث خطأ';
-
-      switch (e.code) {
-        case 'user-not-found':
-          msg = 'لا يوجد حساب بهذا البريد الإلكتروني';
-          break;
-        case 'wrong-password':
-        case 'invalid-credential':
-          msg = 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
-          break;
-        case 'user-disabled':
-          msg = 'تم تعطيل هذا الحساب';
-          break;
-        default:
-          msg = e.message ?? msg;
-      }
-
-      throw FirebaseAuthException(code: e.code, message: msg);
+      throw _mapAuthError(e);
     }
   }
 
-  Future<void> register({
+  /// 📝 REGISTER
+  Future<User?> register({
     required String email,
     required String password,
     required Map<String, dynamic> userData,
   }) async {
-    final cred = await _auth.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-    await _firestore.collection('users').doc(cred.user!.uid).set({
-      ...userData,
-      'uid': cred.user!.uid,
-      'createdAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
+    try {
+      final cred = await _auth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+
+      await _firestore.collection('users').doc(cred.user!.uid).set({
+        ...userData,
+        'uid': cred.user!.uid,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      return cred.user;
+    } on FirebaseAuthException catch (e) {
+      throw _mapAuthError(e);
+    }
   }
 
+  /// 🚪 LOGOUT
   Future<void> logout() async {
     await _auth.signOut();
+  }
+
+  /// ❗ Error Mapper
+  FirebaseAuthException _mapAuthError(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'user-not-found':
+        return FirebaseAuthException(
+          code: e.code,
+          message: 'لا يوجد حساب بهذا البريد الإلكتروني',
+        );
+      case 'wrong-password':
+      case 'invalid-credential':
+        return FirebaseAuthException(
+          code: e.code,
+          message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
+        );
+      case 'email-already-in-use':
+        return FirebaseAuthException(
+          code: e.code,
+          message: 'البريد الإلكتروني مستخدم بالفعل',
+        );
+      case 'weak-password':
+        return FirebaseAuthException(
+          code: e.code,
+          message: 'كلمة المرور ضعيفة',
+        );
+      case 'user-disabled':
+        return FirebaseAuthException(
+          code: e.code,
+          message: 'تم تعطيل هذا الحساب',
+        );
+      default:
+        return FirebaseAuthException(
+          code: e.code,
+          message: e.message ?? 'حدث خطأ غير متوقع',
+        );
+    }
   }
 }
