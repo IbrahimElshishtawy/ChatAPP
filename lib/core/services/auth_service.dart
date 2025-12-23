@@ -8,11 +8,36 @@ class AuthService {
   Stream<User?> authStateChanges() => _auth.authStateChanges();
 
   Future<User?> login(String email, String password) async {
-    final cred = await _auth.signInWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-    return cred.user;
+    try {
+      final cred = await _auth.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+      return cred.user;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'invalid-credential' || e.code == 'wrong-password') {
+        throw FirebaseAuthException(
+          code: e.code,
+          message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
+        );
+      }
+      if (e.code == 'user-not-found') {
+        throw FirebaseAuthException(
+          code: e.code,
+          message: 'لا يوجد حساب بهذا البريد الإلكتروني',
+        );
+      }
+      if (e.code == 'user-disabled') {
+        throw FirebaseAuthException(
+          code: e.code,
+          message: 'تم تعطيل هذا الحساب',
+        );
+      }
+      throw FirebaseAuthException(
+        code: e.code,
+        message: e.message ?? 'حدث خطأ أثناء تسجيل الدخول',
+      );
+    }
   }
 
   Future<void> register({
