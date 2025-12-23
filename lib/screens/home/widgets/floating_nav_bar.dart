@@ -7,86 +7,139 @@ class FloatingNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final nav = Get.find<NavigationController>();
+    // تأمين الكنترولر (يمنع not found)
+    final nav = Get.isRegistered<NavigationController>()
+        ? Get.find<NavigationController>()
+        : Get.put(NavigationController());
 
-    return Obx(() {
-      final current = nav.index.value;
+    return Positioned(
+      left: 16,
+      right: 16,
+      bottom: 14,
+      child: Obx(() {
+        final index = nav.index.value;
 
-      return Positioned(
-        bottom: 20,
-        left: 20,
-        right: 20,
-        child: Container(
-          height: 64,
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(26),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.12),
-                blurRadius: 20,
+                blurRadius: 22,
                 offset: const Offset(0, 10),
               ),
             ],
           ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _item(
-                icon: Icons.chat,
-                index: 0,
-                current: current,
+              _NavItem(
+                icon: Icons.chat_bubble_rounded,
+                label: 'الدردشات',
+                selected: index == 0,
                 onTap: () => nav.change(0),
               ),
-              _item(
-                icon: Icons.group,
-                index: 1,
-                current: current,
+              _NavItem(
+                icon: Icons.group_rounded,
+                label: 'الجروبات',
+                selected: index == 1,
                 onTap: () => nav.change(1),
               ),
-              _item(
-                icon: Icons.public,
-                index: 2,
-                current: current,
+              _NavItem(
+                icon: Icons.public_rounded,
+                label: 'المجتمع',
+                selected: index == 2,
                 onTap: () => nav.change(2),
               ),
-              _item(
-                icon: Icons.notifications,
-                index: 3,
-                current: current,
+              _NavItem(
+                icon: Icons.notifications_rounded,
+                label: 'التنبيهات',
+                selected: index == 3,
                 onTap: () => nav.change(3),
               ),
-              _item(
-                icon: Icons.person,
-                index: 4,
-                current: current,
+              _NavItem(
+                icon: Icons.person_rounded,
+                label: 'الملف',
+                selected: index == 4,
                 onTap: () => nav.change(4),
               ),
             ],
           ),
-        ),
-      );
-    });
+        );
+      }),
+    );
   }
+}
 
-  Widget _item({
-    required IconData icon,
-    required int index,
-    required int current,
-    required VoidCallback onTap,
-  }) {
-    final active = index == current;
+class _NavItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: active ? Colors.blue.withOpacity(0.12) : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
+  const _NavItem({
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final primary = Theme.of(context).primaryColor;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedScale(
+          duration: const Duration(milliseconds: 200),
+          scale: selected ? 1.08 : 1.0,
+          curve: Curves.easeOutBack,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 220),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? primary.withOpacity(0.14)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Icon(
+                  icon,
+                  size: 22,
+                  color: selected ? primary : Colors.grey.shade600,
+                ),
+              ),
+              const SizedBox(height: 2),
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 200),
+                style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                  color: selected ? primary : Colors.grey.shade600,
+                ),
+                child: Text(label),
+              ),
+              const SizedBox(height: 4),
+
+              /// 🔵 Indicator
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                height: 3,
+                width: selected ? 18 : 0,
+                decoration: BoxDecoration(
+                  color: primary,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ],
+          ),
         ),
-        child: Icon(icon, size: 26, color: active ? Colors.blue : Colors.grey),
       ),
     );
   }
