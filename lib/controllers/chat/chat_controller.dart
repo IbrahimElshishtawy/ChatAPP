@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/services/chat_service.dart';
 import '../../core/models/message_model.dart';
 
@@ -7,39 +8,53 @@ class ChatController extends GetxController {
   final ChatService _service = ChatService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  String? get uid => _auth.currentUser?.uid;
+  String? get currentUserId => _auth.currentUser?.uid;
 
-  // ======================
-  // Streams
-  // ======================
+  // =========================
+  // Chat helpers
+  // =========================
 
-  Stream getMessages(String chatId) {
-    return _service.getMessages(chatId);
+  String openChat(String otherUserId) {
+    final uid = currentUserId;
+    if (uid == null) throw Exception('User not logged in');
+
+    final ids = [uid, otherUserId]..sort();
+    return ids.join('_');
   }
 
-  Stream<String> lastMessage(String chatId) {
+  // =========================
+  // Streams
+  // =========================
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getMessagesStream(String chatId) {
+    return FirebaseFirestore.instance
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .orderBy('createdAt', descending: true)
+        .snapshots();
+  }
+
+  Stream<String> getLastMessageStream(String chatId) {
     return _service.lastMessage(chatId);
   }
 
-  Stream<int> unreadCount(String chatId) {
-    if (uid == null) return Stream.value(0);
-    return _service.unreadCount(chatId, uid!);
+  Stream<int> getUnreadMessagesStream(String chatId) {
+    if (currentUserId == null) return Stream.value(0);
+    return _service.unreadCount(chatId, currentUserId!);
   }
 
-  // ======================
+  // =========================
   // Actions
-  // ======================
+  // =========================
 
-  Future<void> sendMessage({
-    required String chatId,
-    required String text,
-    required List<String> members,
-  }) async {
+  Future<void> send(String chatId, String text, List<String> members) async {
+    final uid = currentUserId;
     if (uid == null) return;
 
     final message = MessageModel(
       text: text,
-      senderId: uid!,
+      senderId: uid,
       createdAt: DateTime.now(),
       isSeen: false,
     );
@@ -52,7 +67,15 @@ class ChatController extends GetxController {
   }
 
   Future<void> markSeen(String chatId) async {
-    if (uid == null) return;
-    await _service.markMessagesAsSeen(chatId, uid!);
+    if (currentUserId == null) return;
+    await _service.markMessagesAsSeen(chatId, currentUserId!);
+  }
+
+  Future<void> sendMessage({
+    required String chatId,
+    required String text,
+    required List<String> members,
+  }) async {
+    return send(chatId, text, members);
   }
 }
