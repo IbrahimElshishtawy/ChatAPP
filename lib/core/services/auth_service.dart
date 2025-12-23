@@ -9,20 +9,20 @@ class AuthService {
   Stream<User?> authStateChanges() => _auth.authStateChanges();
 
   /// 🔐 LOGIN
-  Future<User?> login(String email, String password) async {
+  Future<User> login(String email, String password) async {
     try {
       final cred = await _auth.signInWithEmailAndPassword(
         email: email.trim(),
         password: password,
       );
-      return cred.user;
+      return cred.user!;
     } on FirebaseAuthException catch (e) {
       throw _mapAuthError(e);
     }
   }
 
   /// 📝 REGISTER
-  Future<User?> register({
+  Future<User> register({
     required String email,
     required String password,
     required Map<String, dynamic> userData,
@@ -39,7 +39,7 @@ class AuthService {
         'createdAt': FieldValue.serverTimestamp(),
       });
 
-      return cred.user;
+      return cred.user!;
     } on FirebaseAuthException catch (e) {
       throw _mapAuthError(e);
     }
@@ -50,7 +50,7 @@ class AuthService {
     await _auth.signOut();
   }
 
-  /// ❗ Error Mapper
+  /// ❗ Error Mapper (موحد)
   FirebaseAuthException _mapAuthError(FirebaseAuthException e) {
     switch (e.code) {
       case 'user-not-found':
@@ -82,7 +82,7 @@ class AuthService {
       default:
         return FirebaseAuthException(
           code: e.code,
-          message: e.message ?? 'حدث خطأ غير متوقع',
+          message: 'حدث خطأ غير متوقع',
         );
     }
   }
