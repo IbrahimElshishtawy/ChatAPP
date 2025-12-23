@@ -15,15 +15,13 @@ class _HomeHeaderState extends State<HomeHeader> {
   final searchCtrl = TextEditingController();
 
   @override
-  @override
   Widget build(BuildContext context) {
     final userCtrl = Get.find<UserController>();
-    final userName = userCtrl.user.value?.name ?? 'صديقنا';
 
     return SafeArea(
       bottom: false,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 400),
+        duration: const Duration(milliseconds: 350),
         padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
         decoration: BoxDecoration(
           color: Theme.of(context).scaffoldBackgroundColor,
@@ -38,6 +36,7 @@ class _HomeHeaderState extends State<HomeHeader> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            /// 🔝 Top Bar
             Row(
               children: [
                 Row(
@@ -49,31 +48,23 @@ class _HomeHeaderState extends State<HomeHeader> {
                       style: TextStyle(
                         fontSize: 21,
                         fontWeight: FontWeight.bold,
-                        letterSpacing: 0.3,
                       ),
                     ),
                   ],
                 ),
-
                 const Spacer(),
 
-                /// 🔍 Search
                 IconButton(
-                  splashRadius: 22,
                   icon: const Icon(Icons.search),
                   onPressed: () {
                     setState(() => searchMode = true);
                   },
                 ),
-
-                /// ⋮ Quick Settings
                 IconButton(
-                  splashRadius: 22,
                   icon: const Icon(Icons.more_vert),
                   onPressed: () {
                     showModalBottomSheet(
                       context: context,
-                      isScrollControlled: true,
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.vertical(
                           top: Radius.circular(24),
@@ -86,21 +77,24 @@ class _HomeHeaderState extends State<HomeHeader> {
               ],
             ),
 
-            const SizedBox(height: 2),
+            const SizedBox(height: 4),
 
+            /// 👤 Username
             AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
+              duration: const Duration(milliseconds: 250),
               child: searchMode
                   ? _searchBar()
-                  : Text(
-                      userName,
-                      key: const ValueKey('username'),
-                      style: TextStyle(
-                        fontSize: 15.5,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey.shade700,
-                      ),
-                    ),
+                  : Obx(() {
+                      final name = userCtrl.user.value?.name ?? 'صديقنا';
+                      return Text(
+                        name,
+                        key: const ValueKey('username'),
+                        style: TextStyle(
+                          fontSize: 15.5,
+                          color: Colors.grey.shade700,
+                        ),
+                      );
+                    }),
             ),
           ],
         ),
@@ -116,11 +110,7 @@ class _HomeHeaderState extends State<HomeHeader> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 12),
         ],
       ),
       child: TextField(
