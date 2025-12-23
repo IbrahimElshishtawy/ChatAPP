@@ -1,4 +1,5 @@
 import 'package:chat/app/bindings/auth_bindings.dart';
+import 'package:chat/app/bindings/home_binding.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -57,7 +58,11 @@ class AppRoutes {
     ),
 
     // Home
-    GetPage(name: home, page: () => const HomePage()),
+    GetPage(
+      name: '/home',
+      page: () => const HomePage(),
+      binding: HomeBinding(),
+    ),
 
     // Profile
     GetPage(name: profile, page: () => const ProfilePage()),
