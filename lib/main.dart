@@ -13,6 +13,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  NotificationService().initAndSaveToken();
+  NotificationService.instance.initAndSaveToken();
+
   runApp(const ChatApp());
 }
