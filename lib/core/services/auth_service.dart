@@ -15,28 +15,24 @@ class AuthService {
       );
       return cred.user;
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'invalid-credential' || e.code == 'wrong-password') {
-        throw FirebaseAuthException(
-          code: e.code,
-          message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
-        );
+      String msg = 'حدث خطأ';
+
+      switch (e.code) {
+        case 'user-not-found':
+          msg = 'لا يوجد حساب بهذا البريد الإلكتروني';
+          break;
+        case 'wrong-password':
+        case 'invalid-credential':
+          msg = 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
+          break;
+        case 'user-disabled':
+          msg = 'تم تعطيل هذا الحساب';
+          break;
+        default:
+          msg = e.message ?? msg;
       }
-      if (e.code == 'user-not-found') {
-        throw FirebaseAuthException(
-          code: e.code,
-          message: 'لا يوجد حساب بهذا البريد الإلكتروني',
-        );
-      }
-      if (e.code == 'user-disabled') {
-        throw FirebaseAuthException(
-          code: e.code,
-          message: 'تم تعطيل هذا الحساب',
-        );
-      }
-      throw FirebaseAuthException(
-        code: e.code,
-        message: e.message ?? 'حدث خطأ أثناء تسجيل الدخول',
-      );
+
+      throw FirebaseAuthException(code: e.code, message: msg);
     }
   }
 
