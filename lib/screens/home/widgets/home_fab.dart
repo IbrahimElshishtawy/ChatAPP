@@ -9,7 +9,7 @@ class HomeFAB extends StatelessWidget {
   Widget build(BuildContext context) {
     return Positioned(
       right: 20,
-      bottom: 100, // فوق الـ Floating NavBar
+      bottom: 125,
       child: TweenAnimationBuilder<double>(
         tween: Tween(begin: 0, end: 1),
         duration: const Duration(milliseconds: 700),
