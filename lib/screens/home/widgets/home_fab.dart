@@ -9,7 +9,7 @@ class HomeFAB extends StatelessWidget {
   Widget build(BuildContext context) {
     return Positioned(
       right: 20,
-      bottom: 110,
+      bottom: 100, // فوق الـ Floating NavBar
       child: TweenAnimationBuilder<double>(
         tween: Tween(begin: 0, end: 1),
         duration: const Duration(milliseconds: 700),
@@ -17,26 +17,16 @@ class HomeFAB extends StatelessWidget {
         builder: (context, value, child) {
           return Transform.scale(scale: value, child: child);
         },
-        child: FloatingActionButton.extended(
+        child: FloatingActionButton(
           heroTag: 'new_chat',
-          elevation: 12,
+          elevation: 10,
           backgroundColor: Theme.of(context).primaryColor,
-          icon: const Icon(
-            Icons.chat_bubble,
-            color: Color.fromARGB(241, 251, 248, 248),
-          ),
-          label: const Text(
-            'الاصدقاء',
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              color: Color.fromARGB(249, 250, 248, 248),
-            ),
-          ),
+          child: const Icon(Icons.chat_rounded, size: 26),
           onPressed: () {
             showModalBottomSheet(
               context: context,
               isScrollControlled: true,
-              backgroundColor: const Color.fromARGB(0, 86, 105, 225),
+              backgroundColor: Colors.transparent,
               builder: (_) => const NewChatSheet(),
             );
           },
