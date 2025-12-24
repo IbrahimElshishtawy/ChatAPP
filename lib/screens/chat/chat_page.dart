@@ -22,13 +22,15 @@ class ChatPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF0F2F5),
-      appBar: ChatAppBar(name: otherUserName, otherUserId: otherUserId),
+
+      appBar: ChatAppBar(name: otherUserName, status: 'متصل الآن'),
+
       body: Column(
         children: [
-          /// الرسائل
+          /// 📩 الرسائل
           Expanded(child: MessagesList(chatId: chatId)),
 
-          /// الإدخال
+          /// ✍️ الإدخال
           ChatInputBar(chatId: chatId, otherUserId: otherUserId),
         ],
       ),
