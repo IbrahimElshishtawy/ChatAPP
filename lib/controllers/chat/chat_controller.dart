@@ -108,4 +108,16 @@ class ChatController extends GetxController {
       'typingTo': isTyping ? chatId : null,
     });
   }
+
+  // ======================
+  //start typeing indicator
+  Future<void> startTyping(String otherUserId) async {
+    if (uid == null) return;
+    await _service.setTyping(myId: uid!, typingTo: otherUserId);
+  }
+
+  Future<void> stopTyping() async {
+    if (uid == null) return;
+    await _service.setTyping(myId: uid!, typingTo: null);
+  }
 }
