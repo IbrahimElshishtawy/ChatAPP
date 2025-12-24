@@ -19,18 +19,18 @@ class ChatPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final chatCtrl = Get.find<ChatController>();
     final chatId = chatCtrl.openChat(otherUserId);
-
+    final uid = chatCtrl.uid ?? Get.parameters['uid'] ?? '';
     return Scaffold(
       backgroundColor: const Color(0xFFF0F2F5),
 
-      appBar: ChatAppBar(name: otherUserName, status: 'متصل الآن'),
+      appBar: ChatAppBar(name: otherUserName, otherUserId: otherUserId),
 
       body: Column(
         children: [
-          /// 📩 الرسائل
+      
           Expanded(child: MessagesList(chatId: chatId)),
 
-          /// ✍️ الإدخال
+          
           ChatInputBar(chatId: chatId, otherUserId: otherUserId),
         ],
       ),
