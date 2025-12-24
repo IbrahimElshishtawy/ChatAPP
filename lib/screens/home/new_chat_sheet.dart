@@ -1,5 +1,5 @@
-// ignore_for_file: unnecessary_underscores
-
+import 'package:chat/controllers/chat/chat_controller.dart';
+import 'package:chat/screens/chat/chat_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../controllers/user/user_controller.dart';
@@ -10,6 +10,7 @@ class NewChatSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userCtrl = Get.find<UserController>();
+    final chatCtrl = Get.find<ChatController>();
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.8,
@@ -45,7 +46,7 @@ class NewChatSheet extends StatelessWidget {
           TextField(
             onChanged: userCtrl.search,
             decoration: InputDecoration(
-              hintText: 'ابحث بالاسم أو الهاتف',
+              hintText: 'ابحث بالاسم أو الهاتف أو الإيميل',
               prefixIcon: const Icon(Icons.search),
               filled: true,
               fillColor: Colors.grey.shade100,
@@ -88,15 +89,27 @@ class NewChatSheet extends StatelessWidget {
                     ),
                     title: Text(u.name),
                     subtitle: Text(
-                      (u.phone ?? '').isNotEmpty
-                          ? u.phone ?? ''
-                          : u.email ?? '',
+                      (u.phone ?? '').isNotEmpty ? u.phone! : (u.email ?? ''),
                       style: const TextStyle(fontSize: 12),
                     ),
-                    onTap: () {
-                      Get.back();
-                      Get.snackbar('تم', 'بدء شات مع ${u.name}');
-                      // هنا بعدين نعمل createChat
+                    onTap: () async {
+                      final myId = chatCtrl.uid;
+                      if (myId == null) return;
+
+                      final chatId = chatCtrl.openChat(u.id);
+
+                      /// ✅ تأكد إن الشات موجود قبل فتحه
+                      await chatCtrl.ensureChat(
+                        chatId: chatId,
+                        members: [myId, u.id],
+                      );
+
+                      Get.back(); // اقفل الـ BottomSheet
+
+                      Get.to(
+                        () =>
+                            ChatPage(otherUserId: u.id, otherUserName: u.name),
+                      );
                     },
                   );
                 },
