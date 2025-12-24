@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../core/services/chat_service.dart';
@@ -36,6 +37,17 @@ class ChatController extends GetxController {
       throw Exception('User not logged in');
     }
     return _service.getChatId(uid!, otherUserId);
+  }
+
+  Future<void> openOrCreateChat(String otherUserId) async {
+    if (uid == null) return;
+
+    final chatId = _service.getChatId(uid!, otherUserId);
+
+    await _service.ensureChatExists(
+      chatId: chatId,
+      members: [uid!, otherUserId],
+    );
   }
 
   Future<void> ensureChat({
@@ -85,8 +97,15 @@ class ChatController extends GetxController {
     await _service.markMessagesAsSeen(chatId, uid!);
   }
 
-  /// ✅ Last message stream (for Home page)
+  ///  Last message stream (for Home page)
   Stream<String> getLastMessageStream(String chatId) {
     return _service.lastMessage(chatId);
+  }
+
+  /// connectivity check
+  void setTyping({required String chatId, required bool isTyping}) {
+    FirebaseFirestore.instance.collection('users').doc(uid).update({
+      'typingTo': isTyping ? chatId : null,
+    });
   }
 }
