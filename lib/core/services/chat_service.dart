@@ -103,4 +103,13 @@ class ChatService {
       });
     }
   }
+
+  Future<void> setTyping({
+    required String myId,
+    required String? typingTo,
+  }) async {
+    await FirebaseFirestore.instance.collection('users').doc(myId).update({
+      'typingTo': typingTo,
+    });
+  }
 }
