@@ -1,11 +1,11 @@
+import 'package:chat/screens/chat/widgets/OnlineStatusText.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String name;
-  final String status;
+  final String otherUserId;
 
-  const ChatAppBar({super.key, required this.name, required this.status});
+  const ChatAppBar({super.key, required this.name, required this.otherUserId});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
 
           const SizedBox(width: 10),
 
-          /// 👈 الحل هنا
+          /// الاسم + الحالة (ONLINE)
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -40,12 +40,9 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                 ),
                 const SizedBox(height: 2),
-                Text(
-                  status,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 12, color: Colors.white70),
-                ),
+
+                /// ✅ الحالة الحقيقية
+                OnlineStatusText(userId: otherUserId),
               ],
             ),
           ),

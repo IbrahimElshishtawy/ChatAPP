@@ -98,14 +98,13 @@ class NewChatSheet extends StatelessWidget {
 
                       final chatId = chatCtrl.openChat(u.id);
 
-                      /// ✅ تأكد إن الشات موجود قبل فتحه
                       await chatCtrl.openOrCreateChat(u.id);
                       await chatCtrl.ensureChat(
                         chatId: chatId,
                         members: [myId, u.id],
                       );
 
-                      Get.back(); // اقفل الـ BottomSheet
+                      Get.back();
 
                       Get.to(
                         () =>
