@@ -17,21 +17,24 @@ class MessageBubble extends StatelessWidget {
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        margin: const EdgeInsets.symmetric(vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         constraints: const BoxConstraints(maxWidth: 280),
         decoration: BoxDecoration(
-          color: isMe ? Theme.of(context).primaryColor : Colors.grey.shade200,
+          color: isMe ? Colors.blue : Colors.white,
           borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(18),
-            topRight: const Radius.circular(18),
+            topLeft: const Radius.circular(16),
+            topRight: const Radius.circular(16),
             bottomLeft: isMe
-                ? const Radius.circular(18)
-                : const Radius.circular(4),
+                ? const Radius.circular(16)
+                : const Radius.circular(0),
             bottomRight: isMe
-                ? const Radius.circular(4)
-                : const Radius.circular(18),
+                ? const Radius.circular(0)
+                : const Radius.circular(16),
           ),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 6),
+          ],
         ),
         child: Column(
           crossAxisAlignment: isMe
@@ -41,18 +44,17 @@ class MessageBubble extends StatelessWidget {
             Text(
               text,
               style: TextStyle(
-                color: isMe ? Colors.white : Colors.black87,
+                color: isMe ? Colors.white : Colors.black,
                 fontSize: 15,
               ),
             ),
-            if (isMe) ...[
-              const SizedBox(height: 4),
+            const SizedBox(height: 4),
+            if (isMe)
               Icon(
                 isSeen ? Icons.done_all : Icons.done,
-                size: 16,
+                size: 14,
                 color: isSeen ? Colors.lightBlueAccent : Colors.white70,
               ),
-            ],
           ],
         ),
       ),
