@@ -87,4 +87,20 @@ class ChatService {
         .snapshots()
         .map((doc) => doc['lastMessage'] ?? '');
   }
+
+  Future<void> ensureChatExists({
+    required String chatId,
+    required List<String> members,
+  }) async {
+    final ref = chats().doc(chatId);
+    final doc = await ref.get();
+    if (doc.exists) return;
+
+    await ref.set({
+      'members': members,
+      'createdAt': FieldValue.serverTimestamp(),
+      'lastMessage': '',
+      'lastMessageTime': FieldValue.serverTimestamp(),
+    });
+  }
 }
