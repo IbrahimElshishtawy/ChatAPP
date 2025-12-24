@@ -92,15 +92,15 @@ class ChatService {
     required String chatId,
     required List<String> members,
   }) async {
-    final ref = chats().doc(chatId);
+    final ref = FirebaseFirestore.instance.collection('chats').doc(chatId);
     final doc = await ref.get();
-    if (doc.exists) return;
 
-    await ref.set({
-      'members': members,
-      'createdAt': FieldValue.serverTimestamp(),
-      'lastMessage': '',
-      'lastMessageTime': FieldValue.serverTimestamp(),
-    });
+    if (!doc.exists) {
+      await ref.set({
+        'members': members,
+        'createdAt': FieldValue.serverTimestamp(),
+        'lastMessage': '',
+      });
+    }
   }
 }
