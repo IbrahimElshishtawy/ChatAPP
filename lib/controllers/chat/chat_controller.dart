@@ -8,62 +8,80 @@ class ChatController extends GetxController {
   final ChatService _service = ChatService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  /// ✅ UID الحالي
+  // ======================
+  // Auth
+  // ======================
+
   String? get uid => _auth.currentUser?.uid;
 
   // ======================
   // Streams
   // ======================
 
-  Stream getMessages(String chatId) {
+  Stream<QuerySnapshot> messagesStream(String chatId) {
     return _service.getMessages(chatId);
   }
 
-  Stream<String> lastMessage(String chatId) {
-    return _service.lastMessage(chatId);
+  /// Alias علشان UI قديم
+  Stream<QuerySnapshot> getMessages(String chatId) {
+    return messagesStream(chatId);
   }
 
-  Stream<int> unreadCount(String chatId) {
-    if (uid == null) return Stream.value(0);
-    return _service.unreadCount(chatId, uid!);
+  Stream<String> getLastMessageStream(String chatId) {
+    return FirebaseFirestore.instance
+        .collection('chats')
+        .doc(chatId)
+        .snapshots()
+        .map((doc) => doc.data()?['lastMessage'] ?? '');
+  }
+
+  Stream<bool> typingStream(String otherUserId) {
+    final myId = uid;
+    if (myId == null) return const Stream.empty();
+    return _service.typingStream(otherUserId: otherUserId, myId: myId);
   }
 
   // ======================
-  // Chat helpers
+  // Core Chat Logic
   // ======================
 
-  String openChat(String otherUserId) {
-    if (uid == null) {
+  /// الدالة الأساسية الوحيدة لفتح/إنشاء شات
+  Future<String> openChat(String otherUserId) async {
+    final myId = uid;
+    if (myId == null) {
       throw Exception('User not logged in');
     }
-    return _service.getChatId(uid!, otherUserId);
-  }
 
-  Future<void> openOrCreateChat(String otherUserId) async {
-    if (uid == null) return;
-
-    final chatId = _service.getChatId(uid!, otherUserId);
+    final chatId = _service.getChatId(myId, otherUserId);
 
     await _service.ensureChatExists(
       chatId: chatId,
-      members: [uid!, otherUserId],
+      members: [myId, otherUserId],
     );
+
+    return chatId;
   }
 
+  // ======================
+  // ALIASES (توافق كامل مع UI القديم)
+  // ======================
+
+  /// كان مستخدم في UI: openOrCreateChat(otherUserId)
+  Future<String> openOrCreateChat(String otherUserId) {
+    return openChat(otherUserId);
+  }
+
+  /// كان مستخدم في UI: openOrCreateChat(otherUserId: xxx)
+  Future<String> openOrCreateChatNamed({required String otherUserId}) {
+    return openChat(otherUserId);
+  }
+
+  /// كان مستخدم في UI: ensureChat(chatId: x, members: y)
   Future<void> ensureChat({
     required String chatId,
     required List<String> members,
   }) async {
-    final ref = _service.chats().doc(chatId);
-    final doc = await ref.get();
-
-    if (!doc.exists) {
-      await ref.set({
-        'members': members,
-        'createdAt': DateTime.now(),
-        'lastMessage': '',
-      });
-    }
+    await _service.ensureChatExists(chatId: chatId, members: members);
   }
 
   // ======================
@@ -75,12 +93,16 @@ class ChatController extends GetxController {
     required String text,
     required List<String> members,
   }) async {
-    if (uid == null) return;
+    final myId = uid;
+    if (myId == null) return;
+
+    final receiverId = members.firstWhere((id) => id != myId);
 
     final message = MessageModel(
       id: '',
       text: text,
-      senderId: uid!,
+      senderId: myId,
+      receiverId: receiverId,
       createdAt: DateTime.now(),
       isSeen: false,
     );
@@ -93,31 +115,24 @@ class ChatController extends GetxController {
   }
 
   Future<void> markSeen(String chatId) async {
-    if (uid == null) return;
-    await _service.markMessagesAsSeen(chatId, uid!);
-  }
-
-  ///  Last message stream (for Home page)
-  Stream<String> getLastMessageStream(String chatId) {
-    return _service.lastMessage(chatId);
-  }
-
-  /// connectivity check
-  void setTyping({required String chatId, required bool isTyping}) {
-    FirebaseFirestore.instance.collection('users').doc(uid).update({
-      'typingTo': isTyping ? chatId : null,
-    });
+    final myId = uid;
+    if (myId == null) return;
+    await _service.markMessagesAsSeen(chatId, myId);
   }
 
   // ======================
-  //start typeing indicator
+  // Typing
+  // ======================
+
   Future<void> startTyping(String otherUserId) async {
-    if (uid == null) return;
-    await _service.setTyping(myId: uid!, typingTo: otherUserId);
+    final myId = uid;
+    if (myId == null) return;
+    await _service.setTyping(myId: myId, typingTo: otherUserId);
   }
 
   Future<void> stopTyping() async {
-    if (uid == null) return;
-    await _service.setTyping(myId: uid!, typingTo: null);
+    final myId = uid;
+    if (myId == null) return;
+    await _service.setTyping(myId: myId, typingTo: null);
   }
 }
