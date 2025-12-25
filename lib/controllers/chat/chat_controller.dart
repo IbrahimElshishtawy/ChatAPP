@@ -54,6 +54,7 @@ class ChatController extends GetxController {
 
     final chatId = _service.getChatId(myId, otherUserId);
 
+    // التحقق من أن الأعضاء ليسوا مكررين
     await _service.ensureChatExists(
       chatId: chatId,
       members: [myId, otherUserId],
@@ -81,6 +82,13 @@ class ChatController extends GetxController {
     required String chatId,
     required List<String> members,
   }) async {
+    // التحقق من عدم تكرار الأعضاء
+    final uniqueMembers = Set<String>.from(members);
+
+    if (uniqueMembers.length != members.length) {
+      throw Exception("Duplicate members detected");
+    }
+
     await _service.ensureChatExists(chatId: chatId, members: members);
   }
 
@@ -95,6 +103,13 @@ class ChatController extends GetxController {
   }) async {
     final myId = uid;
     if (myId == null) return;
+
+    // التحقق من أن الأعضاء ليسوا مكررين
+    final uniqueMembers = Set<String>.from(members);
+
+    if (uniqueMembers.length != members.length) {
+      throw Exception("Duplicate members detected");
+    }
 
     final receiverId = members.firstWhere((id) => id != myId);
 
