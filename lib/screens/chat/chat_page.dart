@@ -18,22 +18,29 @@ class ChatPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final chatCtrl = Get.find<ChatController>();
-    final chatId = chatCtrl.openChat(otherUserId);
-    final uid = chatCtrl.uid ?? Get.parameters['uid'] ?? '';
-    return Scaffold(
-      backgroundColor: const Color(0xFFF0F2F5),
 
-      appBar: ChatAppBar(name: otherUserName, otherUserId: otherUserId),
+    return FutureBuilder<String>(
+      future: chatCtrl.openChat(otherUserId),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-      body: Column(
-        children: [
-      
-          Expanded(child: MessagesList(chatId: chatId)),
+        final chatId = snapshot.data!;
 
-          
-          ChatInputBar(chatId: chatId, otherUserId: otherUserId),
-        ],
-      ),
+        return Scaffold(
+          backgroundColor: const Color(0xFFF0F2F5),
+          appBar: ChatAppBar(name: otherUserName, otherUserId: otherUserId),
+          body: Column(
+            children: [
+              Expanded(child: MessagesList(chatId: chatId)),
+              ChatInputBar(chatId: chatId, otherUserId: otherUserId),
+            ],
+          ),
+        );
+      },
     );
   }
 }
