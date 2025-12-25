@@ -13,13 +13,35 @@ class UserService {
 
   /// 🔹 UPDATE user
   Future<void> updateUser(UserModel user) async {
+    // التحقق من أن الإيميل أو الرقم ليس مكررًا قبل التحديث
+    final emailExists = await _users
+        .where('email', isEqualTo: user.email)
+        .get();
+
+    final phoneExists = await _users
+        .where('phone', isEqualTo: user.phone)
+        .get();
+
+    if (emailExists.docs.isNotEmpty) {
+      throw Exception('Email already exists');
+    }
+
+    if (phoneExists.docs.isNotEmpty) {
+      throw Exception('Phone number already exists');
+    }
+
     await _users.doc(user.id).update(user.toMap());
   }
 
-  /// 🔥 GET ALL USERS (دي الجديدة)
   Future<List<UserModel>> getAllUsers() async {
     final snap = await FirebaseFirestore.instance.collection('users').get();
 
-    return snap.docs.map((d) => UserModel.fromMap(d.id, d.data())).toList();
+    // إرجاع المستخدمين الذين لم يتم حذفهم فقط
+    return snap.docs
+        .where(
+          (d) => d.data().containsKey('email') && d.data().containsKey('phone'),
+        ) // التأكد من وجود الإيميل والرقم
+        .map((d) => UserModel.fromMap(d.id, d.data()))
+        .toList();
   }
 }
