@@ -40,16 +40,13 @@ class _HomeHeaderState extends State<HomeHeader> {
             Row(
               children: [
                 Row(
-                  children: const [
-                    Icon(Icons.chat_bubble_rounded, size: 24),
-                    SizedBox(width: 6),
-                    Text(
-                      'ChatApp',
-                      style: TextStyle(
-                        fontSize: 21,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  children: [
+                    Image.asset(
+                      'assets/image/chat-app-icon-24.jpg',
+                      width: 26, // تغيير الحجم هنا
+                      height: 26,
                     ),
+                    const SizedBox(width: 8),
                   ],
                 ),
                 const Spacer(),
