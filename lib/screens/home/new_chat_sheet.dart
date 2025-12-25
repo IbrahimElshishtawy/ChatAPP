@@ -1,5 +1,7 @@
 import 'package:chat/controllers/chat/chat_controller.dart';
 import 'package:chat/screens/chat/chat_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../controllers/user/user_controller.dart';
@@ -90,36 +92,53 @@ class NewChatSheet extends StatelessWidget {
                   // Add the email to the set to ensure it won't be repeated
                   displayedEmails.add(u.email ?? "");
 
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.blue.shade100,
-                      child: Text(
-                        u.name.isNotEmpty ? u.name[0] : '?',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    title: Text(u.name),
-                    subtitle: Text(
-                      (u.phone ?? '').isNotEmpty ? u.phone! : (u.email ?? ''),
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                    onTap: () async {
-                      final myId = chatCtrl.uid;
-                      if (myId == null) return;
+                  return FutureBuilder<bool>(
+                    future: _isUserValid(u),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const SizedBox.shrink();
+                      }
 
-                      final chatId = chatCtrl.openChat(u.id);
+                      if (!snapshot.hasData || snapshot.data != true) {
+                        return const SizedBox.shrink();
+                      }
 
-                      await chatCtrl.openOrCreateChat(u.id);
-                      await chatCtrl.ensureChat(
-                        chatId: await chatId,
-                        members: [myId, u.id],
-                      );
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: Colors.blue.shade100,
+                          child: Text(
+                            u.name.isNotEmpty ? u.name[0] : '?',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        title: Text(u.name),
+                        subtitle: Text(
+                          (u.phone ?? '').isNotEmpty
+                              ? u.phone!
+                              : (u.email ?? ''),
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        onTap: () async {
+                          final myId = chatCtrl.uid;
+                          if (myId == null) return;
 
-                      Get.back();
+                          final chatId = chatCtrl.openChat(u.id);
 
-                      Get.to(
-                        () =>
-                            ChatPage(otherUserId: u.id, otherUserName: u.name),
+                          await chatCtrl.openOrCreateChat(u.id);
+                          await chatCtrl.ensureChat(
+                            chatId: await chatId,
+                            members: [myId, u.id],
+                          );
+
+                          Get.back();
+
+                          Get.to(
+                            () => ChatPage(
+                              otherUserId: u.id,
+                              otherUserName: u.name,
+                            ),
+                          );
+                        },
                       );
                     },
                   );
@@ -130,5 +149,24 @@ class NewChatSheet extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  // تحقق من أن المستخدم موجود في Firebase Authentication و Firestore
+  Future<bool> _isUserValid(user) async {
+    try {
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.id)
+          .get();
+
+      if (!userDoc.exists) {
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      print('Error validating user: $e');
+      return false;
+    }
   }
 }
