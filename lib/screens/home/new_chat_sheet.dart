@@ -1,5 +1,3 @@
-// ignore_for_file: unnecessary_underscores
-
 import 'package:chat/controllers/chat/chat_controller.dart';
 import 'package:chat/screens/chat/chat_page.dart';
 import 'package:flutter/material.dart';
@@ -66,6 +64,9 @@ class NewChatSheet extends StatelessWidget {
             child: Obx(() {
               final users = userCtrl.filteredUsers;
 
+              // Set to keep track of emails that have been shown
+              Set<String> displayedEmails = {};
+
               if (users.isEmpty) {
                 return const Center(
                   child: Text(
@@ -80,6 +81,14 @@ class NewChatSheet extends StatelessWidget {
                 separatorBuilder: (_, __) => const Divider(height: 1),
                 itemBuilder: (_, i) {
                   final u = users[i];
+
+                  // Check if the email has already been displayed
+                  if (displayedEmails.contains(u.email)) {
+                    return const SizedBox.shrink(); // Skip this user
+                  }
+
+                  // Add the email to the set to ensure it won't be repeated
+                  displayedEmails.add(u.email ?? "");
 
                   return ListTile(
                     leading: CircleAvatar(
