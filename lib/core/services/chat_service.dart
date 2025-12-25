@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/message_model.dart';
 import '../utils/password_helper.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ChatService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   CollectionReference get _chats => _firestore.collection('chats');
 
@@ -29,12 +31,20 @@ class ChatService {
     required String chatId,
     required List<String> members,
   }) async {
+    // التحقق من أن الأعضاء جميعهم موجودين في Firebase Authentication و Firestore
+    final validMembers = await _verifyMembersExist(members);
+
+    // إذا كان هناك أعضاء غير موجودين، لا يتم إنشاء الشات
+    if (validMembers.isEmpty) {
+      throw Exception('Some members do not exist in Firebase');
+    }
+
     final ref = _chats.doc(chatId);
     final doc = await ref.get();
 
     if (!doc.exists) {
       await ref.set({
-        'members': members,
+        'members': validMembers,
         'createdAt': FieldValue.serverTimestamp(),
         'lastMessage': '',
         'lastMessageTime': null,
@@ -48,10 +58,17 @@ class ChatService {
     required MessageModel message,
     required List<String> members,
   }) async {
+    final validMembers = await _verifyMembersExist(members);
+
+    // إذا كان هناك أعضاء غير موجودين، لا يتم إرسال الرسالة
+    if (validMembers.isEmpty) {
+      throw Exception('Some members do not exist in Firebase');
+    }
+
     final chatRef = _chats.doc(chatId);
 
     await chatRef.set({
-      'members': members,
+      'members': validMembers,
       'lastMessage': message.text,
       'lastMessageTime': Timestamp.fromDate(message.createdAt),
     }, SetOptions(merge: true));
@@ -105,5 +122,34 @@ class ChatService {
       'hasPassword': true,
       'passwordHash': PasswordHelper.hash(password),
     });
+  }
+
+  // ======================
+  // Helper Functions
+  // ======================
+
+  /// التحقق من أن الأعضاء الموجودين في الدردشة هم فقط الموجودين في Firestore
+  Future<List<String>> _verifyMembersExist(List<String> members) async {
+    final validMembers = <String>[];
+
+    // تحقق من أن كل عضو موجود في Firestore
+    for (var memberId in members) {
+      try {
+        // إذا كان المستخدم موجود في Firestore
+        final userDoc = await _firestore
+            .collection('users')
+            .doc(memberId)
+            .get();
+
+        if (userDoc.exists) {
+          validMembers.add(memberId);
+        }
+      } catch (e) {
+        // إذا لم يكن المستخدم موجودًا في Firestore، لا نضيفه في القائمة
+        print('User not found in Firestore: $memberId');
+      }
+    }
+
+    return validMembers;
   }
 }
