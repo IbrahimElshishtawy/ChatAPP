@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_underscores
+
 import 'package:chat/controllers/chat/chat_controller.dart';
 import 'package:chat/screens/chat/chat_page.dart';
 import 'package:flutter/material.dart';
@@ -100,7 +102,7 @@ class NewChatSheet extends StatelessWidget {
 
                       await chatCtrl.openOrCreateChat(u.id);
                       await chatCtrl.ensureChat(
-                        chatId: chatId,
+                        chatId: await chatId,
                         members: [myId, u.id],
                       );
 
