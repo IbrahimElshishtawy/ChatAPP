@@ -1,22 +1,46 @@
-import 'package:chat/core/utils/password_helper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/message_model.dart';
+import '../utils/password_helper.dart';
 
 class ChatService {
-  final _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  CollectionReference get _chats => _firestore.collection('chats');
+
+  // chatId ثابت
   String getChatId(String a, String b) {
-    return a.compareTo(b) < 0 ? '${a}_$b' : '${b}_$a';
+    final ids = [a, b]..sort();
+    return ids.join('_');
   }
 
-  CollectionReference chats() => _firestore.collection('chats');
+  // ======================
+  // Messages
+  // ======================
 
   Stream<QuerySnapshot> getMessages(String chatId) {
-    return chats()
+    return _chats
         .doc(chatId)
         .collection('messages')
         .orderBy('createdAt', descending: true)
         .snapshots();
+  }
+
+  Future<void> ensureChatExists({
+    required String chatId,
+    required List<String> members,
+  }) async {
+    final ref = _chats.doc(chatId);
+    final doc = await ref.get();
+
+    if (!doc.exists) {
+      await ref.set({
+        'members': members,
+        'createdAt': FieldValue.serverTimestamp(),
+        'lastMessage': '',
+        'lastMessageTime': null,
+        'hasPassword': false,
+      });
+    }
   }
 
   Future<void> sendMessage({
@@ -24,7 +48,7 @@ class ChatService {
     required MessageModel message,
     required List<String> members,
   }) async {
-    final chatRef = chats().doc(chatId);
+    final chatRef = _chats.doc(chatId);
 
     await chatRef.set({
       'members': members,
@@ -35,81 +59,51 @@ class ChatService {
     await chatRef.collection('messages').add(message.toMap());
   }
 
-  Future<void> markMessagesAsSeen(String chatId, String userId) async {
-    final query = await chats()
+  Future<void> markMessagesAsSeen(String chatId, String myId) async {
+    final q = await _chats
         .doc(chatId)
         .collection('messages')
-        .where('senderId', isNotEqualTo: userId)
+        .where('senderId', isNotEqualTo: myId)
         .where('isSeen', isEqualTo: false)
         .get();
 
-    for (var doc in query.docs) {
-      doc.reference.update({'isSeen': true});
+    for (var d in q.docs) {
+      d.reference.update({'isSeen': true});
     }
   }
 
-  Future<void> setChatPassword({
-    required String chatId,
-    required String password,
-  }) async {
-    await chats().doc(chatId).update({
-      'hasPassword': true,
-      'passwordHash': PasswordHelper.hash(password),
-    });
-  }
+  // ======================
+  // Typing
+  // ======================
 
-  Future<void> removeChatPassword(String chatId) async {
-    await chats().doc(chatId).update({
-      'hasPassword': false,
-      'passwordHash': FieldValue.delete(),
-    });
-  }
-
-  Future<Map<String, dynamic>?> getChatSecurity(String chatId) async {
-    final doc = await chats().doc(chatId).get();
-    if (!doc.exists) return null;
-    return doc.data() as Map<String, dynamic>;
-  }
-
-  Stream<int> unreadCount(String chatId, String userId) {
-    return chats()
-        .doc(chatId)
-        .collection('messages')
-        .where('senderId', isNotEqualTo: userId)
-        .where('isSeen', isEqualTo: false)
+  Stream<bool> typingStream({
+    required String otherUserId,
+    required String myId,
+  }) {
+    return _firestore
+        .collection('users')
+        .doc(otherUserId)
         .snapshots()
-        .map((snap) => snap.docs.length);
-  }
-
-  Stream<String> lastMessage(String chatId) {
-    return chats()
-        .doc(chatId)
-        .snapshots()
-        .map((doc) => doc['lastMessage'] ?? '');
-  }
-
-  Future<void> ensureChatExists({
-    required String chatId,
-    required List<String> members,
-  }) async {
-    final ref = FirebaseFirestore.instance.collection('chats').doc(chatId);
-    final doc = await ref.get();
-
-    if (!doc.exists) {
-      await ref.set({
-        'members': members,
-        'createdAt': FieldValue.serverTimestamp(),
-        'lastMessage': '',
-      });
-    }
+        .map((doc) => doc.data()?['typingTo'] == myId);
   }
 
   Future<void> setTyping({
     required String myId,
     required String? typingTo,
   }) async {
-    await FirebaseFirestore.instance.collection('users').doc(myId).update({
+    await _firestore.collection('users').doc(myId).update({
       'typingTo': typingTo,
+    });
+  }
+
+  // ======================
+  // Password
+  // ======================
+
+  Future<void> setChatPassword(String chatId, String password) async {
+    await _chats.doc(chatId).update({
+      'hasPassword': true,
+      'passwordHash': PasswordHelper.hash(password),
     });
   }
 }
