@@ -56,6 +56,7 @@ flutter:
     - assets/anim/Confirm.json
     - assets/anim/Welcome.json
     - assets/anim/No notification.json
+    - assets/image/chat-app-icon-24.jpg
     # - assets/image/google_logo.png  # Uncomment and ensure this file exists if you want to use it
 
 
