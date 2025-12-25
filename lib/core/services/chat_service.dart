@@ -5,7 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class ChatService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   CollectionReference get _chats => _firestore.collection('chats');
 
