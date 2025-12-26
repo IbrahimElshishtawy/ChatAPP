@@ -5,11 +5,23 @@ class MessageBubble extends StatelessWidget {
   final bool isMe;
   final bool isSeen;
 
+  // ألوان قابلة للتخصيص
+  final Color sentMessageColor;
+  final Color receivedMessageColor;
+  final Color seenIconColor;
+  final Color notSeenIconColor;
+  final double fontSize;
+
   const MessageBubble({
     super.key,
     required this.text,
     required this.isMe,
     required this.isSeen,
+    this.sentMessageColor = Colors.blue,
+    this.receivedMessageColor = Colors.grey,
+    this.seenIconColor = Colors.lightBlueAccent,
+    this.notSeenIconColor = Colors.white70,
+    this.fontSize = 16.0,
   });
 
   @override
@@ -17,11 +29,11 @@ class MessageBubble extends StatelessWidget {
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 4),
+        margin: const EdgeInsets.symmetric(vertical: 6),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         constraints: const BoxConstraints(maxWidth: 280),
         decoration: BoxDecoration(
-          color: isMe ? Colors.blue.shade400 : Colors.grey.shade200,
+          color: isMe ? sentMessageColor : receivedMessageColor,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
@@ -33,7 +45,7 @@ class MessageBubble extends StatelessWidget {
                 : const Radius.circular(16),
           ),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 6),
+            BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 6),
           ],
         ),
         child: Column(
@@ -45,7 +57,7 @@ class MessageBubble extends StatelessWidget {
               text,
               style: TextStyle(
                 color: isMe ? Colors.white : Colors.black,
-                fontSize: 16,
+                fontSize: fontSize,
               ),
             ),
             const SizedBox(height: 4),
@@ -57,7 +69,7 @@ class MessageBubble extends StatelessWidget {
                   Icon(
                     isSeen ? Icons.done_all : Icons.done,
                     size: 16,
-                    color: isSeen ? Colors.lightBlueAccent : Colors.white70,
+                    color: isSeen ? seenIconColor : notSeenIconColor,
                   ),
                   const SizedBox(width: 4),
                   // يمكن إضافة الوقت هنا إذا أردت
