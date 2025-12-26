@@ -114,7 +114,7 @@ class ChatController extends GetxController {
     final receiverId = members.firstWhere((id) => id != myId);
 
     final message = MessageModel(
-      id: '',
+      id: '', // قم بإعطاء id بشكل مناسب إذا كنت بحاجة
       text: text,
       senderId: myId,
       receiverId: receiverId,
@@ -124,7 +124,7 @@ class ChatController extends GetxController {
 
     await _service.sendMessage(
       chatId: chatId,
-      message: message,
+      message: message, // تأكد أن هنا يتم تمرير MessageModel الصحيح
       members: members,
     );
   }
