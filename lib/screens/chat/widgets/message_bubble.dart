@@ -21,7 +21,7 @@ class MessageBubble extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         constraints: const BoxConstraints(maxWidth: 280),
         decoration: BoxDecoration(
-          color: isMe ? Colors.blue : Colors.white,
+          color: isMe ? Colors.blue.shade400 : Colors.grey.shade200,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
@@ -45,19 +45,35 @@ class MessageBubble extends StatelessWidget {
               text,
               style: TextStyle(
                 color: isMe ? Colors.white : Colors.black,
-                fontSize: 15,
+                fontSize: 16,
               ),
             ),
             const SizedBox(height: 4),
             if (isMe)
-              Icon(
-                isSeen ? Icons.done_all : Icons.done,
-                size: 14,
-                color: isSeen ? Colors.lightBlueAccent : Colors.white70,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  // عرض حالة الرسالة (تم قراءة أو تم تسليمها)
+                  Icon(
+                    isSeen ? Icons.done_all : Icons.done,
+                    size: 16,
+                    color: isSeen ? Colors.lightBlueAccent : Colors.white70,
+                  ),
+                  const SizedBox(width: 4),
+                  // يمكن إضافة الوقت هنا إذا أردت
+                  Text(
+                    _getTimeAgo(),
+                    style: TextStyle(fontSize: 12, color: Colors.white70),
+                  ),
+                ],
               ),
           ],
         ),
       ),
     );
+  }
+
+  String _getTimeAgo() {
+    return '10:30 PM';
   }
 }
