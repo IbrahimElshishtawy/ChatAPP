@@ -23,7 +23,12 @@ class ChatService {
         .doc(chatId)
         .collection('messages')
         .orderBy('createdAt', descending: true)
-        .snapshots();
+        .snapshots()
+        .map((snapshot) {
+          // تحقق من الأعضاء المحذوفين في الدردشة
+          _filterDeletedUsers(chatId); // تحقق من الأعضاء المحذوفين هنا
+          return snapshot;
+        });
   }
 
   Future<void> ensureChatExists({
@@ -150,5 +155,21 @@ class ChatService {
     }
 
     return validMembers;
+  }
+
+  // دالة للتحقق من الأعضاء المحذوفين
+  Future<void> _filterDeletedUsers(String chatId) async {
+    final chatDoc = await _chats.doc(chatId).get();
+    if (!chatDoc.exists) return;
+
+    final members = List<String>.from(
+      (chatDoc.data() as Map<String, dynamic>?)?['members'] ?? [],
+    );
+    final validMembers = await _verifyMembersExist(members);
+
+    // إذا كان هناك أعضاء محذوفين، قم بتحديث القائمة
+    if (validMembers.length != members.length) {
+      await _chats.doc(chatId).update({'members': validMembers});
+    }
   }
 }
