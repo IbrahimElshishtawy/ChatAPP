@@ -33,45 +33,49 @@ class _ChatInputBarState extends State<ChatInputBar> {
     return SafeArea(
       top: false,
       child: Container(
-        padding: const EdgeInsets.fromLTRB(8, 6, 8, 10),
+        padding: const EdgeInsets.fromLTRB(10, 8, 10, 12),
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 6,
-              offset: const Offset(0, -2),
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 10,
+              offset: const Offset(0, -4),
             ),
           ],
         ),
         child: Row(
           children: [
-            /// ➕ Attach
             IconButton(
-              icon: const Icon(Icons.add, color: Colors.grey),
+              icon: const Icon(Icons.attach_file, color: Colors.grey, size: 24),
               onPressed: () {
-                // TODO: attachments
+                // TODO: Implement Attachments (images, videos, etc.)
               },
             ),
 
-            /// 📝 Text Field
+            /// 📝 Text Field with Emojis
             Expanded(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 14),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF0F2F5),
-                  borderRadius: BorderRadius.circular(22),
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 6,
+                    ),
+                  ],
                 ),
                 child: Row(
                   children: [
-                    /// 😊 Emoji
                     Icon(
                       Icons.emoji_emotions_outlined,
                       color: Colors.grey.shade600,
                     ),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: 8),
 
-                    /// Input
+                    /// Input Field
                     Expanded(
                       child: TextField(
                         controller: textCtrl,
@@ -92,29 +96,29 @@ class _ChatInputBarState extends State<ChatInputBar> {
                         onTapOutside: (_) => chatCtrl.stopTyping(),
                         decoration: const InputDecoration(
                           hintText: 'اكتب رسالة...',
+                          hintStyle: TextStyle(color: Colors.black45),
                           border: InputBorder.none,
                         ),
                       ),
                     ),
 
-                    /// 📎 Camera / Gallery (اختياري)
+                    const SizedBox(width: 8),
+
+                    /// 📎 Camera / Gallery (optional)
                     Icon(
                       Icons.camera_alt_outlined,
                       color: Colors.grey.shade600,
-                      size: 20,
+                      size: 22,
                     ),
                   ],
                 ),
               ),
             ),
 
-            const SizedBox(width: 6),
-
-            /// 🎤 / ✈️ Send
+            const SizedBox(width: 8),
             GestureDetector(
               onTap: () async {
                 if (!hasText) {
-                  // TODO: Voice record
                   return;
                 }
 
@@ -132,11 +136,14 @@ class _ChatInputBarState extends State<ChatInputBar> {
                 await chatCtrl.stopTyping();
               },
               child: CircleAvatar(
-                radius: 22,
-                backgroundColor: const Color(0xFF008069), // WhatsApp green
+                radius: 26,
+                backgroundColor: hasText
+                    ? const Color(0xFF008069)
+                    : Colors.grey,
                 child: Icon(
                   hasText ? Icons.send : Icons.mic,
                   color: Colors.white,
+                  size: 24,
                 ),
               ),
             ),
