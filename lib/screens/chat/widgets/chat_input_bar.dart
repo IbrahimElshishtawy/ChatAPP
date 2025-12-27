@@ -137,7 +137,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
               },
               child: CircleAvatar(
                 radius: 22,
-                backgroundColor: const Color(0xFF008069),
+                backgroundColor: const Color.fromARGB(255, 0, 128, 64),
                 child: Icon(
                   hasText ? Icons.send : Icons.mic,
                   color: Colors.white,
