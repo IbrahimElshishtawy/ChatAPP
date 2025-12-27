@@ -1,18 +1,28 @@
+import 'dart:io';
+
+import 'package:chat/core/services/AudioRecordingService.dart';
+import 'package:chat/core/services/CameraService.dart';
+import 'package:chat/screens/chat/widgets/FileUploadService.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../core/services/chat_service.dart';
+
 import '../../core/models/message_model.dart';
 
 class ChatController extends GetxController {
   final ChatService _service = ChatService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FileUploadService _fileService = FileUploadService();
+  final AudioRecordingService _audioService = AudioRecordingService();
+  final CameraService _cameraService = CameraService();
+
+  String? get uid => _auth.currentUser?.uid;
 
   // ======================
   // Auth
   // ======================
-
-  String? get uid => _auth.currentUser?.uid;
+  User? get currentUser => _auth.currentUser;
 
   // ======================
   // Streams
@@ -96,10 +106,30 @@ class ChatController extends GetxController {
   // Actions
   // ======================
 
+  // إرسال رسالة مع ملف مرفق
+  Future<void> sendFileMessage({
+    required String chatId,
+    required String text,
+    required List<String> members,
+    required String filePath,
+  }) async {
+    final fileUrl = await _fileService.uploadFile(
+      File(filePath),
+      'chat_files/${DateTime.now().millisecondsSinceEpoch}',
+    );
+    await sendMessage(
+      chatId: chatId,
+      text: text,
+      members: members,
+      fileUrl: fileUrl,
+    );
+  }
+
   Future<void> sendMessage({
     required String chatId,
     required String text,
     required List<String> members,
+    String? fileUrl,
   }) async {
     final myId = uid;
     if (myId == null) return;
@@ -124,7 +154,7 @@ class ChatController extends GetxController {
 
     await _service.sendMessage(
       chatId: chatId,
-      message: message, // تأكد أن هنا يتم تمرير MessageModel الصحيح
+      message: message,
       members: members,
     );
   }
@@ -149,5 +179,34 @@ class ChatController extends GetxController {
     final myId = uid;
     if (myId == null) return;
     await _service.setTyping(myId: myId, typingTo: null);
+  }
+
+  // ======================
+  // Audio Recording
+  // ======================
+
+  Future<void> startAudioRecording() async {
+    await _audioService.startRecording();
+  }
+
+  Future<void> stopAudioRecording() async {
+    final filePath = await _audioService.stopRecording();
+    if (filePath != null) {
+      await sendFileMessage(
+        chatId: 'chatId', // يجب أن تضع chatId هنا
+        text: 'Voice Message',
+        members: ['user1', 'user2'], // تأكد من وضع معرفات الأعضاء
+        filePath: filePath,
+      );
+    }
+  }
+
+  // ======================
+  // Camera
+  // ======================
+
+  Future<void> openCamera() async {
+    await _cameraService.initializeCamera();
+    await _cameraService.captureImage();
   }
 }

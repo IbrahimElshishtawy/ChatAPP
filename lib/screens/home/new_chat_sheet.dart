@@ -1,3 +1,5 @@
+// ignore_for_file: strict_top_level_inference, unnecessary_underscores
+
 import 'package:chat/controllers/chat/chat_controller.dart';
 import 'package:chat/screens/chat/chat_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

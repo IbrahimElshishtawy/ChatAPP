@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../controllers/chat/chat_controller.dart';
@@ -64,7 +65,9 @@ class _ChatInputBarState extends State<ChatInputBar> {
                   );
                   await ref.putFile(file);
                   final downloadUrl = await ref.getDownloadURL();
-                  print("File uploaded: $downloadUrl");
+                  if (kDebugMode) {
+                    print("File uploaded: $downloadUrl");
+                  }
                 }
               },
             ),

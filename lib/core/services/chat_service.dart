@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import '../models/message_model.dart';
 import '../utils/password_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -150,7 +151,9 @@ class ChatService {
         }
       } catch (e) {
         // إذا لم يكن المستخدم موجودًا في Firestore، لا نضيفه في القائمة
-        print('User not found in Firestore: $memberId');
+        if (kDebugMode) {
+          print('User not found in Firestore: $memberId');
+        }
       }
     }
 

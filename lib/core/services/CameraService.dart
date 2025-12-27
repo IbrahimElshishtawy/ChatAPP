@@ -1,4 +1,7 @@
+// ignore_for_file: file_names
+
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 
 class CameraService {
   late CameraController _controller;
@@ -13,9 +16,13 @@ class CameraService {
   Future<void> captureImage() async {
     try {
       final image = await _controller.takePicture();
-      print("Image captured: ${image.path}");
+      if (kDebugMode) {
+        print("Image captured: ${image.path}");
+      }
     } catch (e) {
-      print("Error capturing image: $e");
+      if (kDebugMode) {
+        print("Error capturing image: $e");
+      }
     }
   }
 }

@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:flutter_sound/flutter_sound.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -8,7 +10,7 @@ class AudioRecordingService {
 
   // بدء التسجيل
   Future<void> startRecording() async {
-    await _recorder.openAudioSession();
+    await _recorder.openRecorder();
     await _recorder.startRecorder(toFile: 'audio_recording.aac');
     isRecording = true;
   }
