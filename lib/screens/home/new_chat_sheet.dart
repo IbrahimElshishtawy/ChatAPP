@@ -138,6 +138,7 @@ class NewChatSheet extends StatelessWidget {
                             () => ChatPage(
                               otherUserId: u.id,
                               otherUserName: u.name,
+                              chatId: '',
                             ),
                           );
                         },
