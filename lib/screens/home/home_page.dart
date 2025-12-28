@@ -71,6 +71,7 @@ class HomePage extends StatelessWidget {
                               () => ChatPage(
                                 otherUserId: 'id',
                                 otherUserName: 'User',
+                                chatId: '',
                               ),
                             );
                           },
