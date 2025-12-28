@@ -209,4 +209,33 @@ class ChatController extends GetxController {
     await _cameraService.initializeCamera();
     await _cameraService.captureImage();
   }
+
+  // ======================
+  // Delete Chat
+  // ======================
+
+  // حذف الشات من Firestore
+  Future<void> deleteChat(String chatId) async {
+    try {
+      // حذف الشات من Firestore
+      await FirebaseFirestore.instance.collection('chats').doc(chatId).delete();
+    } catch (e) {
+      throw Exception("Error deleting chat: $e");
+    }
+  }
+
+  // ======================
+  // Mute Chat
+  // ======================
+
+  // كتم إشعارات الشات
+  Future<void> muteChat(String chatId) async {
+    try {
+      await FirebaseFirestore.instance.collection('chats').doc(chatId).update({
+        'muted': true, // إضافة خاصية "muted" للشات
+      });
+    } catch (e) {
+      throw Exception("Error muting chat: $e");
+    }
+  }
 }
