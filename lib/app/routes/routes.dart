@@ -89,6 +89,7 @@ class AppRoutes {
         return ChatPage(
           otherUserId: args['id'] as String,
           otherUserName: args['name'] as String,
+          chatId: '',
         );
       },
     ),
