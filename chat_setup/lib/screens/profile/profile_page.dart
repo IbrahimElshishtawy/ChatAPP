@@ -62,9 +62,13 @@ class ProfilePage extends StatelessWidget {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ProfilePicture(userCtrl: userCtrl),
-                  const SizedBox(height: 6),
-                  StatsSection(),
+                  Row(
+                    children: [
+                      ProfilePicture(userCtrl: userCtrl),
+                      const SizedBox(height: 6),
+                      StatsSection(),
+                    ],
+                  ),
                   const SizedBox(height: 16),
                   UserInfo(
                     nameCtrl: nameCtrl,
