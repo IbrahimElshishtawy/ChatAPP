@@ -1,7 +1,5 @@
-// =====================
-// Share Profile Button Widget
-// =====================
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart'; // تضمين المكتبة
 
 class ShareButton extends StatelessWidget {
   const ShareButton({super.key});
@@ -12,10 +10,35 @@ class ShareButton extends StatelessWidget {
       width: double.infinity,
       height: 48,
       child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.blue, // لون الخلفية
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30), // شكل الزر
+          ),
+        ),
         onPressed: () {
-          // Implement Share functionality here
+          // نص مخصص للمشاركة (يمكنك إضافة رابط للملف الشخصي هنا)
+          final String profileContent =
+              'Check out my profile on [App Name]! Here is the link: [profile_url]';
+
+          // نشر المحتوى عبر التطبيقات المختلفة
+          Share.share(profileContent);
         },
-        child: const Text('Share Profile'),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.share, color: Colors.white), // أيقونة المشاركة
+            const SizedBox(width: 8),
+            const Text(
+              'Share Profile',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white, // لون النص
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
