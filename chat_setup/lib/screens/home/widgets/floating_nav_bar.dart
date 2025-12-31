@@ -1,5 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:chat_setup/app/routes/routes.dart';
+import 'package:chat_setup/screens/profile/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../controllers/navigation/navigation_controller.dart';
@@ -9,10 +11,11 @@ class FloatingNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // تأمين الكنترولر (يمنع not found)
     final nav = Get.isRegistered<NavigationController>()
         ? Get.find<NavigationController>()
         : Get.put(NavigationController());
+
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Positioned(
       left: 16,
@@ -25,7 +28,7 @@ class FloatingNavBar extends StatelessWidget {
           duration: const Duration(milliseconds: 300),
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: isDarkMode ? Colors.black : const Color(0xFFF6F7F9),
             borderRadius: BorderRadius.circular(26),
             boxShadow: [
               BoxShadow(
@@ -65,7 +68,9 @@ class FloatingNavBar extends StatelessWidget {
                 icon: Icons.person_rounded,
                 label: 'الملف',
                 selected: index == 4,
-                onTap: () => nav.change(4),
+                onTap: () {
+                  Get.to(() => ProfilePage());
+                },
               ),
             ],
           ),
@@ -129,7 +134,7 @@ class _NavItem extends StatelessWidget {
               ),
               const SizedBox(height: 4),
 
-              /// 🔵 Indicator
+              /// Indicator
               AnimatedContainer(
                 duration: const Duration(milliseconds: 250),
                 height: 3,
