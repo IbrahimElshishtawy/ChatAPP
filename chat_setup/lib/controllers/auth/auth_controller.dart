@@ -129,7 +129,7 @@ class AuthController extends GetxController {
         smsCode: smsCode,
       );
 
-      final userCred = await _auth.signInWithCredential(credential);
+      await _auth.signInWithCredential(credential);
 
       // await _service.saveUserData(userCred.user!.uid, data);
 

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:get/get.dart';
 
 class EmptyChatsView extends StatelessWidget {
   const EmptyChatsView({super.key});

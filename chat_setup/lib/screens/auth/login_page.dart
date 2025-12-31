@@ -16,8 +16,8 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final auth = Get.find<AuthController>();
-    final formCtrl = Get.put(LoginFormController());
+    Get.find<AuthController>();
+    Get.put(LoginFormController());
     Future<void> onLogin() async {
       final c = Get.find<LoginFormController>();
       final auth = Get.find<AuthController>();

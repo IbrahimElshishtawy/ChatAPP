@@ -1,6 +1,5 @@
-import 'package:chat/screens/home/new_chat_sheet.dart';
+import 'package:chat_setup/screens/home/new_chat_sheet.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class HomeFAB extends StatelessWidget {
   const HomeFAB({super.key});

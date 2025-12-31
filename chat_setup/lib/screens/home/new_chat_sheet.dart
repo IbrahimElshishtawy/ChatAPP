@@ -1,9 +1,8 @@
 // ignore_for_file: avoid_print, strict_top_level_inference, unnecessary_underscores
 
-import 'package:chat/controllers/chat/chat_controller.dart';
-import 'package:chat/screens/chat/chat_page.dart';
+import 'package:chat_setup/controllers/chat/chat_controller.dart';
+import 'package:chat_setup/screens/chat/chat_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

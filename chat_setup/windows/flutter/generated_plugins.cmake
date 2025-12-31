@@ -11,6 +11,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   firebase_storage
   flutter_sound
   iris_method_channel
+  permission_handler_windows
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

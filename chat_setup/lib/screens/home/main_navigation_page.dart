@@ -1,6 +1,6 @@
-import 'package:chat/controllers/call/call_controller.dart';
-import 'package:chat/screens/call/incoming_call_page.dart';
-import 'package:chat/screens/home/widgets/floating_nav_bar.dart';
+import 'package:chat_setup/controllers/call/call_controller.dart';
+import 'package:chat_setup/screens/call/incoming_call_page.dart';
+import 'package:chat_setup/screens/home/widgets/floating_nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';

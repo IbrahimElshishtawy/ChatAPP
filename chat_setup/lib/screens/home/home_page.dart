@@ -1,9 +1,9 @@
-import 'package:chat/controllers/chat/chat_controller.dart';
-import 'package:chat/screens/chat/chat_page.dart';
-import 'package:chat/screens/home/widgets/empty_chats_view.dart';
-import 'package:chat/screens/home/widgets/home_fab.dart';
-import 'package:chat/screens/home/widgets/home_header.dart';
-import 'package:chat/screens/home/widgets/floating_nav_bar.dart';
+import 'package:chat_setup/controllers/chat/chat_controller.dart';
+import 'package:chat_setup/screens/chat/chat_page.dart';
+import 'package:chat_setup/screens/home/widgets/empty_chats_view.dart';
+import 'package:chat_setup/screens/home/widgets/home_fab.dart';
+import 'package:chat_setup/screens/home/widgets/home_header.dart';
+import 'package:chat_setup/screens/home/widgets/floating_nav_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
