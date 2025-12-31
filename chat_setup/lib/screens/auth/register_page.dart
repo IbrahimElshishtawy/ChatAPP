@@ -1,4 +1,4 @@
-import 'package:chat/screens/auth/widget/auth_animation.dart';
+import 'package:chat_setup/screens/auth/widget/auth_animation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

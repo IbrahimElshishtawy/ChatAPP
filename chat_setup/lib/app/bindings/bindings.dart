@@ -1,6 +1,6 @@
-import 'package:chat/controllers/notification/notification_controller.dart';
-import 'package:chat/controllers/presence/presence_controller.dart';
-import 'package:chat/controllers/user/user_controller.dart';
+import 'package:chat_setup/controllers/notification/notification_controller.dart';
+import 'package:chat_setup/controllers/presence/presence_controller.dart';
+import 'package:chat_setup/controllers/user/user_controller.dart';
 import 'package:get/get.dart';
 
 import '../../controllers/auth/auth_controller.dart';

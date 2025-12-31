@@ -1,4 +1,4 @@
-import 'package:chat/controllers/call/call_controller.dart';
+import 'package:chat_setup/controllers/call/call_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

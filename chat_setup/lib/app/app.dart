@@ -1,5 +1,5 @@
-import 'package:chat/app/bindings/bindings.dart';
-import 'package:chat/app/routes/routes.dart';
+import 'package:chat_setup/app/bindings/bindings.dart';
+import 'package:chat_setup/app/routes/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

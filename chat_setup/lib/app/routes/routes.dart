@@ -1,5 +1,5 @@
-import 'package:chat/app/bindings/auth_bindings.dart';
-import 'package:chat/app/bindings/home_binding.dart';
+import 'package:chat_setup/app/bindings/auth_bindings.dart';
+import 'package:chat_setup/app/bindings/home_binding.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

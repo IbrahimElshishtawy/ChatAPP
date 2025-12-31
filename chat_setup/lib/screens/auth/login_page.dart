@@ -1,5 +1,5 @@
-import 'package:chat/screens/auth/widget/confirm_page.dart';
-import 'package:chat/screens/auth/widget/login_form_controller.dart';
+import 'package:chat_setup/screens/auth/widget/confirm_page.dart';
+import 'package:chat_setup/screens/auth/widget/login_form_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';

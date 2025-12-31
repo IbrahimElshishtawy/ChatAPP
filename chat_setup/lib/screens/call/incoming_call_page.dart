@@ -1,7 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:chat/screens/call/video_call_page.dart';
-import 'package:chat/screens/call/voice_call_page.dart';
+import 'package:chat_setup/screens/call/video_call_page.dart';
+import 'package:chat_setup/screens/call/voice_call_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/call/call_controller.dart';

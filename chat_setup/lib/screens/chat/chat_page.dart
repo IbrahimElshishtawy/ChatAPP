@@ -1,5 +1,5 @@
-import 'package:chat/screens/chat/widgets/chat_input_bar.dart';
-import 'package:chat/screens/chat/widgets/messages_list.dart';
+import 'package:chat_setup/screens/chat/widgets/chat_input_bar.dart';
+import 'package:chat_setup/screens/chat/widgets/messages_list.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../controllers/chat/chat_controller.dart';
@@ -25,8 +25,6 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    final chatCtrl = Get.find<ChatController>();
-
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.otherUserName),

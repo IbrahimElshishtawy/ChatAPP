@@ -1,4 +1,4 @@
-import 'package:chat/screens/chat/widgets/OnlineStatusText.dart';
+import 'package:chat_setup/screens/chat/widgets/OnlineStatusText.dart';
 import 'package:flutter/material.dart';
 
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {

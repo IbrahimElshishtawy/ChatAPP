@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:chat/core/services/AudioRecordingService.dart';
-import 'package:chat/core/services/CameraService.dart';
-import 'package:chat/core/services/FileUploadService.dart';
+import 'package:chat_setup/core/services/AudioRecordingService.dart';
+import 'package:chat_setup/core/services/CameraService.dart';
+import 'package:chat_setup/core/services/FileUploadService.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';

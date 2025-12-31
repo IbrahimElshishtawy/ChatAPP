@@ -1,4 +1,4 @@
-import 'package:chat/screens/auth/widget/confirm_page.dart';
+import 'package:chat_setup/screens/auth/widget/confirm_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../controllers/auth/auth_controller.dart';
