@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../core/models/user_model.dart';
@@ -138,7 +139,9 @@ class UserController extends GetxController {
 
       user.value = user.value?.copyWith(profilePicture: imageUrl);
     } catch (e) {
-      print('Error updating profile picture: $e');
+      if (kDebugMode) {
+        print('Error updating profile picture: $e');
+      }
     }
   }
 
@@ -162,7 +165,9 @@ class UserController extends GetxController {
 
       user.value = user.value?.copyWith(backgroundImage: imageUrl);
     } catch (e) {
-      print('Error updating background image: $e');
+      if (kDebugMode) {
+        print('Error updating background image: $e');
+      }
     }
   }
 
@@ -191,7 +196,9 @@ class UserController extends GetxController {
         whatsapp: whatsapp,
       );
     } catch (e) {
-      print('Error updating profile links: $e');
+      if (kDebugMode) {
+        print('Error updating profile links: $e');
+      }
     }
   }
 }

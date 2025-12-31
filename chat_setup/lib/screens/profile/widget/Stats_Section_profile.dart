@@ -1,7 +1,8 @@
+// ignore_for_file: non_constant_identifier_names, deprecated_member_use, invalid_null_aware_operator, file_names
+
 import 'package:chat_setup/controllers/user/user_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class StatsSection extends StatelessWidget {
   const StatsSection({super.key});
@@ -15,13 +16,10 @@ class StatsSection extends StatelessWidget {
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _StatColumn(
-            label: 'Posts',
-            value: user.postsCount?.toString() ?? '0',
-          ),
+          _StatColumn(label: 'Posts', value: user.postsCount.toString()),
           _StatColumn(
             label: 'Followers',
-            value: user.followersCount?.toString() ?? '0',
+            value: user.followersCount.toString(),
           ),
           _StatColumn(
             label: 'Following',

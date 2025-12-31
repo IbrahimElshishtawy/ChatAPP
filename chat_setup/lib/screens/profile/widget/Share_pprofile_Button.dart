@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart'; // تضمين المكتبة
 
@@ -22,6 +24,7 @@ class ShareButton extends StatelessWidget {
               'Check out my profile on [App Name]! Here is the link: [profile_url]';
 
           // نشر المحتوى عبر التطبيقات المختلفة
+          // ignore: deprecated_member_use
           Share.share(profileContent);
         },
         child: Row(

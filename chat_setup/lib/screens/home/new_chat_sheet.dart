@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_underscores
+
 import 'package:chat_setup/screens/chat/chat_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

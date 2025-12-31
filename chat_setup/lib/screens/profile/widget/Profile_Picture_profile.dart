@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use, file_names
+
 import 'dart:io';
 import 'package:chat_setup/controllers/user/user_controller.dart';
 import 'package:flutter/material.dart';

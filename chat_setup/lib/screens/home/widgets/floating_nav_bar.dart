@@ -1,6 +1,5 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:chat_setup/app/routes/routes.dart';
 import 'package:chat_setup/screens/profile/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
