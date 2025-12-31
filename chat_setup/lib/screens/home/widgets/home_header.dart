@@ -29,26 +29,43 @@ class _HomeHeaderState extends State<HomeHeader> {
           color: Theme.of(context).scaffoldBackgroundColor,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
-              blurRadius: 16,
-              offset: const Offset(0, 6),
+              color: const Color.fromARGB(255, 235, 234, 234).withOpacity(0.06),
+              blurRadius: 100,
+              offset: const Offset(0, 3),
             ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// 🔝 Top Bar
+            ///Top Bar
             Row(
               children: [
                 Row(
                   children: [
                     Image.asset(
                       'assets/image/chat-app-icon-24.jpg',
-                      width: 26, // تغيير الحجم هنا
+                      width: 26,
                       height: 26,
                     ),
                     const SizedBox(width: 8),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      child: searchMode
+                          ? _searchBar()
+                          : Obx(() {
+                              final name =
+                                  userCtrl.user.value?.name ?? 'صديقنا';
+                              return Text(
+                                name,
+                                key: const ValueKey('username'),
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.grey.shade700,
+                                ),
+                              );
+                            }),
+                    ),
                   ],
                 ),
                 const Spacer(),
@@ -76,24 +93,28 @@ class _HomeHeaderState extends State<HomeHeader> {
               ],
             ),
 
-            const SizedBox(height: 4),
+            const SizedBox(height: 1),
 
-            /// 👤 Username
+            ///  Username
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 250),
               child: searchMode
                   ? _searchBar()
-                  : Obx(() {
-                      final name = userCtrl.user.value?.name ?? 'صديقنا';
-                      return Text(
-                        name,
-                        key: const ValueKey('username'),
-                        style: TextStyle(
-                          fontSize: 15.5,
-                          color: Colors.grey.shade700,
-                        ),
-                      );
-                    }),
+                  : Center(
+                      child: Obx(() {
+                        final name =
+                            userCtrl.user.value?.description ??
+                            'ما من وصف لي المستخدم ';
+                        return Text(
+                          name,
+                          key: const ValueKey('username'),
+                          style: TextStyle(
+                            fontSize: 17,
+                            color: const Color.fromARGB(255, 111, 107, 107),
+                          ),
+                        );
+                      }),
+                    ),
             ),
           ],
         ),
