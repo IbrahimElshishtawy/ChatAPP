@@ -20,12 +20,12 @@ class HomePage extends StatelessWidget {
     final chatsRef = FirebaseFirestore.instance
         .collection('chats')
         .where('members', arrayContains: uid);
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Stack(
       children: [
-        /// الصفحة الأساسية
         Scaffold(
-          backgroundColor: const Color(0xFFF6F7F9),
+          backgroundColor: isDarkMode ? Colors.black : const Color(0xFFF6F7F9),
           body: Column(
             children: [
               const HomeHeader(),
@@ -71,7 +71,7 @@ class HomePage extends StatelessWidget {
                               () => ChatPage(
                                 otherUserId: 'id',
                                 otherUserName: 'User',
-                                chatId: '',
+                                chatId: chatId,
                               ),
                             );
                           },
@@ -85,10 +85,8 @@ class HomePage extends StatelessWidget {
           ),
         ),
 
-        /// 🔵 Floating Action Button
         const HomeFAB(),
 
-        /// 🔥 Floating Navigation Bar
         const FloatingNavBar(),
       ],
     );
