@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../core/models/user_model.dart';
@@ -54,10 +57,11 @@ class UserController extends GetxController {
     filteredUsers.assignAll(others);
   }
 
-  /// 🔍 البحث
   void search(String q) {
     if (q.trim().isEmpty) {
-      filteredUsers.assignAll(allUsers);
+      filteredUsers.assignAll(
+        allUsers,
+      ); // إذا كانت القيمة فارغة نعرض كل المستخدمين
       return;
     }
 
@@ -66,15 +70,18 @@ class UserController extends GetxController {
     filteredUsers.assignAll(
       allUsers.where(
         (u) =>
-            u.name.toLowerCase().contains(query) ||
-            (u.email?.toLowerCase().contains(query) ?? false) ||
-            (u.phone?.contains(query) ?? false),
+            u.name.toLowerCase().contains(query) || // البحث حسب الاسم
+            (u.email?.toLowerCase().contains(query) ??
+                false) || // البحث حسب الإيميل
+            (u.phone?.contains(query) ?? false) || // البحث حسب الرقم
+            (u.username?.toLowerCase().contains(query) ??
+                false), // البحث حسب اسم المستخدم
       ),
     );
   }
 
   /// ✏️ تعديل البروفايل
-  Future<void> updateProfile(String name) async {
+  Future<void> updateProfile(String name, String trim) async {
     if (user.value == null) return;
 
     final updated = user.value!.copyWith(name: name);
@@ -108,5 +115,83 @@ class UserController extends GetxController {
     user.value = null;
     allUsers.clear();
     filteredUsers.clear();
+  }
+
+  //=============================================================
+  // تحديث الصورة الشخصية
+  Future<void> updateProfilePicture(File imageFile) async {
+    try {
+      final userId = _auth.currentUser?.uid;
+      if (userId == null) return;
+
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child('profile_pictures')
+          .child('$userId.jpg');
+      await storageRef.putFile(imageFile);
+
+      final imageUrl = await storageRef.getDownloadURL();
+
+      await _firestore.collection('users').doc(userId).update({
+        'profilePicture': imageUrl,
+      });
+
+      user.value = user.value?.copyWith(profilePicture: imageUrl);
+    } catch (e) {
+      print('Error updating profile picture: $e');
+    }
+  }
+
+  // تحديث صورة الخلفية
+  Future<void> updateBackgroundImage(File imageFile) async {
+    try {
+      final userId = _auth.currentUser?.uid;
+      if (userId == null) return;
+
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child('background_images')
+          .child('$userId.jpg');
+      await storageRef.putFile(imageFile);
+
+      final imageUrl = await storageRef.getDownloadURL();
+
+      await _firestore.collection('users').doc(userId).update({
+        'backgroundImage': imageUrl,
+      });
+
+      user.value = user.value?.copyWith(backgroundImage: imageUrl);
+    } catch (e) {
+      print('Error updating background image: $e');
+    }
+  }
+
+  // تحديث الروابط
+  Future<void> updateProfileLinks({
+    String? linkedin,
+    String? facebook,
+    String? instagram,
+    String? whatsapp,
+  }) async {
+    try {
+      final userId = _auth.currentUser?.uid;
+      if (userId == null) return;
+
+      await _firestore.collection('users').doc(userId).update({
+        'linkedin': linkedin,
+        'facebook': facebook,
+        'instagram': instagram,
+        'whatsapp': whatsapp,
+      });
+
+      user.value = user.value?.copyWith(
+        linkedin: linkedin,
+        facebook: facebook,
+        instagram: instagram,
+        whatsapp: whatsapp,
+      );
+    } catch (e) {
+      print('Error updating profile links: $e');
+    }
   }
 }
