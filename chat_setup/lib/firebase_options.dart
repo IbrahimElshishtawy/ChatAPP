@@ -42,18 +42,18 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyAkKhwfKH5XyMwdkgWV87SWUlEXE7BZA3k',
-    appId: '1:213971425257:web:e17949cd71236f7b5f1d78',
+    appId: '1:213971425257:web:d15551f3d33663885f1d78',
     messagingSenderId: '213971425257',
     projectId: 'chatapp-8ad35',
     authDomain: 'chatapp-8ad35.firebaseapp.com',
     databaseURL: 'https://chatapp-8ad35-default-rtdb.firebaseio.com',
     storageBucket: 'chatapp-8ad35.firebasestorage.app',
-    measurementId: 'G-VC290SRY3C',
+    measurementId: 'G-BY9P3NQTDQ',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDBlm3uBAV-a_AJmYwjCOwgjKdTkRqq1Z0',
-    appId: '1:213971425257:android:62facb3bec0175c45f1d78',
+    appId: '1:213971425257:android:fa7dcc24675acd3e5f1d78',
     messagingSenderId: '213971425257',
     projectId: 'chatapp-8ad35',
     databaseURL: 'https://chatapp-8ad35-default-rtdb.firebaseio.com',
@@ -62,33 +62,33 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBNG7dO3lvJQmDL5ZTgzLg7X2exLWO5OQU',
-    appId: '1:213971425257:ios:f12d59acf8e5d6d85f1d78',
+    appId: '1:213971425257:ios:b701684f4b398c6b5f1d78',
     messagingSenderId: '213971425257',
     projectId: 'chatapp-8ad35',
     databaseURL: 'https://chatapp-8ad35-default-rtdb.firebaseio.com',
     storageBucket: 'chatapp-8ad35.firebasestorage.app',
-    iosBundleId: 'com.example.chat',
+    iosBundleId: 'com.example.chatSetup',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyBNG7dO3lvJQmDL5ZTgzLg7X2exLWO5OQU',
-    appId: '1:213971425257:ios:f12d59acf8e5d6d85f1d78',
+    appId: '1:213971425257:ios:b701684f4b398c6b5f1d78',
     messagingSenderId: '213971425257',
     projectId: 'chatapp-8ad35',
     databaseURL: 'https://chatapp-8ad35-default-rtdb.firebaseio.com',
     storageBucket: 'chatapp-8ad35.firebasestorage.app',
-    iosBundleId: 'com.example.chat',
+    iosBundleId: 'com.example.chatSetup',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
     apiKey: 'AIzaSyAkKhwfKH5XyMwdkgWV87SWUlEXE7BZA3k',
-    appId: '1:213971425257:web:d15551f3d33663885f1d78',
+    appId: '1:213971425257:web:9d226864d321edd05f1d78',
     messagingSenderId: '213971425257',
     projectId: 'chatapp-8ad35',
     authDomain: 'chatapp-8ad35.firebaseapp.com',
     databaseURL: 'https://chatapp-8ad35-default-rtdb.firebaseio.com',
     storageBucket: 'chatapp-8ad35.firebasestorage.app',
-    measurementId: 'G-BY9P3NQTDQ',
+    measurementId: 'G-NJCBY5E8X8',
   );
 
 }
