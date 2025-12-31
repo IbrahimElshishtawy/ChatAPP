@@ -1,12 +1,8 @@
-// ignore_for_file: avoid_print, strict_top_level_inference, unnecessary_underscores
-
-import 'package:chat_setup/controllers/chat/chat_controller.dart';
 import 'package:chat_setup/screens/chat/chat_page.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../controllers/user/user_controller.dart';
+import '../../../controllers/chat/chat_controller.dart';
 
 class NewChatSheet extends StatelessWidget {
   const NewChatSheet({super.key});
@@ -67,8 +63,6 @@ class NewChatSheet extends StatelessWidget {
           Expanded(
             child: Obx(() {
               final users = userCtrl.filteredUsers;
-
-              // Set to keep track of emails that have been shown
               Set<String> displayedEmails = {};
 
               if (users.isEmpty) {
@@ -94,54 +88,31 @@ class NewChatSheet extends StatelessWidget {
                   // Add the email to the set to ensure it won't be repeated
                   displayedEmails.add(u.email ?? "");
 
-                  return FutureBuilder<bool>(
-                    future: _isUserValid(u),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const SizedBox.shrink();
-                      }
+                  return ListTile(
+                    leading: const CircleAvatar(child: Icon(Icons.person)),
+                    title: Text(u.name),
+                    subtitle: Text(
+                      (u.phone ?? '').isNotEmpty ? u.phone! : (u.email ?? ''),
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    onTap: () async {
+                      final myId = chatCtrl.uid;
+                      if (myId == null) return;
 
-                      if (!snapshot.hasData || snapshot.data != true) {
-                        return const SizedBox.shrink();
-                      }
+                      final chatId = await chatCtrl.openOrCreateChat(u.id);
+                      await chatCtrl.ensureChat(
+                        chatId: chatId,
+                        members: [myId, u.id],
+                      );
 
-                      return ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.blue.shade100,
-                          child: Text(
-                            u.name.isNotEmpty ? u.name[0] : '?',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
+                      Get.back();
+
+                      Get.to(
+                        () => ChatPage(
+                          otherUserId: u.id,
+                          otherUserName: u.name,
+                          chatId: chatId,
                         ),
-                        title: Text(u.name),
-                        subtitle: Text(
-                          (u.phone ?? '').isNotEmpty
-                              ? u.phone!
-                              : (u.email ?? ''),
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                        onTap: () async {
-                          final myId = chatCtrl.uid;
-                          if (myId == null) return;
-
-                          final chatId = chatCtrl.openChat(u.id);
-
-                          await chatCtrl.openOrCreateChat(u.id);
-                          await chatCtrl.ensureChat(
-                            chatId: await chatId,
-                            members: [myId, u.id],
-                          );
-
-                          Get.back();
-
-                          Get.to(
-                            () => ChatPage(
-                              otherUserId: u.id,
-                              otherUserName: u.name,
-                              chatId: '',
-                            ),
-                          );
-                        },
                       );
                     },
                   );
@@ -152,25 +123,5 @@ class NewChatSheet extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  // تحقق من أن المستخدم موجود في Firebase Authentication و Firestore
-  Future<bool> _isUserValid(user) async {
-    try {
-      final userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.id)
-          .get();
-
-      if (!userDoc.exists) {
-        return false;
-      }
-
-      return true;
-    } catch (e) {
-      //  ('Error validating user: $e');
-      kDebugMode ? print('Error validating user: $e') : null;
-      return false;
-    }
   }
 }
