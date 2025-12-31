@@ -1,10 +1,12 @@
+// ignore_for_file: file_names
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class UserPostsWidget extends StatelessWidget {
   final String userId;
 
-  const UserPostsWidget({required this.userId});
+  const UserPostsWidget({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {
