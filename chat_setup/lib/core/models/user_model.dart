@@ -2,6 +2,7 @@ class UserModel {
   final String id;
   final String name;
   final String? email;
+  final String? description;
   final String? phone;
   final String role;
   final String? linkedin;
@@ -11,15 +12,16 @@ class UserModel {
   final String backgroundImage;
   final String? username;
   final String? profilePicture;
-  final String? description; // وصف المستخدم
-  final bool freeTrial; // حالة الفترة التجريبية
-  final bool paymentStatus; // حالة الدفع
+  final int postsCount;
+  final int followersCount;
+  final int followingCount;
 
   UserModel({
     required this.profilePicture,
     required this.id,
     required this.name,
     this.email,
+    this.description,
     this.phone,
     required this.role,
     this.username,
@@ -28,9 +30,9 @@ class UserModel {
     this.instagram,
     this.whatsapp,
     required this.backgroundImage,
-    this.description,
-    this.freeTrial = true,
-    this.paymentStatus = false,
+    this.postsCount = 0,
+    this.followersCount = 0,
+    this.followingCount = 0,
   });
 
   factory UserModel.fromMap(String id, Map<String, dynamic> map) {
@@ -39,13 +41,14 @@ class UserModel {
       name: map['name'] ?? '',
       email: map['email'],
       phone: map['phone'],
+      description: map['description'],
       role: map['role'] ?? 'user',
       username: map['username'],
-      profilePicture: map['profilePicture'] ?? '',
+      profilePicture: map['profilePicture'],
       backgroundImage: map['backgroundImage'] ?? '',
-      description: map['description'],
-      freeTrial: map['freeTrial'] ?? true,
-      paymentStatus: map['paymentStatus'] ?? false,
+      postsCount: map['postsCount'] ?? 0,
+      followersCount: map['followersCount'] ?? 0,
+      followingCount: map['followingCount'] ?? 0,
     );
   }
 
@@ -55,12 +58,13 @@ class UserModel {
       'email': email,
       'phone': phone,
       'role': role,
+      'description': description,
       'username': username,
       'profilePicture': profilePicture,
       'backgroundImage': backgroundImage,
-      'description': description,
-      'freeTrial': freeTrial,
-      'paymentStatus': paymentStatus,
+      'postsCount': postsCount,
+      'followersCount': followersCount,
+      'followingCount': followingCount,
     };
   }
 
@@ -73,12 +77,13 @@ class UserModel {
     String? profilePicture,
     String? linkedin,
     String? facebook,
+    String? description,
     String? instagram,
     String? whatsapp,
     String? backgroundImage,
-    String? description,
-    bool? freeTrial,
-    bool? paymentStatus,
+    int? postsCount,
+    int? followersCount,
+    int? followingCount,
   }) {
     return UserModel(
       id: id,
@@ -86,6 +91,7 @@ class UserModel {
       email: email ?? this.email,
       phone: phone ?? this.phone,
       role: role ?? this.role,
+      description: description ?? this.description,
       profilePicture: profilePicture ?? this.profilePicture,
       username: username ?? this.username,
       linkedin: linkedin ?? this.linkedin,
@@ -93,9 +99,9 @@ class UserModel {
       instagram: instagram ?? this.instagram,
       whatsapp: whatsapp ?? this.whatsapp,
       backgroundImage: backgroundImage ?? this.backgroundImage,
-      description: description ?? this.description,
-      freeTrial: freeTrial ?? this.freeTrial,
-      paymentStatus: paymentStatus ?? this.paymentStatus,
+      postsCount: postsCount ?? this.postsCount,
+      followersCount: followersCount ?? this.followersCount,
+      followingCount: followingCount ?? this.followingCount,
     );
   }
 }
