@@ -32,7 +32,6 @@ class ChatController extends GetxController {
     return _service.getMessages(chatId);
   }
 
-  /// Alias علشان UI قديم
   Stream<QuerySnapshot> getMessages(String chatId) {
     return messagesStream(chatId);
   }
@@ -55,7 +54,6 @@ class ChatController extends GetxController {
   // Core Chat Logic
   // ======================
 
-  /// الدالة الأساسية الوحيدة لفتح/إنشاء شات
   Future<String> openChat(String otherUserId) async {
     final myId = uid;
     if (myId == null) {
@@ -64,7 +62,6 @@ class ChatController extends GetxController {
 
     final chatId = _service.getChatId(myId, otherUserId);
 
-    // التحقق من أن الأعضاء ليسوا مكررين
     await _service.ensureChatExists(
       chatId: chatId,
       members: [myId, otherUserId],
@@ -77,22 +74,18 @@ class ChatController extends GetxController {
   // ALIASES (توافق كامل مع UI القديم)
   // ======================
 
-  /// كان مستخدم في UI: openOrCreateChat(otherUserId)
   Future<String> openOrCreateChat(String otherUserId) {
     return openChat(otherUserId);
   }
 
-  /// كان مستخدم في UI: openOrCreateChat(otherUserId: xxx)
   Future<String> openOrCreateChatNamed({required String otherUserId}) {
     return openChat(otherUserId);
   }
 
-  /// كان مستخدم في UI: ensureChat(chatId: x, members: y)
   Future<void> ensureChat({
     required String chatId,
     required List<String> members,
   }) async {
-    // التحقق من عدم تكرار الأعضاء
     final uniqueMembers = Set<String>.from(members);
 
     if (uniqueMembers.length != members.length) {
@@ -106,7 +99,6 @@ class ChatController extends GetxController {
   // Actions
   // ======================
 
-  // إرسال رسالة مع ملف مرفق
   Future<void> sendFileMessage({
     required String chatId,
     required String text,
@@ -134,7 +126,6 @@ class ChatController extends GetxController {
     final myId = uid;
     if (myId == null) return;
 
-    // التحقق من أن الأعضاء ليسوا مكررين
     final uniqueMembers = Set<String>.from(members);
 
     if (uniqueMembers.length != members.length) {
@@ -144,7 +135,7 @@ class ChatController extends GetxController {
     final receiverId = members.firstWhere((id) => id != myId);
 
     final message = MessageModel(
-      id: '', // قم بإعطاء id بشكل مناسب إذا كنت بحاجة
+      id: '',
       text: text,
       senderId: myId,
       receiverId: receiverId,
@@ -193,9 +184,9 @@ class ChatController extends GetxController {
     final filePath = await _audioService.stopRecording();
     if (filePath != null) {
       await sendFileMessage(
-        chatId: 'chatId', // يجب أن تضع chatId هنا
+        chatId: 'chatId',
         text: 'Voice Message',
-        members: ['user1', 'user2'], // تأكد من وضع معرفات الأعضاء
+        members: ['user1', 'user2'],
         filePath: filePath,
       );
     }
@@ -232,7 +223,7 @@ class ChatController extends GetxController {
   Future<void> muteChat(String chatId) async {
     try {
       await FirebaseFirestore.instance.collection('chats').doc(chatId).update({
-        'muted': true, // إضافة خاصية "muted" للشات
+        'muted': true,
       });
     } catch (e) {
       throw Exception("Error muting chat: $e");
