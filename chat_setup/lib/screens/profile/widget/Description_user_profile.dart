@@ -1,6 +1,3 @@
-// =====================
-// Description Section Widget
-// =====================
 import 'package:flutter/material.dart';
 
 class DescriptionSection extends StatelessWidget {
@@ -10,12 +7,50 @@ class DescriptionSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: descriptionCtrl,
-      maxLength: 70,
-      maxLines: 4,
-      decoration: const InputDecoration(labelText: 'Description'),
-      enabled: false,
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade200,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Description',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 8),
+          // عرض الوصف بتنسيق قابل للتوسع
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: 120, // تحديد الحد الأقصى للارتفاع
+            ),
+            child: SingleChildScrollView(
+              child: Text(
+                descriptionCtrl.text.isEmpty
+                    ? "No description available"
+                    : descriptionCtrl.text,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.black.withOpacity(0.7),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
