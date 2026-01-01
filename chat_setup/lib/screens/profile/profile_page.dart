@@ -62,32 +62,44 @@ class ProfilePage extends StatelessWidget {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Profile Picture and Stats section
                   Row(
                     children: [
                       ProfilePicture(userCtrl: userCtrl),
-                      const SizedBox(height: 6),
+                      const SizedBox(width: 16),
                       StatsSection(),
                     ],
                   ),
                   const SizedBox(height: 16),
+
+                  // User Information (Name, Phone, Username)
                   UserInfo(
                     nameCtrl: nameCtrl,
                     phoneCtrl: phoneCtrl,
                     usernameCtrl: usernameCtrl,
                   ),
                   const SizedBox(height: 16),
+
+                  // Description section
                   DescriptionSection(descriptionCtrl: descriptionCtrl),
                   const SizedBox(height: 16),
+
+                  // Complete Profile Button if the profile is incomplete
                   if (!isProfileComplete) CompleteProfileButton(),
                   const SizedBox(height: 16),
+
+                  // Share and Contact Buttons
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       ShareButton(),
-                      const SizedBox(height: 16),
+                      const SizedBox(width: 16),
                       ContactButton(),
                     ],
                   ),
 
+                  // User Posts section
+                  const SizedBox(height: 16),
                   Padding(
                     padding: const EdgeInsets.only(top: 16),
                     child: Text(
