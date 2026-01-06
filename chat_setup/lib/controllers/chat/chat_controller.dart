@@ -1,18 +1,17 @@
 import 'dart:io';
 
-import 'package:chat_setup/core/services/AudioRecordingService.dart';
-import 'package:chat_setup/core/services/CameraService.dart';
-import 'package:chat_setup/core/services/FileUploadService.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../core/services/chat_service.dart';
-
+import 'package:get/get.dart';
 import '../../core/models/message_model.dart';
+import '../../core/services/chat_service.dart';
+import '../../core/services/FileUploadService.dart';
+import '../../core/services/AudioRecordingService.dart';
+import '../../core/services/CameraService.dart';
 
 class ChatController extends GetxController {
   final ChatService _service = ChatService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
   final FileUploadService _fileService = FileUploadService();
   final AudioRecordingService _audioService = AudioRecordingService();
   final CameraService _cameraService = CameraService();
@@ -20,28 +19,12 @@ class ChatController extends GetxController {
   String? get uid => _auth.currentUser?.uid;
 
   // ======================
-  // Auth
-  // ======================
-  User? get currentUser => _auth.currentUser;
-
-  // ======================
   // Streams
   // ======================
-
-  Stream<QuerySnapshot> messagesStream(String chatId) {
-    return _service.getMessages(chatId);
-  }
-
-  Stream<QuerySnapshot> getMessages(String chatId) {
-    return messagesStream(chatId);
-  }
-
+  Stream getMessages(String chatId) => _service.getMessages(chatId);
+  Stream messagesStream(String chatId) => _service.getMessages(chatId);
   Stream<String> getLastMessageStream(String chatId) {
-    return FirebaseFirestore.instance
-        .collection('chats')
-        .doc(chatId)
-        .snapshots()
-        .map((doc) => doc.data()?['lastMessage'] ?? '');
+    return _service.getLastMessageStream(chatId);
   }
 
   Stream<bool> typingStream(String otherUserId) {
@@ -51,92 +34,40 @@ class ChatController extends GetxController {
   }
 
   // ======================
-  // Core Chat Logic
+  // Chat lifecycle
   // ======================
-
   Future<String> openChat(String otherUserId) async {
     final myId = uid;
     if (myId == null) {
       throw Exception('User not logged in');
     }
-
     final chatId = _service.getChatId(myId, otherUserId);
-
     await _service.ensureChatExists(
       chatId: chatId,
       members: [myId, otherUserId],
     );
-
+    await _service.refreshMembersIfNeeded(chatId);
     return chatId;
   }
 
-  // ======================
-  // ALIASES (توافق كامل مع UI القديم)
-  // ======================
-
-  Future<String> openOrCreateChat(String otherUserId) {
-    return openChat(otherUserId);
-  }
-
-  Future<String> openOrCreateChatNamed({required String otherUserId}) {
-    return openChat(otherUserId);
-  }
-
-  Future<void> ensureChat({
-    required String chatId,
-    required List<String> members,
-  }) async {
-    final uniqueMembers = Set<String>.from(members);
-
-    if (uniqueMembers.length != members.length) {
-      throw Exception("Duplicate members detected");
-    }
-
-    await _service.ensureChatExists(chatId: chatId, members: members);
-  }
+  Future<String> openOrCreateChat(String otherUserId) => openChat(otherUserId);
 
   // ======================
-  // Actions
+  // Send text / file
   // ======================
-
-  Future<void> sendFileMessage({
-    required String chatId,
-    required String text,
-    required List<String> members,
-    required String filePath,
-  }) async {
-    final fileUrl = await _fileService.uploadFile(
-      File(filePath),
-      'chat_files/${DateTime.now().millisecondsSinceEpoch}',
-    );
-    await sendMessage(
-      chatId: chatId,
-      text: text,
-      members: members,
-      fileUrl: fileUrl,
-    );
-  }
-
   Future<void> sendMessage({
     required String chatId,
     required String text,
     required List<String> members,
-    String? fileUrl,
   }) async {
     final myId = uid;
     if (myId == null) return;
-
-    final uniqueMembers = Set<String>.from(members);
-
-    if (uniqueMembers.length != members.length) {
-      throw Exception("Duplicate members detected");
-    }
 
     final receiverId = members.firstWhere((id) => id != myId);
 
     final message = MessageModel(
       id: '',
-      text: text,
+      text: text.trim(),
       senderId: myId,
       receiverId: receiverId,
       createdAt: DateTime.now(),
@@ -150,6 +81,35 @@ class ChatController extends GetxController {
     );
   }
 
+  Future<void> sendFileMessage({
+    required String chatId,
+    required String text,
+    required List<String> members,
+    required String filePath,
+  }) async {
+    final fileUrl = await _fileService.uploadFile(
+      File(filePath),
+      'chat_files/${DateTime.now().millisecondsSinceEpoch}',
+    );
+
+    // 1) أرسل رسالة نصية (أو اكتب text = '📎 ملف' حسب رغبتك)
+    await sendMessage(
+      chatId: chatId,
+      text: text.isEmpty ? '📎 ملف' : text,
+      members: members,
+    );
+
+    // 2) لو حابب تربط الـ fileUrl بآخر رسالة (اختياري) — هنوفرها في ChatService
+    await _service.attachFileToLastMessage(
+      chatId: chatId,
+      fileUrl: fileUrl,
+      senderId: uid!,
+    );
+  }
+
+  // ======================
+  // Seen
+  // ======================
   Future<void> markSeen(String chatId) async {
     final myId = uid;
     if (myId == null) return;
@@ -159,7 +119,6 @@ class ChatController extends GetxController {
   // ======================
   // Typing
   // ======================
-
   Future<void> startTyping(String otherUserId) async {
     final myId = uid;
     if (myId == null) return;
@@ -173,60 +132,51 @@ class ChatController extends GetxController {
   }
 
   // ======================
-  // Audio Recording
+  // Audio
   // ======================
-
   Future<void> startAudioRecording() async {
     await _audioService.startRecording();
   }
 
-  Future<void> stopAudioRecording() async {
+  Future<void> stopAudioRecordingAndSend({
+    required String chatId,
+    required List<String> members,
+  }) async {
     final filePath = await _audioService.stopRecording();
-    if (filePath != null) {
-      await sendFileMessage(
-        chatId: 'chatId',
-        text: 'Voice Message',
-        members: ['user1', 'user2'],
-        filePath: filePath,
-      );
-    }
+    if (filePath == null) return;
+
+    await sendFileMessage(
+      chatId: chatId,
+      text: 'رسالة صوتية',
+      members: members,
+      filePath: filePath,
+    );
   }
 
   // ======================
   // Camera
   // ======================
-
   Future<void> openCamera() async {
     await _cameraService.initializeCamera();
     await _cameraService.captureImage();
   }
 
   // ======================
-  // Delete Chat
+  // Delete / Mute
   // ======================
-
-  // حذف الشات من Firestore
-  Future<void> deleteChat(String chatId) async {
-    try {
-      // حذف الشات من Firestore
-      await FirebaseFirestore.instance.collection('chats').doc(chatId).delete();
-    } catch (e) {
-      throw Exception("Error deleting chat: $e");
-    }
+  Future<void> muteChat(String chatId, {bool muted = true}) async {
+    final myId = uid;
+    if (myId == null) return;
+    await _service.muteChat(chatId: chatId, userId: myId, muted: muted);
   }
 
-  // ======================
-  // Mute Chat
-  // ======================
-
-  // كتم إشعارات الشات
-  Future<void> muteChat(String chatId) async {
-    try {
-      await FirebaseFirestore.instance.collection('chats').doc(chatId).update({
-        'muted': true,
-      });
-    } catch (e) {
-      throw Exception("Error muting chat: $e");
-    }
+  Future<void> deleteChatForMe(String chatId, {bool deleted = true}) async {
+    final myId = uid;
+    if (myId == null) return;
+    await _service.deleteChatForUser(
+      chatId: chatId,
+      userId: myId,
+      deleted: deleted,
+    );
   }
 }
