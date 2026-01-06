@@ -36,9 +36,7 @@ class DescriptionSection extends StatelessWidget {
           const SizedBox(height: 8),
           // عرض الوصف بتنسيق قابل للتوسع
           ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: 120, // تحديد الحد الأقصى للارتفاع
-            ),
+            constraints: BoxConstraints(maxHeight: 120),
             child: SingleChildScrollView(
               child: Text(
                 descriptionCtrl.text.isEmpty
