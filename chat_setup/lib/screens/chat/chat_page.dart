@@ -2,9 +2,10 @@ import 'package:chat_setup/screens/chat/widgets/chat_input_bar.dart';
 import 'package:chat_setup/screens/chat/widgets/messages_list.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../../../controllers/chat/chat_controller.dart';
 
-class ChatPage extends StatefulWidget {
+class ChatPage extends StatelessWidget {
   final String chatId;
   final String otherUserId;
   final String otherUserName;
@@ -17,60 +18,51 @@ class ChatPage extends StatefulWidget {
   });
 
   @override
-  State<ChatPage> createState() => _ChatPageState();
-}
-
-class _ChatPageState extends State<ChatPage> {
-  String? selectedChatId;
-
-  @override
   Widget build(BuildContext context) {
+    final ChatController chatCtrl = Get.find<ChatController>();
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.otherUserName),
+        title: Text(otherUserName),
+        leading: BackButton(onPressed: () => Get.back()),
         actions: [
           PopupMenuButton<String>(
             onSelected: (value) {
-              // التعامل مع الخيارات المختلفة
-              if (value == 'delete') {
-                _deleteChat(widget.chatId);
-              } else if (value == 'mute') {
-                _muteChat(widget.chatId);
+              switch (value) {
+                case 'delete':
+                  _deleteChat(chatCtrl);
+                  break;
+                case 'mute':
+                  _muteChat(chatCtrl);
+                  break;
               }
             },
-            itemBuilder: (context) => [
-              PopupMenuItem<String>(
-                value: 'delete',
-                child: const Text('حذف الشات'),
-              ),
-              PopupMenuItem<String>(
-                value: 'mute',
-                child: const Text('كتم الإشعارات'),
-              ),
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'delete', child: Text('حذف الشات')),
+              PopupMenuItem(value: 'mute', child: Text('كتم الإشعارات')),
             ],
           ),
         ],
       ),
+
       body: Column(
         children: [
-          // عرض الرسائل
-          Expanded(child: MessagesList(chatId: widget.chatId)),
+          /// messages list
+          Expanded(child: MessagesList(chatId: chatId)),
 
-          // إدخال الرسائل
-          ChatInputBar(chatId: widget.chatId, otherUserId: widget.otherUserId),
+          /// input massage bar
+          ChatInputBar(chatId: chatId, otherUserId: otherUserId),
         ],
       ),
     );
   }
 
-  // حذف الشات
-  Future<void> _deleteChat(String chatId) async {
-    await Get.find<ChatController>().deleteChat(chatId);
+  Future<void> _deleteChat(ChatController chatCtrl) async {
+    await chatCtrl.deleteChat(chatId);
     Get.back();
   }
 
-  // كتم الشات
-  void _muteChat(String chatId) {
-    Get.find<ChatController>().muteChat(chatId);
+  void _muteChat(ChatController chatCtrl) {
+    chatCtrl.muteChat(chatId);
   }
 }
