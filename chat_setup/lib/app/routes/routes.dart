@@ -58,11 +58,7 @@ class AppRoutes {
     ),
 
     // Home
-    GetPage(
-      name: '/home',
-      page: () => const HomePage(),
-      binding: HomeBinding(),
-    ),
+    GetPage(name: '/home', page: () => HomePage(), binding: HomeBinding()),
 
     // Profile
     GetPage(name: profile, page: () => const ProfilePage()),
