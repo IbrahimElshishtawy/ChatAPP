@@ -23,8 +23,14 @@ class ChatController extends GetxController {
   // ======================
   Stream getMessages(String chatId) => _service.getMessages(chatId);
   Stream messagesStream(String chatId) => _service.getMessages(chatId);
+
+  /// ✅ FIXED: بدون الاعتماد على ChatService
   Stream<String> getLastMessageStream(String chatId) {
-    return _service.getLastMessageStream(chatId);
+    return _service.getMessages(chatId).map((snapshot) {
+      if (snapshot.docs.isEmpty) return '';
+      final data = snapshot.docs.first.data() as Map<String, dynamic>;
+      return data['text']?.toString() ?? '';
+    });
   }
 
   Stream<bool> typingStream(String otherUserId) {
@@ -41,11 +47,14 @@ class ChatController extends GetxController {
     if (myId == null) {
       throw Exception('User not logged in');
     }
+
     final chatId = _service.getChatId(myId, otherUserId);
+
     await _service.ensureChatExists(
       chatId: chatId,
       members: [myId, otherUserId],
     );
+
     await _service.refreshMembersIfNeeded(chatId);
     return chatId;
   }
@@ -92,14 +101,12 @@ class ChatController extends GetxController {
       'chat_files/${DateTime.now().millisecondsSinceEpoch}',
     );
 
-    // 1) أرسل رسالة نصية (أو اكتب text = '📎 ملف' حسب رغبتك)
     await sendMessage(
       chatId: chatId,
       text: text.isEmpty ? '📎 ملف' : text,
       members: members,
     );
 
-    // 2) لو حابب تربط الـ fileUrl بآخر رسالة (اختياري) — هنوفرها في ChatService
     await _service.attachFileToLastMessage(
       chatId: chatId,
       fileUrl: fileUrl,
@@ -178,5 +185,19 @@ class ChatController extends GetxController {
       userId: myId,
       deleted: deleted,
     );
+  }
+
+  // ======================
+  // Compatibility Layer
+  // ======================
+  Future<void> deleteChat(String chatId) async {
+    await deleteChatForMe(chatId);
+  }
+
+  Future<void> ensureChat({
+    required String chatId,
+    required List<String> members,
+  }) async {
+    await _service.ensureChatExists(chatId: chatId, members: members);
   }
 }
