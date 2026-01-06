@@ -1,7 +1,7 @@
+import 'package:chat_setup/controllers/chat/chats__list_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../controllers/chat/chat_controller.dart';
 import 'chat_page.dart';
 
 class ChatsPage extends StatelessWidget {
@@ -9,19 +9,15 @@ class ChatsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ChatController chatCtrl = Get.find<ChatController>();
+    final ChatsController chatsCtrl = Get.put(ChatsController());
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('الدردشات'),
-      ),
+      appBar: AppBar(title: const Text('الدردشات')),
       body: Obx(() {
-        final chats = chatCtrl.chats;
+        final chats = chatsCtrl.chats;
 
         if (chats.isEmpty) {
-          return const Center(
-            child: Text('لا توجد محادثات'),
-          );
+          return const Center(child: Text('لا توجد محادثات'));
         }
 
         return ListView.builder(
@@ -30,9 +26,7 @@ class ChatsPage extends StatelessWidget {
             final chat = chats[index];
 
             return ListTile(
-              leading: CircleAvatar(
-                child: Text(chat.otherUserName[0]),
-              ),
+              leading: CircleAvatar(child: Text(chat.otherUserName[0])),
               title: Text(chat.otherUserName),
               subtitle: Text(chat.lastMessage ?? ''),
               onTap: () {
