@@ -5,40 +5,37 @@ import '../utils/password_helper.dart';
 
 class ChatService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
   CollectionReference get _chats => _firestore.collection('chats');
 
-  // chatId ثابت
+  // Cache لتقليل reads
+  final Map<String, bool> _userExistsCache = {};
+
   String getChatId(String a, String b) {
     final ids = [a, b]..sort();
     return ids.join('_');
   }
 
   // ======================
-  // Messages
+  // Messages (لا side-effects)
   // ======================
-
   Stream<QuerySnapshot> getMessages(String chatId) {
     return _chats
         .doc(chatId)
         .collection('messages')
         .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map((snapshot) {
-          // تحقق من الأعضاء المحذوفين في الدردشة
-          _filterDeletedUsers(chatId); // تحقق من الأعضاء المحذوفين هنا
-          return snapshot;
-        });
+        .snapshots();
+  }
+
+  // لو ما زلت محتاج تنظيف الأعضاء، استدعيه مرة واحدة عند فتح الشات (من Controller/UI)
+  Future<void> refreshMembersIfNeeded(String chatId) async {
+    await _filterDeletedUsers(chatId);
   }
 
   Future<void> ensureChatExists({
     required String chatId,
     required List<String> members,
   }) async {
-    // التحقق من أن الأعضاء جميعهم موجودين في Firebase Authentication و Firestore
     final validMembers = await _verifyMembersExist(members);
-
-    // إذا كان هناك أعضاء غير موجودين، لا يتم إنشاء الشات
     if (validMembers.isEmpty) {
       throw Exception('Some members do not exist in Firebase');
     }
@@ -53,6 +50,9 @@ class ChatService {
         'lastMessage': '',
         'lastMessageTime': null,
         'hasPassword': false,
+        // per-user maps (اختياري)
+        'muted': <String, bool>{},
+        'deletedFor': <String, bool>{},
       });
     }
   }
@@ -63,8 +63,6 @@ class ChatService {
     required List<String> members,
   }) async {
     final validMembers = await _verifyMembersExist(members);
-
-    // إذا كان هناك أعضاء غير موجودين، لا يتم إرسال الرسالة
     if (validMembers.isEmpty) {
       throw Exception('Some members do not exist in Firebase');
     }
@@ -80,23 +78,31 @@ class ChatService {
     await chatRef.collection('messages').add(message.toMap());
   }
 
+  // ======================
+  // Seen (Batch + Limit)
+  // ======================
   Future<void> markMessagesAsSeen(String chatId, String myId) async {
     final q = await _chats
         .doc(chatId)
         .collection('messages')
+        // الأفضل لو عندك receiverId: .where('receiverId', isEqualTo: myId)
         .where('senderId', isNotEqualTo: myId)
         .where('isSeen', isEqualTo: false)
+        .limit(200)
         .get();
 
-    for (var d in q.docs) {
-      d.reference.update({'isSeen': true});
+    if (q.docs.isEmpty) return;
+
+    final batch = _firestore.batch();
+    for (final d in q.docs) {
+      batch.update(d.reference, {'isSeen': true});
     }
+    await batch.commit();
   }
 
   // ======================
   // Typing
   // ======================
-
   Stream<bool> typingStream({
     required String otherUserId,
     required String myId,
@@ -120,7 +126,6 @@ class ChatService {
   // ======================
   // Password
   // ======================
-
   Future<void> setChatPassword(String chatId, String password) async {
     await _chats.doc(chatId).update({
       'hasPassword': true,
@@ -129,29 +134,58 @@ class ChatService {
   }
 
   // ======================
-  // Helper Functions
+  // Mute / Delete (per-user)
   // ======================
+  Future<void> muteChatForUser({
+    required String chatId,
+    required String userId,
+    required bool muted,
+  }) async {
+    await _chats.doc(chatId).set({
+      'muted': {userId: muted},
+    }, SetOptions(merge: true));
+  }
 
-  /// التحقق من أن الأعضاء الموجودين في الدردشة هم فقط الموجودين في Firestore
+  Future<void> deleteChatForUser({
+    required String chatId,
+    required String userId,
+    required bool deleted,
+  }) async {
+    await _chats.doc(chatId).set({
+      'deletedFor': {userId: deleted},
+    }, SetOptions(merge: true));
+  }
+
+  // ======================
+  // Helpers
+  // ======================
   Future<List<String>> _verifyMembersExist(List<String> members) async {
     final validMembers = <String>[];
 
-    // تحقق من أن كل عضو موجود في Firestore
-    for (var memberId in members) {
+    for (final memberId in members.toSet()) {
+      // cache hit
+      final cached = _userExistsCache[memberId];
+      if (cached == true) {
+        validMembers.add(memberId);
+        continue;
+      }
+      if (cached == false) {
+        continue;
+      }
+
       try {
-        // إذا كان المستخدم موجود في Firestore
         final userDoc = await _firestore
             .collection('users')
             .doc(memberId)
             .get();
-
-        if (userDoc.exists) {
-          validMembers.add(memberId);
-        }
+        final exists = userDoc.exists;
+        _userExistsCache[memberId] = exists;
+        if (exists) validMembers.add(memberId);
       } catch (e) {
-        // إذا لم يكن المستخدم موجودًا في Firestore، لا نضيفه في القائمة
+        _userExistsCache[memberId] = false;
         if (kDebugMode) {
-          print('User not found in Firestore: $memberId');
+          // ignore: avoid_print
+          print('User check failed: $memberId => $e');
         }
       }
     }
@@ -159,19 +193,65 @@ class ChatService {
     return validMembers;
   }
 
-  // دالة للتحقق من الأعضاء المحذوفين
   Future<void> _filterDeletedUsers(String chatId) async {
     final chatDoc = await _chats.doc(chatId).get();
     if (!chatDoc.exists) return;
 
-    final members = List<String>.from(
-      (chatDoc.data() as Map<String, dynamic>?)?['members'] ?? [],
-    );
+    final data = chatDoc.data() as Map<String, dynamic>?;
+    final members = List<String>.from(data?['members'] ?? const <String>[]);
+
+    if (members.isEmpty) return;
+
     final validMembers = await _verifyMembersExist(members);
 
-    // إذا كان هناك أعضاء محذوفين، قم بتحديث القائمة
     if (validMembers.length != members.length) {
       await _chats.doc(chatId).update({'members': validMembers});
     }
   }
+
+  // ======================
+  // Extra helpers (minimal & safe)
+  // ======================
+  Future<void> attachFileToLastMessage({
+    required String chatId,
+    required String fileUrl,
+    required String senderId,
+  }) async {
+    final q = await _chats
+        .doc(chatId)
+        .collection('messages')
+        .where('senderId', isEqualTo: senderId)
+        .orderBy('createdAt', descending: true)
+        .limit(1)
+        .get();
+
+    if (q.docs.isEmpty) return;
+
+    await q.docs.first.reference.update({'fileUrl': fileUrl});
+  }
+
+  /// mute per user
+  Future<void> muteChat({
+    required String chatId,
+    required String userId,
+    required bool muted,
+  }) async {
+    await _chats.doc(chatId).set({
+      'muted': {userId: muted},
+    }, SetOptions(merge: true));
+  }
+
+  /// delete for user
+  // Future<void> deleteChatForUser({
+  //   required String chatId,
+  //   required String userId,
+  //   required bool deleted,
+  // }) async {
+  //   await _chats.doc(chatId).set(
+  //     {
+  //       'deletedFor': {userId: deleted}
+  //     },
+  //     SetOptions(merge: true),
+  //   );
+  // }
 }
