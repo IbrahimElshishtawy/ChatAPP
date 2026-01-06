@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
 import 'package:chat_setup/screens/home/widgets/floating_nav_bar.dart';
 import 'package:chat_setup/screens/profile/widget/Complete_Profile_Button.dart';
 import 'package:chat_setup/screens/profile/widget/Contact_Button_profile.dart';
@@ -8,121 +11,139 @@ import 'package:chat_setup/screens/profile/widget/Stats_Section_profile.dart';
 import 'package:chat_setup/screens/profile/widget/User_Info_profile.dart';
 import 'package:chat_setup/screens/profile/widget/User_Posts_profile.dart';
 
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import '../../controllers/user/user_controller.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final userCtrl = Get.find<UserController>();
-    final nameCtrl = TextEditingController(
-      text: userCtrl.user.value?.name ?? '',
-    );
-    final phoneCtrl = TextEditingController(
-      text: userCtrl.user.value?.phone ?? '',
-    );
-    final descriptionCtrl = TextEditingController(
-      text: userCtrl.user.value?.description ?? '',
-    );
-    final usernameCtrl = TextEditingController(
-      text: userCtrl.user.value?.username ?? '',
-    );
+  State<ProfilePage> createState() => _ProfilePageState();
+}
 
+class _ProfilePageState extends State<ProfilePage> {
+  late final UserController userCtrl;
+
+  late TextEditingController nameCtrl;
+  late TextEditingController phoneCtrl;
+  late TextEditingController usernameCtrl;
+  late TextEditingController descriptionCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    userCtrl = Get.find<UserController>();
+
+    final user = userCtrl.user.value;
+    nameCtrl = TextEditingController(text: user?.name ?? '');
+    phoneCtrl = TextEditingController(text: user?.phone ?? '');
+    usernameCtrl = TextEditingController(text: user?.username ?? '');
+    descriptionCtrl = TextEditingController(text: user?.description ?? '');
+  }
+
+  @override
+  void dispose() {
+    nameCtrl.dispose();
+    phoneCtrl.dispose();
+    usernameCtrl.dispose();
+    descriptionCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
-            onPressed: () {
-              Get.toNamed('/editProfile');
-            },
+            onPressed: () => Get.toNamed('/editProfile'),
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          // The body of the profile page with scrollable content
-          SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Obx(() {
-              final user = userCtrl.user.value;
-              if (user == null) return const CircularProgressIndicator();
 
-              bool isProfileComplete =
-                  user.name.isNotEmpty &&
-                  user.phone != null &&
-                  user.username != null &&
-                  user.description != null &&
-                  user.profilePicture != null;
+      body: Obx(() {
+        final user = userCtrl.user.value;
+        if (user == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-              return Column(
+        final bool isProfileComplete =
+            user.name.isNotEmpty &&
+            user.phone != null &&
+            user.username != null &&
+            user.description != null &&
+            user.profilePicture != null;
+
+        return Stack(
+          children: [
+            /// المحتوى القابل للتمرير
+            SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Profile Picture and Stats section
                   Row(
                     children: [
                       ProfilePicture(userCtrl: userCtrl),
                       const SizedBox(width: 16),
-                      StatsSection(),
+                      const Expanded(child: StatsSection()),
                     ],
                   ),
+
                   const SizedBox(height: 16),
 
-                  // User Information (Name, Phone, Username)
                   UserInfo(
                     nameCtrl: nameCtrl,
                     phoneCtrl: phoneCtrl,
                     usernameCtrl: usernameCtrl,
                   ),
+
                   const SizedBox(height: 16),
 
-                  // Description section
                   DescriptionSection(descriptionCtrl: descriptionCtrl),
+
                   const SizedBox(height: 16),
 
-                  // Complete Profile Button if the profile is incomplete
-                  if (!isProfileComplete) CompleteProfileButton(),
-                  const SizedBox(height: 16),
+                  if (!isProfileComplete) ...[
+                    const CompleteProfileButton(),
+                    const SizedBox(height: 16),
+                  ],
 
-                  // Share and Contact Buttons
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      ShareButton(),
-                      const SizedBox(width: 16),
-                      ContactButton(),
+                    children: const [
+                      Expanded(child: ShareButton()),
+                      SizedBox(width: 16),
+                      Expanded(child: ContactButton()),
                     ],
                   ),
 
-                  // User Posts section
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 16),
-                    child: Text(
-                      'My Posts',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
+                  const SizedBox(height: 24),
+
+                  Text(
+                    'My Posts',
+                    style: Theme.of(context).textTheme.titleLarge,
                   ),
+
                   const SizedBox(height: 12),
+
+                  /// ⚠️ مهم جدًا: UserPostsWidget لازم يكون بدون Scroll داخلي
                   UserPostsWidget(userId: user.id),
                 ],
-              );
-            }),
-          ),
+              ),
+            ),
 
-          // FloatingNavBar stays at the bottom of the screen
-          const Positioned(
-            left: 16,
-            right: 16,
-            bottom: 0,
-            child: FloatingNavBar(),
-          ),
-        ],
-      ),
+            /// Floating Nav Bar
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: FloatingNavBar(),
+              ),
+            ),
+          ],
+        );
+      }),
     );
   }
 }
