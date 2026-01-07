@@ -1,9 +1,7 @@
-import 'package:chat_setup/screens/chat/chats_home_page.dart';
+import 'package:chat_setup/screens/home/chats_home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../../controllers/navigation/navigation_controller.dart';
-
 import '../group/groups_page.dart';
 import '../community/community_page.dart';
 import '../notifications/notifications_page.dart';
@@ -19,31 +17,30 @@ class HomePage extends StatelessWidget {
   );
 
   final List<Widget> pages = const [
-    ChatsPage(),
-    GroupsPage(),
-    CommunityPage(),
-    NotificationsPage(),
-    ProfilePage(),
+    ChatsHomePage(), // 0 - الدردشات
+    GroupsPage(), // 1 - الجروبات
+    CommunityPage(), // 2 - المجتمع
+    NotificationsPage(), // 3 - التنبيهات
+    ProfilePage(), // 4 - البروفايل
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Obx(() {
-        return Stack(
+      body: Obx(
+        () => Stack(
           children: [
             IndexedStack(index: nav.index.value, children: pages),
-
-            Align(
+            const Align(
               alignment: Alignment.bottomCenter,
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.only(bottom: 30),
                 child: FloatingNavBar(),
               ),
             ),
           ],
-        );
-      }),
+        ),
+      ),
     );
   }
 }

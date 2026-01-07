@@ -17,8 +17,15 @@ class _HomeHeaderState extends State<HomeHeader> {
   final searchCtrl = TextEditingController();
 
   @override
+  void dispose() {
+    searchCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final userCtrl = Get.find<UserController>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SafeArea(
       bottom: false,
@@ -29,8 +36,8 @@ class _HomeHeaderState extends State<HomeHeader> {
           color: Theme.of(context).scaffoldBackgroundColor,
           boxShadow: [
             BoxShadow(
-              color: const Color.fromARGB(255, 235, 234, 234).withOpacity(0.06),
-              blurRadius: 100,
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 24,
               offset: const Offset(0, 3),
             ),
           ],
@@ -38,37 +45,37 @@ class _HomeHeaderState extends State<HomeHeader> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ///Top Bar
+            /// 🔹 Top Bar
             Row(
               children: [
-                Row(
-                  children: [
-                    Image.asset(
-                      'assets/image/chat-app-icon-24.jpg',
-                      width: 26,
-                      height: 26,
-                    ),
-                    const SizedBox(width: 8),
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 250),
-                      child: searchMode
-                          ? _searchBar()
-                          : Obx(() {
-                              final name =
-                                  userCtrl.user.value?.name ?? 'صديقنا';
-                              return Text(
-                                name,
-                                key: const ValueKey('username'),
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  color: Colors.grey.shade700,
-                                ),
-                              );
-                            }),
-                    ),
-                  ],
+                Image.asset(
+                  'assets/image/chat-app-icon-24.jpg',
+                  width: 26,
+                  height: 26,
                 ),
-                const Spacer(),
+                const SizedBox(width: 8),
+
+                ///هنا الإصلاح الأساسي
+                Expanded(
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    child: searchMode
+                        ? _searchBar(isDark)
+                        : Obx(() {
+                            final name = userCtrl.user.value?.name ?? 'صديقنا';
+                            return Text(
+                              name,
+                              key: const ValueKey('username'),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Colors.grey.shade700,
+                              ),
+                            );
+                          }),
+                  ),
+                ),
 
                 IconButton(
                   icon: const Icon(Icons.search),
@@ -93,24 +100,26 @@ class _HomeHeaderState extends State<HomeHeader> {
               ],
             ),
 
-            const SizedBox(height: 1),
+            const SizedBox(height: 6),
 
-            ///  Username
+            /// 🔹 Description / Subtitle
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 250),
               child: searchMode
-                  ? _searchBar()
+                  ? const SizedBox.shrink()
                   : Center(
                       child: Obx(() {
-                        final name =
+                        final desc =
                             userCtrl.user.value?.description ??
-                            'ما من وصف لي المستخدم ';
+                            'ما من وصف لي المستخدم';
                         return Text(
-                          name,
-                          key: const ValueKey('username'),
-                          style: TextStyle(
-                            fontSize: 17,
-                            color: const Color.fromARGB(255, 111, 107, 107),
+                          desc,
+                          key: const ValueKey('description'),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            color: Color.fromARGB(255, 111, 107, 107),
                           ),
                         );
                       }),
@@ -122,17 +131,10 @@ class _HomeHeaderState extends State<HomeHeader> {
     );
   }
 
-  Widget _searchBar() {
-    return Container(
-      key: const ValueKey('search'),
-      margin: const EdgeInsets.only(top: 6),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 12),
-        ],
-      ),
+  /// 🔹 Search Bar (مصَحَّح)
+  Widget _searchBar(bool isDark) {
+    return SizedBox(
+      height: 42, // 👈 مهم جدًا
       child: TextField(
         controller: searchCtrl,
         autofocus: true,
@@ -148,6 +150,9 @@ class _HomeHeaderState extends State<HomeHeader> {
               });
             },
           ),
+          filled: true,
+          fillColor: isDark ? Colors.grey.shade900 : Colors.white,
+          contentPadding: const EdgeInsets.symmetric(vertical: 0),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide.none,
