@@ -34,6 +34,7 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: ^2.4.0
 
 flutter:
   uses-material-design: true
@@ -48,3 +49,18 @@ flutter_icons:
   ios: true
   remove_alpha_ios: true
   image_path: "assets/image/chat-app-icon-24.jpg"
+
+
+flutter_native_splash:
+  color: "#F6F7F9"
+  color_dark: "#000000"
+
+  image: assets/image/chat-app-icon-24.jpg
+  image_dark: assets/image/chat-app-icon-24.jpg
+
+  android: true
+  ios: true
+
+  android_12:
+    color: "#F6F7F9"
+    image: assets/image/chat-app-icon-24.jpg

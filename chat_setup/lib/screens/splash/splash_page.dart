@@ -1,47 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
-import '../../controllers/auth/auth_controller.dart';
-import '../../app/routes/routes.dart';
-
-class SplashPage extends StatefulWidget {
+class SplashPage extends StatelessWidget {
   const SplashPage({super.key});
 
   @override
-  State<SplashPage> createState() => _SplashPageState();
-}
-
-class _SplashPageState extends State<SplashPage> {
-  late final AuthController auth;
-
-  @override
-  void initState() {
-    super.initState();
-    auth = Get.find<AuthController>();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    // ⏳ نفذ بعد أول frame
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _handleNavigation();
-    });
-  }
-
-  void _handleNavigation() {
-    final user = auth.user.value;
-
-    if (user == null) {
-      Get.offAllNamed(AppRoutes.login);
-    } else {
-      Get.offAllNamed(AppRoutes.home);
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    return Scaffold(
+      backgroundColor: const Color(0xFFF6F7F9),
+      body: Column(
+        children: [
+          const Spacer(),
+
+          Image.asset('assets/image/logo.png', width: 120),
+
+          const Spacer(),
+
+          const Padding(
+            padding: EdgeInsets.only(bottom: 24),
+            child: Text(
+              'إبراهيم الششتاوي',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
