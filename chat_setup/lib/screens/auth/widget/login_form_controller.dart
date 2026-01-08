@@ -11,7 +11,7 @@ class LoginFormController extends GetxController {
   final rememberMe = false.obs;
   final obscure = true.obs;
 
-  final isEmailValid = RxnBool(); // null = لسه مبدأش
+  final isEmailValid = RxnBool();
 
   static const _kEmail = 'saved_email';
   static const _kPass = 'saved_password';

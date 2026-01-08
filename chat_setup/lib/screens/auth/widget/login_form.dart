@@ -10,7 +10,7 @@ class LoginForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = Get.find<LoginFormController>();
-
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Form(
       key: c.formKey,
       child: Column(
@@ -163,9 +163,12 @@ class LoginForm extends StatelessWidget {
                                 : null,
                           ),
                           const SizedBox(width: 8),
-                          const Text(
+                          Text(
                             'تذكرني',
-                            style: TextStyle(fontSize: 13.5),
+                            style: TextStyle(
+                              fontSize: 13.5,
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
                           ),
                         ],
                       ),
@@ -178,7 +181,7 @@ class LoginForm extends StatelessWidget {
                     'نسيت كلمة المرور؟',
                     style: TextStyle(
                       fontSize: 13.5,
-                      color: Color.fromARGB(232, 255, 253, 253),
+                      color: isDark ? Colors.white : Colors.black,
                     ),
                   ),
                 ),

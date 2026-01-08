@@ -41,6 +41,7 @@ class _RegisterCtaAnimatedState extends State<RegisterCtaAnimated>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return AnimatedBuilder(
       animation: _scale,
       builder: (_, child) => Transform.scale(scale: _scale.value, child: child),
@@ -54,10 +55,13 @@ class _RegisterCtaAnimatedState extends State<RegisterCtaAnimated>
             borderRadius: BorderRadius.circular(14),
             border: Border.all(color: Colors.black12),
           ),
-          child: const Center(
+          child: Center(
             child: Text(
               'إنشاء حساب جديد',
-              style: TextStyle(fontWeight: FontWeight.w700),
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: isDark ? Colors.white : Colors.black,
+              ),
             ),
           ),
         ),
