@@ -67,7 +67,6 @@ class _SplashPageState extends State<SplashPage>
           children: [
             const Spacer(),
 
-            /// 🔹 Logo (center)
             Center(
               child: FadeTransition(
                 opacity: _fade,
