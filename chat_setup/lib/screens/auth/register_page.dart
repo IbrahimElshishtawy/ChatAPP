@@ -7,9 +7,9 @@ import 'widget/register_form.dart';
 
 class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});
-
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       body: AuthBackground(
         child: Center(
@@ -32,11 +32,11 @@ class RegisterPage extends StatelessWidget {
 
                 TextButton(
                   onPressed: () => Get.back(),
-                  child: const Text(
+                  child: Text(
                     'لديك حساب؟ تسجيل الدخول',
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      color: Color.fromARGB(254, 255, 254, 254),
+                      color: isDark ? Colors.white : Colors.black,
                     ),
                   ),
                 ),

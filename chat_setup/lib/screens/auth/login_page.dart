@@ -17,6 +17,7 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Get.find<AuthController>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     Get.put(LoginFormController());
     Future<void> onLogin() async {
       final c = Get.find<LoginFormController>();
@@ -78,11 +79,11 @@ class LoginPage extends StatelessWidget {
                           duration: const Duration(milliseconds: 500),
                         );
                       },
-                      child: const Text(
+                      child: Text(
                         'إنشاء حساب جديد',
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
-                          color: Color.fromARGB(255, 255, 255, 255),
+                          color: isDark ? Colors.white : Colors.black,
                         ),
                       ),
                     ),

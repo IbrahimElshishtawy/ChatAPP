@@ -74,7 +74,6 @@ class LoginForm extends StatelessWidget {
 
           const SizedBox(height: 18),
 
-          /// 🔒 Password Field
           Obx(() {
             return TextFormField(
               controller: c.passCtrl,

@@ -13,6 +13,7 @@ class LoginButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final auth = Get.find<AuthController>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Obx(() {
       final isLoading = auth.isLoading.value;
@@ -28,15 +29,29 @@ class LoginButton extends StatelessWidget {
             width: double.infinity,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              gradient: const LinearGradient(
+
+              /// 🔹 Adaptive Blue Gradient
+              gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF6A11CB), Color(0xFF2575FC)],
+                colors: isDark
+                    ? const [
+                        Color(0xFF1E3A8A), // أزرق داكن
+                        Color(0xFF0F172A), // كحلي
+                      ]
+                    : const [
+                        Color(0xFF3B82F6), // أزرق فاتح
+                        Color(0xFF2563EB), // أزرق أساسي
+                      ],
               ),
+
+              /// 🔹 Shadow (أخف في الدارك)
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.18),
-                  blurRadius: 16,
+                  color: isDark
+                      ? Colors.black.withOpacity(0.35)
+                      : Colors.blue.withOpacity(0.35),
+                  blurRadius: 18,
                   offset: const Offset(0, 8),
                 ),
               ],
