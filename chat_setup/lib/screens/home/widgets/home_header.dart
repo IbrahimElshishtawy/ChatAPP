@@ -29,16 +29,18 @@ class _HomeHeaderState extends State<HomeHeader> {
 
     return SafeArea(
       bottom: false,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 350),
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
         decoration: BoxDecoration(
           color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(
+            bottom: Radius.circular(22),
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
-              blurRadius: 24,
-              offset: const Offset(0, 3),
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 18,
+              offset: const Offset(0, 6),
             ),
           ],
         ),
@@ -48,21 +50,31 @@ class _HomeHeaderState extends State<HomeHeader> {
             /// 🔹 Top Bar
             Row(
               children: [
-                Image.asset(
-                  'assets/image/chat-app-icon-24.jpg',
-                  width: 26,
-                  height: 26,
-                ),
-                const SizedBox(width: 8),
+                /// Logo
+                SizedBox(
+                  width: 55,
+                  height: 55,
 
-                ///هنا الإصلاح الأساسي
+                  // padding: const EdgeInsets.all(),
+                  child: Image.asset(
+                    'assets/image/logo.png',
+                    fit: BoxFit.cover,
+                  ),
+                ),
+
+                const SizedBox(width: 9),
+
+                /// Title / Search
                 Expanded(
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 250),
+                    switchInCurve: Curves.easeOut,
+                    switchOutCurve: Curves.easeIn,
                     child: searchMode
                         ? _searchBar(isDark)
                         : Obx(() {
-                            final name = userCtrl.user.value?.name ?? 'صديقنا';
+                            final name =
+                                userCtrl.user.value?.name ?? 'Sawa Chat';
                             return Text(
                               name,
                               key: const ValueKey('username'),
@@ -70,24 +82,32 @@ class _HomeHeaderState extends State<HomeHeader> {
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 20,
-                                color: Colors.grey.shade700,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.2,
+                                color: isDark
+                                    ? Colors.white
+                                    : Colors.grey.shade800,
                               ),
                             );
                           }),
                   ),
                 ),
 
-                IconButton(
-                  icon: const Icon(Icons.search),
-                  onPressed: () {
-                    setState(() => searchMode = true);
-                  },
+                /// Search button
+                _iconBtn(
+                  icon: Icons.search,
+                  onTap: () => setState(() => searchMode = true),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.more_vert),
-                  onPressed: () {
+
+                /// Menu button
+                _iconBtn(
+                  icon: Icons.more_vert,
+                  onTap: () {
                     showModalBottomSheet(
                       context: context,
+                      backgroundColor: isDark
+                          ? Colors.grey.shade900
+                          : Colors.white,
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.vertical(
                           top: Radius.circular(24),
@@ -100,9 +120,9 @@ class _HomeHeaderState extends State<HomeHeader> {
               ],
             ),
 
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
 
-            /// 🔹 Description / Subtitle
+            /// 🔹 Subtitle
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 250),
               child: searchMode
@@ -111,15 +131,15 @@ class _HomeHeaderState extends State<HomeHeader> {
                       child: Obx(() {
                         final desc =
                             userCtrl.user.value?.description ??
-                            'ما من وصف لي المستخدم';
+                            'Hello everyone! I am using Sawa Chat.';
                         return Text(
                           desc,
                           key: const ValueKey('description'),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            color: Color.fromARGB(255, 111, 107, 107),
+                          style: TextStyle(
+                            fontSize: 14.5,
+                            color: Colors.grey.shade600,
                           ),
                         );
                       }),
@@ -131,18 +151,18 @@ class _HomeHeaderState extends State<HomeHeader> {
     );
   }
 
-  /// 🔹 Search Bar (مصَحَّح)
+  /// 🔹 Search Bar
   Widget _searchBar(bool isDark) {
     return SizedBox(
-      height: 42, // 👈 مهم جدًا
+      height: 42,
       child: TextField(
         controller: searchCtrl,
         autofocus: true,
         decoration: InputDecoration(
           hintText: 'ابحث عن محادثة...',
-          prefixIcon: const Icon(Icons.search),
+          prefixIcon: const Icon(Icons.search, size: 20),
           suffixIcon: IconButton(
-            icon: const Icon(Icons.close),
+            icon: const Icon(Icons.close, size: 20),
             onPressed: () {
               setState(() {
                 searchMode = false;
@@ -151,14 +171,23 @@ class _HomeHeaderState extends State<HomeHeader> {
             },
           ),
           filled: true,
-          fillColor: isDark ? Colors.grey.shade900 : Colors.white,
-          contentPadding: const EdgeInsets.symmetric(vertical: 0),
+          fillColor: isDark ? Colors.grey.shade900 : Colors.grey.shade100,
+          contentPadding: EdgeInsets.zero,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide.none,
           ),
         ),
       ),
+    );
+  }
+
+  /// 🔹 Icon Button Style
+  Widget _iconBtn({required IconData icon, required VoidCallback onTap}) {
+    return IconButton(
+      splashRadius: 22,
+      icon: Icon(icon, size: 22),
+      onPressed: onTap,
     );
   }
 }
