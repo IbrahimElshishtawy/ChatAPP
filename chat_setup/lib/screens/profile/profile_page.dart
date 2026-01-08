@@ -10,6 +10,7 @@ import 'package:chat_setup/screens/profile/widget/Share_pprofile_Button.dart';
 import 'package:chat_setup/screens/profile/widget/Stats_Section_profile.dart';
 import 'package:chat_setup/screens/profile/widget/User_Info_profile.dart';
 import 'package:chat_setup/screens/profile/widget/User_Posts_profile.dart';
+import 'package:chat_setup/screens/profile/widget/profile_action_buttons.dart';
 
 import '../../controllers/user/user_controller.dart';
 
@@ -51,9 +52,11 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: const Text('الملف الشخصي'),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
@@ -61,7 +64,6 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
-
       body: Obx(() {
         final user = userCtrl.user.value;
         if (user == null) {
@@ -77,13 +79,15 @@ class _ProfilePageState extends State<ProfilePage> {
 
         return Stack(
           children: [
-            /// المحتوى القابل للتمرير
+            /// 🔹 المحتوى
             SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 140),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  /// صورة + إحصائيات
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       ProfilePicture(userCtrl: userCtrl),
                       const SizedBox(width: 16),
@@ -91,8 +95,14 @@ class _ProfilePageState extends State<ProfilePage> {
                     ],
                   ),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 18),
 
+                  /// 🔥 أزرار الصداقة / المتابعة / المراسلة
+                  ProfileActionButtons(profileUserId: user.id),
+
+                  const SizedBox(height: 24),
+
+                  /// معلومات المستخدم
                   UserInfo(
                     nameCtrl: nameCtrl,
                     phoneCtrl: phoneCtrl,
@@ -101,15 +111,18 @@ class _ProfilePageState extends State<ProfilePage> {
 
                   const SizedBox(height: 16),
 
+                  /// الوصف
                   DescriptionSection(descriptionCtrl: descriptionCtrl),
 
                   const SizedBox(height: 16),
 
+                  /// استكمال البروفايل
                   if (!isProfileComplete) ...[
                     const CompleteProfileButton(),
                     const SizedBox(height: 16),
                   ],
 
+                  /// مشاركة / تواصل
                   Row(
                     children: const [
                       Expanded(child: ShareButton()),
@@ -118,22 +131,24 @@ class _ProfilePageState extends State<ProfilePage> {
                     ],
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 28),
 
+                  /// البوستات
                   Text(
-                    'My Posts',
-                    style: Theme.of(context).textTheme.titleLarge,
+                    'المنشورات',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
 
                   const SizedBox(height: 12),
 
-                  /// ⚠️ مهم جدًا: UserPostsWidget لازم يكون بدون Scroll داخلي
                   UserPostsWidget(userId: user.id),
                 ],
               ),
             ),
 
-            /// Floating Nav Bar
+            /// 🔹 Bottom Nav
             Align(
               alignment: Alignment.bottomCenter,
               child: Padding(
