@@ -9,49 +9,67 @@ class AuthBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Stack(
       children: [
-        // 🔥 Gradient Background
+        ///  Adaptive Blue Gradient
         Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFF6A11CB), Color(0xFF2575FC)],
+              colors: isDark
+                  ? const [Color(0xFF0B1D2D), Color(0xFF102A43)]
+                  : const [Color(0xFFEAF2FF), Color(0xFFF7FAFF)],
             ),
           ),
         ),
 
-        // 🌊 Decorative Shape
+        ///  Decorative Blue Shapes (Top)
         Positioned(
-          top: -120,
-          left: -80,
-          child: Container(
-            width: 260,
-            height: 260,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.12),
-              shape: BoxShape.circle,
-            ),
+          top: -140,
+          left: -100,
+          child: _SoftCircle(
+            size: 280,
+            color: isDark
+                ? const Color(0xFF1F4FD8).withOpacity(0.12)
+                : const Color(0xFF3B82F6).withOpacity(0.12),
           ),
         ),
 
+        ///  Decorative Blue Shapes (Bottom)
         Positioned(
-          bottom: -100,
-          right: -60,
-          child: Container(
-            width: 220,
-            height: 220,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.08),
-              shape: BoxShape.circle,
-            ),
+          bottom: -120,
+          right: -90,
+          child: _SoftCircle(
+            size: 240,
+            color: isDark
+                ? const Color(0xFF60A5FA).withOpacity(0.08)
+                : const Color(0xFF2563EB).withOpacity(0.10),
           ),
         ),
 
-        // 🧩 Content
+        ///  Content
         SafeArea(child: child),
       ],
+    );
+  }
+}
+
+/// Reusable Soft Circle
+class _SoftCircle extends StatelessWidget {
+  final double size;
+  final Color color;
+
+  const _SoftCircle({required this.size, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
   }
 }
