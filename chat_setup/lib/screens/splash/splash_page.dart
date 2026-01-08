@@ -73,7 +73,7 @@ class _SplashPageState extends State<SplashPage>
                 opacity: _fade,
                 child: ScaleTransition(
                   scale: _scale,
-                  child: Image.asset('assets/image/logo_name.png', width: 140),
+                  child: Image.asset('assets/image/logo_name.png', width: 180),
                 ),
               ),
             ),
