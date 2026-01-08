@@ -28,6 +28,7 @@ dependencies:
   agora_rtc_engine: ^6.5.3
   permission_handler: ^12.0.1
   share_plus: ^12.0.1
+  rename: ^3.1.0
 
 dev_dependencies:
   flutter_test:
@@ -48,19 +49,19 @@ flutter_icons:
   android: true
   ios: true
   remove_alpha_ios: true
-  image_path: "assets/image/chat-app-icon-24.jpg"
+  image_path: "assets/image/logo.png"
 
 
 flutter_native_splash:
   color: "#F6F7F9"
   color_dark: "#000000"
 
-  image: assets/image/chat-app-icon-24.jpg
-  image_dark: assets/image/chat-app-icon-24.jpg
+  image: assets/image/logo.png
+  image_dark: assets/image/logo.png
 
   android: true
   ios: true
 
   android_12:
     color: "#F6F7F9"
-    image: assets/image/chat-app-icon-24.jpg
+    image: assets/image/logo.png
