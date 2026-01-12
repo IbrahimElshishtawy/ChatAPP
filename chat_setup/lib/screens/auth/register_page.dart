@@ -9,7 +9,9 @@ class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark =
+        WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+        Brightness.dark;
     return Scaffold(
       body: AuthBackground(
         child: Center(
