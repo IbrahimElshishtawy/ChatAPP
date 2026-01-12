@@ -1,5 +1,5 @@
 import 'package:chat_setup/app/bindings/auth_bindings.dart';
-import 'package:chat_setup/app/bindings/friend_binding.dart';
+import 'package:chat_setup/app/bindings/social_binding.dart';
 import 'package:chat_setup/app/bindings/home_binding.dart';
 import 'package:chat_setup/screens/contants_user/Friend_Page.dart';
 import 'package:flutter/material.dart';
@@ -63,7 +63,11 @@ class AppRoutes {
     GetPage(name: '/home', page: () => HomePage(), binding: HomeBinding()),
 
     // Profile
-    GetPage(name: profile, page: () => const ProfilePage()),
+    GetPage(
+      name: profile,
+      page: () => const ProfilePage(),
+      binding: SocialBinding(),
+    ),
 
     // Settings
     GetPage(name: settings, page: () => const SettingsPage()),
@@ -91,10 +95,11 @@ class AppRoutes {
         );
       },
     ),
+
     GetPage(
       name: '/friends',
       page: () => const FriendPage(),
-      binding: FriendBinding(),
+      binding: SocialBinding(),
     ),
     // Groups
     GetPage(name: groups, page: () => const GroupsPage()),

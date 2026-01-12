@@ -1,8 +1,10 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:chat_setup/screens/contants_user/Friend_Page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../controllers/user/user_controller.dart';
+
 import 'quick_settings_sheet.dart';
 
 class HomeHeader extends StatefulWidget {
@@ -14,7 +16,7 @@ class HomeHeader extends StatefulWidget {
 
 class _HomeHeaderState extends State<HomeHeader> {
   bool searchMode = false;
-  final searchCtrl = TextEditingController();
+  final TextEditingController searchCtrl = TextEditingController();
 
   @override
   void dispose() {
@@ -38,7 +40,7 @@ class _HomeHeaderState extends State<HomeHeader> {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withOpacity(isDark ? 0.25 : 0.08),
               blurRadius: 18,
               offset: const Offset(0, 6),
             ),
@@ -50,35 +52,7 @@ class _HomeHeaderState extends State<HomeHeader> {
             /// 🔹 Top Bar
             Row(
               children: [
-                /// Logo
-                SizedBox(
-                  width: 55,
-                  height: 70, // زودنا الارتفاع عشان الكلمة تحت الأيقونة
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.chat_bubble_rounded,
-                        size: 30,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(height: 4),
-                      const FittedBox(
-                        child: Text(
-                          'Sawa',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(width: 9),
-
-                /// Title / Search
+                /// 🔹 Title / Search
                 Expanded(
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 250),
@@ -96,8 +70,8 @@ class _HomeHeaderState extends State<HomeHeader> {
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.2,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 0.3,
                                 color: isDark
                                     ? Colors.white
                                     : Colors.grey.shade800,
@@ -107,15 +81,24 @@ class _HomeHeaderState extends State<HomeHeader> {
                   ),
                 ),
 
-                /// Search button
+                /// 🔹 Friends Button
+                _iconBtn(
+                  icon: Icons.people_alt_rounded,
+                  tooltip: 'الأصدقاء',
+                  onTap: () => Get.to(() => const FriendPage()),
+                ),
+
+                /// 🔹 Search Button
                 _iconBtn(
                   icon: Icons.search,
+                  tooltip: 'بحث',
                   onTap: () => setState(() => searchMode = true),
                 ),
 
-                /// Menu button
+                /// 🔹 Menu Button
                 _iconBtn(
                   icon: Icons.more_vert,
+                  tooltip: 'الإعدادات',
                   onTap: () {
                     showModalBottomSheet(
                       context: context,
@@ -165,7 +148,7 @@ class _HomeHeaderState extends State<HomeHeader> {
     );
   }
 
-  /// 🔹 Search Bar
+  /// 🔍 Search Bar
   Widget _searchBar(bool isDark) {
     return SizedBox(
       height: 42,
@@ -196,9 +179,14 @@ class _HomeHeaderState extends State<HomeHeader> {
     );
   }
 
-  /// 🔹 Icon Button Style
-  Widget _iconBtn({required IconData icon, required VoidCallback onTap}) {
+  /// 🔘 Icon Button
+  Widget _iconBtn({
+    required IconData icon,
+    String? tooltip,
+    required VoidCallback onTap,
+  }) {
     return IconButton(
+      tooltip: tooltip,
       splashRadius: 22,
       icon: Icon(icon, size: 22),
       onPressed: onTap,
