@@ -93,7 +93,7 @@ class _RegisterFormState extends State<RegisterForm> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        /// 🔀 Register Method Switch
+        ///  Register Method Switch
         Container(
           padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
@@ -120,7 +120,7 @@ class _RegisterFormState extends State<RegisterForm> {
 
         const SizedBox(height: 20),
 
-        /// 👤 Name
+        ///  Name
         TextField(
           controller: nameCtrl,
           decoration: _decoration(
@@ -132,7 +132,7 @@ class _RegisterFormState extends State<RegisterForm> {
 
         const SizedBox(height: 16),
 
-        /// 📱 Phone OR 📧 Email
+        ///  Phone OR  Email
         if (method == RegisterMethod.phone)
           TextField(
             controller: phoneCtrl,
@@ -157,7 +157,7 @@ class _RegisterFormState extends State<RegisterForm> {
 
         const SizedBox(height: 16),
 
-        /// 🔒 Password
+        ///  Password
         TextField(
           controller: passCtrl,
           obscureText: obscure,
