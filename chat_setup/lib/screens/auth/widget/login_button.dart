@@ -13,7 +13,9 @@ class LoginButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final auth = Get.find<AuthController>();
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark =
+        WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+        Brightness.dark;
 
     return Obx(() {
       final isLoading = auth.isLoading.value;
