@@ -10,7 +10,9 @@ class LoginForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = Get.find<LoginFormController>();
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark =
+        WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+        Brightness.dark;
     return Form(
       key: c.formKey,
       child: Column(
