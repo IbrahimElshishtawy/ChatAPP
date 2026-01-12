@@ -15,15 +15,16 @@ class SplashPage extends StatefulWidget {
 
 class _SplashPageState extends State<SplashPage>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _fade;
-  late Animation<double> _scale;
+  late final AnimationController _controller;
+  late final Animation<double> _fade;
+  late final Animation<double> _scale;
+
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
 
-    /// Animation controller
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 900),
@@ -37,21 +38,27 @@ class _SplashPageState extends State<SplashPage>
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
 
     _controller.forward();
-    Timer(const Duration(seconds: 2), _goNext);
+
+    _timer = Timer(const Duration(seconds: 2), _goNext);
   }
 
   void _goNext() {
+    if (!mounted) return;
+
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
       Get.offAll(() => const LoginPage());
+      // Get.offAllNamed(Routes.login);
     } else {
       Get.offAll(() => HomePage());
+      // Get.offAllNamed(Routes.home);
     }
   }
 
   @override
   void dispose() {
+    _timer?.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -66,7 +73,6 @@ class _SplashPageState extends State<SplashPage>
         child: Column(
           children: [
             const Spacer(),
-
             Center(
               child: FadeTransition(
                 opacity: _fade,
@@ -76,23 +82,20 @@ class _SplashPageState extends State<SplashPage>
                 ),
               ),
             ),
-
             const Spacer(),
 
-            /// 🔹 Footer text
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 24),
-                child: FadeTransition(
-                  opacity: _fade,
-                  child: const Text(
-                    'Ibrahim Elshishtawy © 2026',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0.3,
-                    ),
+            // Footer عربي + سنة تلقائية
+            Padding(
+              padding: const EdgeInsets.only(bottom: 24),
+              child: FadeTransition(
+                opacity: _fade,
+                child: Text(
+                  'Ibrahim Elshishtawy © ${DateTime.now().year}',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.3,
                   ),
                 ),
               ),
