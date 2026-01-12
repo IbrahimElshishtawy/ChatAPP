@@ -53,12 +53,26 @@ class _HomeHeaderState extends State<HomeHeader> {
                 /// Logo
                 SizedBox(
                   width: 55,
-                  height: 55,
-
-                  // padding: const EdgeInsets.all(),
-                  child: Image.asset(
-                    'assets/image/logo.png',
-                    fit: BoxFit.cover,
+                  height: 70, // زودنا الارتفاع عشان الكلمة تحت الأيقونة
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.chat_bubble_rounded,
+                        size: 30,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(height: 4),
+                      const FittedBox(
+                        child: Text(
+                          'Sawa',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
 
