@@ -65,7 +65,9 @@ class _SplashPageState extends State<SplashPage>
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark =
+        WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+        Brightness.dark;
 
     return Scaffold(
       backgroundColor: isDark ? Colors.black : const Color(0xFFF6F7F9),
@@ -83,8 +85,6 @@ class _SplashPageState extends State<SplashPage>
               ),
             ),
             const Spacer(),
-
-            // Footer عربي + سنة تلقائية
             Padding(
               padding: const EdgeInsets.only(bottom: 24),
               child: FadeTransition(
