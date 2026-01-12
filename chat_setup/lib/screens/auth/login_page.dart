@@ -17,7 +17,9 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Get.find<AuthController>();
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark =
+        WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+        Brightness.dark;
     Get.put(LoginFormController());
     Future<void> onLogin() async {
       final c = Get.find<LoginFormController>();
@@ -43,7 +45,7 @@ class LoginPage extends StatelessWidget {
             child: Column(
               children: [
                 const AuthAnimation(asset: 'assets/anim/Phoenix Dancing.json'),
-                const SizedBox(height: 16),
+                const SizedBox(height: 10),
 
                 Column(
                   mainAxisSize: MainAxisSize.min,
@@ -54,8 +56,9 @@ class LoginPage extends StatelessWidget {
                         TypewriterAnimatedText(
                           'Welcome Back',
                           speed: const Duration(milliseconds: 80),
-                          textStyle: const TextStyle(
+                          textStyle: TextStyle(
                             fontSize: 26,
+                            color: isDark ? Colors.white : Colors.black,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
