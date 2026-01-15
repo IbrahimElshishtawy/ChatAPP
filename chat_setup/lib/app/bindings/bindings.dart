@@ -1,5 +1,8 @@
 import 'package:chat_setup/controllers/notification/notification_controller.dart';
 import 'package:chat_setup/controllers/presence/presence_controller.dart';
+import 'package:chat_setup/controllers/social/follow_controller.dart';
+import 'package:chat_setup/controllers/social/friend_controller.dart'
+    show FriendController;
 import 'package:chat_setup/controllers/user/user_controller.dart';
 import 'package:get/get.dart';
 
@@ -23,6 +26,13 @@ class InitialBinding extends Bindings {
 
     Get.put(ThemeController(), permanent: true);
     Get.put(NavigationController(), permanent: true);
+
+    Get.put<FriendController>(FriendController(), permanent: true);
+    Get.put<FollowController>(FollowController(), permanent: true);
+
+    if (!Get.isRegistered<ChatController>()) {
+      Get.put(ChatController(), permanent: true);
+    }
 
     // الباقي lazy
     Get.lazyPut<UserController>(() => UserController());

@@ -13,8 +13,14 @@ class ProfileActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final friendCtrl = Get.find<FriendController>();
-    final followCtrl = Get.find<FollowController>();
+    final FriendController friendCtrl = Get.isRegistered<FriendController>()
+        ? Get.find<FriendController>()
+        : Get.put(FriendController(), permanent: true);
+
+    final FollowController followCtrl = Get.isRegistered<FollowController>()
+        ? Get.find<FollowController>()
+        : Get.put(FollowController(), permanent: true);
+
     final chatCtrl = Get.find<ChatController>();
     final myId = FirebaseAuth.instance.currentUser!.uid;
 

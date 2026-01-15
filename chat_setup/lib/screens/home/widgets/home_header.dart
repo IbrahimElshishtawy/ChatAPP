@@ -1,6 +1,5 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:chat_setup/screens/contants_user/Friend_Page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../controllers/user/user_controller.dart';
@@ -48,11 +47,12 @@ class _HomeHeaderState extends State<HomeHeader> {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.max,
+
           children: [
             /// 🔹 Top Bar
             Row(
               children: [
-                /// 🔹 Title / Search
                 Expanded(
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 250),
@@ -79,13 +79,6 @@ class _HomeHeaderState extends State<HomeHeader> {
                             );
                           }),
                   ),
-                ),
-
-                /// 🔹 Friends Button
-                _iconBtn(
-                  icon: Icons.people_alt_rounded,
-                  tooltip: 'الأصدقاء',
-                  onTap: () => Get.to(() => const FriendPage()),
                 ),
 
                 /// 🔹 Search Button
