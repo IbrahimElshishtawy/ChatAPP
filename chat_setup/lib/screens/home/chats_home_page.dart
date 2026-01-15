@@ -88,7 +88,7 @@ class ChatsHomePage extends StatelessWidget {
             ],
           ),
 
-          const Positioned(right: 16, bottom: 90, child: HomeFAB()),
+          const Positioned(right: 16, bottom: 130, child: HomeFAB()),
         ],
       ),
     );

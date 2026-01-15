@@ -12,8 +12,6 @@ class HomeFAB extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Positioned(
-      right: 20,
-      bottom: 130,
       child: TweenAnimationBuilder<double>(
         tween: Tween(begin: 0.0, end: 1.0),
         duration: const Duration(milliseconds: 650),
