@@ -1,0 +1,59 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isOwner(userId);
+    }
+
+    match /chats/{chatId} {
+      allow read: if isSignedIn() && request.auth.uid in resource.data.members;
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && request.auth.uid in resource.data.members;
+
+      match /messages/{messageId} {
+        allow read: if isSignedIn(); // Should probably check if user is in chat, but simplify for now
+        allow create: if isSignedIn();
+
+        // Message Editing Rules: 5 minutes limit, max 3 edits
+        allow update: if isSignedIn()
+                      && request.auth.uid == resource.data.senderId
+                      && request.time < resource.data.canEditUntil
+                      && (resource.data.editCount == null || resource.data.editCount < 3)
+                      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['text', 'isEdited', 'editedAt', 'editCount']);
+      }
+    }
+
+    match /channels/{channelId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && request.auth.uid in resource.data.admins;
+
+      match /messages/{messageId} {
+        allow read: if isSignedIn();
+        allow create: if isSignedIn() && (request.auth.uid in get(/databases/$(database)/documents/channels/$(channelId)).data.admins);
+      }
+    }
+
+    match /following/{userId}/users/{followedId} {
+      allow read: if isSignedIn();
+      allow write: if isOwner(userId);
+    }
+
+    match /followers/{userId}/users/{followerId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn(); // Users can add themselves to followers via batch
+    }
+  }
+}

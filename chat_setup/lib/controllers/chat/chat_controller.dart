@@ -72,12 +72,16 @@ class ChatController extends GetxController {
     final myId = uid;
     if (myId == null) return;
 
-    final receiverId = members.firstWhere((id) => id != myId);
+    final receiverId = members.firstWhere(
+      (id) => id != myId,
+      orElse: () => myId,
+    );
 
     final message = MessageModel(
       id: '',
       text: text.trim(),
       senderId: myId,
+      senderName: _auth.currentUser?.displayName ?? 'مستخدم',
       receiverId: receiverId,
       createdAt: DateTime.now(),
       isSeen: false,
@@ -111,6 +115,22 @@ class ChatController extends GetxController {
       chatId: chatId,
       fileUrl: fileUrl,
       senderId: uid!,
+    );
+  }
+
+  Future<void> editMessage({
+    required String chatId,
+    required String messageId,
+    required String newText,
+  }) async {
+    final myId = uid;
+    if (myId == null) return;
+
+    await _service.editMessage(
+      chatId: chatId,
+      messageId: messageId,
+      newText: newText,
+      userId: myId,
     );
   }
 
