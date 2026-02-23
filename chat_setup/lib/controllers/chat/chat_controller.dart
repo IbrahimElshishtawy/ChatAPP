@@ -68,6 +68,9 @@ class ChatController extends GetxController {
     required String chatId,
     required String text,
     required List<String> members,
+    String messageType = 'text',
+    String? fileUrl,
+    String? forwardedFromId,
   }) async {
     final myId = uid;
     if (myId == null) return;
@@ -84,6 +87,9 @@ class ChatController extends GetxController {
       senderName: _auth.currentUser?.displayName ?? 'مستخدم',
       receiverId: receiverId,
       createdAt: DateTime.now(),
+      messageType: messageType,
+      fileUrl: fileUrl,
+      forwardedFromId: forwardedFromId,
       isSeen: false,
     );
 
@@ -94,27 +100,41 @@ class ChatController extends GetxController {
     );
   }
 
+  Future<void> sendMediaMessage({
+    required String chatId,
+    required List<String> members,
+    required File file,
+    required String type, // image, video, audio, file
+  }) async {
+    final myId = uid;
+    if (myId == null) return;
+
+    final fileName = '${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
+    final fileUrl = await _fileService.uploadFile(
+      file,
+      'chat_media/$chatId/$type/$fileName',
+    );
+
+    await sendMessage(
+      chatId: chatId,
+      text: '[ $type ]',
+      members: members,
+      messageType: type,
+      fileUrl: fileUrl,
+    );
+  }
+
   Future<void> sendFileMessage({
     required String chatId,
     required String text,
     required List<String> members,
     required String filePath,
   }) async {
-    final fileUrl = await _fileService.uploadFile(
-      File(filePath),
-      'chat_files/${DateTime.now().millisecondsSinceEpoch}',
-    );
-
-    await sendMessage(
+    await sendMediaMessage(
       chatId: chatId,
-      text: text.isEmpty ? '📎 ملف' : text,
       members: members,
-    );
-
-    await _service.attachFileToLastMessage(
-      chatId: chatId,
-      fileUrl: fileUrl,
-      senderId: uid!,
+      file: File(filePath),
+      type: 'file',
     );
   }
 
@@ -131,6 +151,68 @@ class ChatController extends GetxController {
       messageId: messageId,
       newText: newText,
       userId: myId,
+    );
+  }
+
+  Future<void> deleteForEveryone({
+    required String chatId,
+    required String messageId,
+  }) async {
+    final myId = uid;
+    if (myId == null) return;
+
+    await _service.deleteMessageForEveryone(
+      chatId: chatId,
+      messageId: messageId,
+      userId: myId,
+    );
+  }
+
+  Future<void> deleteForMe({
+    required String chatId,
+    required String messageId,
+  }) async {
+    final myId = uid;
+    if (myId == null) return;
+
+    await _service.deleteMessageForMe(
+      chatId: chatId,
+      messageId: messageId,
+      userId: myId,
+    );
+  }
+
+  Future<void> reportMessage({
+    required String chatId,
+    required String messageId,
+    required String reason,
+  }) async {
+    final myId = uid;
+    if (myId == null) return;
+
+    await _service.reportMessage(
+      chatId: chatId,
+      messageId: messageId,
+      reportedBy: myId,
+      reason: reason,
+    );
+  }
+
+  Future<void> forwardMessage({
+    required String targetChatId,
+    required List<String> targetMembers,
+    required MessageModel originalMessage,
+  }) async {
+    final myId = uid;
+    if (myId == null) return;
+
+    await sendMessage(
+      chatId: targetChatId,
+      text: originalMessage.text,
+      members: targetMembers,
+      messageType: originalMessage.messageType,
+      fileUrl: originalMessage.fileUrl,
+      forwardedFromId: originalMessage.senderId,
     );
   }
 

@@ -80,6 +80,34 @@ class CallController extends GetxController {
     incomingCall.value = null;
   }
 
+  Future<void> makeCall({
+    required String receiverId,
+    required CallType type,
+  }) async {
+    final uid = _uid;
+    if (uid == null) return;
+
+    final callId = FirebaseFirestore.instance.collection('calls').doc().id;
+    final call = CallModel(
+      callId: callId,
+      callerId: uid,
+      receiverId: receiverId,
+      channelName: callId, // Using callId as Agora channel name
+      type: type,
+      status: CallStatus.ringing,
+      createdAt: DateTime.now(),
+    );
+
+    await _service.startCall(call);
+
+    // Navigate to call screen (handled in UI)
+    if (type == CallType.video) {
+      Get.toNamed('/video_call', arguments: call);
+    } else {
+      Get.toNamed('/voice_call', arguments: call);
+    }
+  }
+
   bool isMissed(CallModel call) {
     final uid = _uid;
     if (uid == null) return false;

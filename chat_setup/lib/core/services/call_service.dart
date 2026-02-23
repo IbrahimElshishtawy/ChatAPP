@@ -7,15 +7,9 @@ class CallService {
   CollectionReference calls() => _firestore.collection('calls');
 
   Future<void> startCall(CallModel call) async {
-    await _calls.doc(call.callId).set(call.toMap());
-    await calls().doc(call.callId).set({
-      'callId': call.callId,
-      'callerId': call.callerId,
-      'receiverId': call.receiverId,
-      'channelName': call.channelName,
-      'type': call.type.name,
-      'status': call.status.name,
-      'createdAt': Timestamp.now(),
+    await _calls.doc(call.callId).set({
+      ...call.toMap(),
+      'createdAt': FieldValue.serverTimestamp(),
     });
   }
 

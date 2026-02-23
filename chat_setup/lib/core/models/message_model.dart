@@ -7,6 +7,9 @@ class MessageModel {
   final String senderName;
   final String receiverId;
   final DateTime createdAt;
+  final String messageType; // text, image, video, audio, file
+  final String? fileUrl;
+  final String? forwardedFromId;
 
   final bool isSeen;
   final DateTime? seenAt;
@@ -34,6 +37,9 @@ class MessageModel {
     this.senderName = '',
     required this.receiverId,
     required this.createdAt,
+    this.messageType = 'text',
+    this.fileUrl,
+    this.forwardedFromId,
     required this.isSeen,
     this.seenAt,
     this.isEdited = false,
@@ -53,6 +59,9 @@ class MessageModel {
       'senderName': senderName,
       'receiverId': receiverId,
       'createdAt': createdAt,
+      'messageType': messageType,
+      'fileUrl': fileUrl,
+      'forwardedFromId': forwardedFromId,
       'isSeen': isSeen,
       'seenAt': seenAt,
       'isEdited': isEdited,
@@ -74,6 +83,9 @@ class MessageModel {
       senderName: map['senderName'] ?? '',
       receiverId: map['receiverId'] ?? '',
       createdAt: (map['createdAt'] as Timestamp).toDate(),
+      messageType: map['messageType'] ?? 'text',
+      fileUrl: map['fileUrl'],
+      forwardedFromId: map['forwardedFromId'],
       isSeen: map['isSeen'] ?? false,
       seenAt: map['seenAt'] != null
           ? (map['seenAt'] as Timestamp).toDate()

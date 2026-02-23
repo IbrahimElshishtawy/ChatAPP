@@ -23,8 +23,8 @@ service cloud.firestore {
       allow update: if isSignedIn() && request.auth.uid in resource.data.members;
 
       match /messages/{messageId} {
-        allow read: if isSignedIn(); // Should probably check if user is in chat, but simplify for now
-        allow create: if isSignedIn();
+        allow read: if isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.members;
+        allow create: if isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.members;
 
         // Message Editing Rules: 5 minutes limit, max 3 edits
         allow update: if isSignedIn()
@@ -38,12 +38,30 @@ service cloud.firestore {
     match /channels/{channelId} {
       allow read: if isSignedIn();
       allow create: if isSignedIn();
-      allow update: if isSignedIn() && request.auth.uid in resource.data.admins;
+      allow update: if isSignedIn() && (request.auth.uid == resource.data.ownerId || request.auth.uid in resource.data.admins);
 
       match /messages/{messageId} {
         allow read: if isSignedIn();
-        allow create: if isSignedIn() && (request.auth.uid in get(/databases/$(database)/documents/channels/$(channelId)).data.admins);
+        allow create: if isSignedIn() && (request.auth.uid in get(/databases/$(database)/documents/channels/$(channelId)).data.admins || request.auth.uid == get(/databases/$(database)/documents/channels/$(channelId)).data.ownerId);
       }
+    }
+
+    match /groups/{groupId} {
+      allow read: if isSignedIn() && request.auth.uid in resource.data.members;
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && request.auth.uid in resource.data.members;
+
+      match /messages/{messageId} {
+        allow read: if isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.members;
+        allow create: if isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.members;
+        allow update: if isSignedIn() && request.auth.uid == resource.data.senderId;
+      }
+    }
+
+    match /calls/{callId} {
+      allow read: if isSignedIn() && (request.auth.uid == resource.data.callerId || request.auth.uid == resource.data.receiverId);
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (request.auth.uid == resource.data.callerId || request.auth.uid == resource.data.receiverId);
     }
 
     match /following/{userId}/users/{followedId} {

@@ -82,10 +82,20 @@ class UserController extends GetxController {
   }
 
   /// ✏️ تعديل البروفايل
-  Future<void> updateProfile(String name, String trim) async {
+  Future<void> updateProfile({
+    String? name,
+    String? description,
+    String? websiteLink,
+    String? username,
+  }) async {
     if (user.value == null) return;
 
-    final updated = user.value!.copyWith(name: name);
+    final updated = user.value!.copyWith(
+      name: name,
+      description: description,
+      websiteLink: websiteLink,
+      username: username,
+    );
     await _service.updateUser(updated);
     user.value = updated;
   }

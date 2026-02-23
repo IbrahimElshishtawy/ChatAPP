@@ -14,20 +14,24 @@ class UserService {
   /// 🔹 UPDATE user
   Future<void> updateUser(UserModel user) async {
     // التحقق من أن الإيميل أو الرقم ليس مكررًا قبل التحديث
-    final emailExists = await _users
-        .where('email', isEqualTo: user.email)
-        .get();
-
-    final phoneExists = await _users
-        .where('phone', isEqualTo: user.phone)
-        .get();
-
-    if (emailExists.docs.isNotEmpty) {
-      throw Exception('Email already exists');
+    if (user.email != null) {
+      final emailExists = await _users
+          .where('email', isEqualTo: user.email)
+          .where(FieldPath.documentId, isNotEqualTo: user.id)
+          .get();
+      if (emailExists.docs.isNotEmpty) {
+        throw Exception('Email already exists');
+      }
     }
 
-    if (phoneExists.docs.isNotEmpty) {
-      throw Exception('Phone number already exists');
+    if (user.phone != null) {
+      final phoneExists = await _users
+          .where('phone', isEqualTo: user.phone)
+          .where(FieldPath.documentId, isNotEqualTo: user.id)
+          .get();
+      if (phoneExists.docs.isNotEmpty) {
+        throw Exception('Phone number already exists');
+      }
     }
 
     await _users.doc(user.id).update(user.toMap());

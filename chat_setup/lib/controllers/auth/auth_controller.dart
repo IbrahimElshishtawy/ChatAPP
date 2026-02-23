@@ -145,4 +145,17 @@ class AuthController extends GetxController {
   Future<void> logout() async {
     await _service.logout();
   }
+
+  Future<bool> loginWithGoogle() async {
+    try {
+      isLoading.value = true;
+      final user = await _service.signInWithGoogle();
+      return user != null;
+    } catch (e) {
+      Get.snackbar('خطأ', e.toString());
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
 }

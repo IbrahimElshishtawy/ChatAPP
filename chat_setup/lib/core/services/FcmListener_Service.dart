@@ -17,11 +17,22 @@ class FcmListenerService {
 
     // لما المستخدم يضغط على الإشعار والتطبيق كان بالخلفية
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage msg) {
-      // افتح شاشة معينة (مثلاً شات)
-      final chatId = msg.data['chatId'];
-      if (chatId != null) {
-        // Get.toNamed('/chat', arguments: chatId);
-      }
+      _handleNotificationClick(msg);
     });
+  }
+
+  void _handleNotificationClick(RemoteMessage msg) {
+    final type = msg.data['type'];
+    final id = msg.data['id'];
+
+    if (type == 'chat') {
+      Get.toNamed('/chat', arguments: id);
+    } else if (type == 'group') {
+      Get.toNamed('/group_chat', arguments: id);
+    } else if (type == 'channel') {
+      Get.toNamed('/channel_chat', arguments: id);
+    } else if (type == 'follow') {
+      Get.toNamed('/profile', arguments: id);
+    }
   }
 }

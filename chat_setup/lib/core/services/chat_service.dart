@@ -126,6 +126,52 @@ class ChatService {
     });
   }
 
+  Future<void> deleteMessageForEveryone({
+    required String chatId,
+    required String messageId,
+    required String userId,
+  }) async {
+    final messageRef = _chats.doc(chatId).collection('messages').doc(messageId);
+    final doc = await messageRef.get();
+    if (!doc.exists) return;
+    if (doc.data()?['senderId'] != userId) {
+      throw Exception('You can only delete your own messages for everyone');
+    }
+
+    await messageRef.update({
+      'isDeleted': true,
+      'text': 'تم حذف هذه الرسالة',
+      'messageType': 'text',
+      'fileUrl': null,
+    });
+  }
+
+  Future<void> deleteMessageForMe({
+    required String chatId,
+    required String messageId,
+    required String userId,
+  }) async {
+    final messageRef = _chats.doc(chatId).collection('messages').doc(messageId);
+    await messageRef.set({
+      'deletedFor': {userId: true}
+    }, SetOptions(merge: true));
+  }
+
+  Future<void> reportMessage({
+    required String chatId,
+    required String messageId,
+    required String reportedBy,
+    required String reason,
+  }) async {
+    await _firestore.collection('reports').add({
+      'chatId': chatId,
+      'messageId': messageId,
+      'reportedBy': reportedBy,
+      'reason': reason,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+  }
+
   // ======================
   // Seen (Batch + Limit)
   // ======================

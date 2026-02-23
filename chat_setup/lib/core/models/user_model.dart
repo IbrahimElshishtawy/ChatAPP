@@ -5,6 +5,7 @@ class UserModel {
   final String name;
   final String? email;
   final String? description;
+  final String? websiteLink;
   final String? phone;
   final String role;
   final String? linkedin;
@@ -27,6 +28,7 @@ class UserModel {
     required this.name,
     this.email,
     this.description,
+    this.websiteLink,
     this.phone,
     required this.role,
     this.username,
@@ -49,6 +51,7 @@ class UserModel {
       email: map['email'],
       phone: map['phone'],
       description: map['description'],
+      websiteLink: map['websiteLink'],
       role: map['role'] ?? 'user',
       username: map['username'],
       profilePicture: map['profilePicture'],
@@ -70,6 +73,7 @@ class UserModel {
       'phone': phone,
       'role': role,
       'description': description,
+      'websiteLink': websiteLink,
       'username': username,
       'profilePicture': profilePicture,
       'backgroundImage': backgroundImage,
@@ -91,6 +95,7 @@ class UserModel {
     String? linkedin,
     String? facebook,
     String? description,
+    String? websiteLink,
     String? instagram,
     String? whatsapp,
     String? backgroundImage,
@@ -107,6 +112,7 @@ class UserModel {
       phone: phone ?? this.phone,
       role: role ?? this.role,
       description: description ?? this.description,
+      websiteLink: websiteLink ?? this.websiteLink,
       profilePicture: profilePicture ?? this.profilePicture,
       username: username ?? this.username,
       linkedin: linkedin ?? this.linkedin,

@@ -93,4 +93,25 @@ class FollowController extends GetxController {
         .snapshots()
         .map((doc) => doc.exists);
   }
+
+  /* =============================
+      Lists
+  ============================== */
+  Stream<List<String>> getFollowers(String userId) {
+    return _firestore
+        .collection('followers')
+        .doc(userId)
+        .collection('users')
+        .snapshots()
+        .map((s) => s.docs.map((d) => d.id).toList());
+  }
+
+  Stream<List<String>> getFollowing(String userId) {
+    return _firestore
+        .collection('following')
+        .doc(userId)
+        .collection('users')
+        .snapshots()
+        .map((s) => s.docs.map((d) => d.id).toList());
+  }
 }
