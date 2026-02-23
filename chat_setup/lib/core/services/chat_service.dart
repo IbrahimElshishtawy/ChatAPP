@@ -75,7 +75,55 @@ class ChatService {
       'lastMessageTime': Timestamp.fromDate(message.createdAt),
     }, SetOptions(merge: true));
 
-    await chatRef.collection('messages').add(message.toMap());
+    // Set canEditUntil to 5 minutes from now
+    final messageData = message.toMap();
+    messageData['canEditUntil'] = Timestamp.fromDate(
+      message.createdAt.add(const Duration(minutes: 5)),
+    );
+
+    await chatRef.collection('messages').add(messageData);
+  }
+
+  Future<void> editMessage({
+    required String chatId,
+    required String messageId,
+    required String newText,
+    required String userId,
+  }) async {
+    final messageRef =
+        _chats.doc(chatId).collection('messages').doc(messageId);
+    final doc = await messageRef.get();
+
+    if (!doc.exists) {
+      throw Exception('Message does not exist');
+    }
+
+    final data = doc.data() as Map<String, dynamic>;
+    final senderId = data['senderId'];
+    final createdAt = (data['createdAt'] as Timestamp).toDate();
+    final editCount = data['editCount'] ?? 0;
+    final canEditUntil = data['canEditUntil'] != null
+        ? (data['canEditUntil'] as Timestamp).toDate()
+        : createdAt.add(const Duration(minutes: 5));
+
+    if (senderId != userId) {
+      throw Exception('You can only edit your own messages');
+    }
+
+    if (DateTime.now().isAfter(canEditUntil)) {
+      throw Exception('Edit time limit exceeded (5 minutes)');
+    }
+
+    if (editCount >= 3) {
+      throw Exception('Maximum edit limit reached (3 times)');
+    }
+
+    await messageRef.update({
+      'text': newText,
+      'isEdited': true,
+      'editedAt': FieldValue.serverTimestamp(),
+      'editCount': editCount + 1,
+    });
   }
 
   // ======================

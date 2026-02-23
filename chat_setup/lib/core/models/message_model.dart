@@ -4,6 +4,7 @@ class MessageModel {
   final String id;
   final String text;
   final String senderId;
+  final String senderName;
   final String receiverId;
   final DateTime createdAt;
 
@@ -13,6 +14,10 @@ class MessageModel {
   /// تعديل
   final bool isEdited;
   final DateTime? editedAt;
+  final int editCount;
+  final DateTime? canEditUntil;
+
+  final bool isDeleted;
 
   /// ↩ رد
   final String? replyToMessageId;
@@ -26,12 +31,16 @@ class MessageModel {
     required this.id,
     required this.text,
     required this.senderId,
+    this.senderName = '',
     required this.receiverId,
     required this.createdAt,
     required this.isSeen,
     this.seenAt,
     this.isEdited = false,
     this.editedAt,
+    this.editCount = 0,
+    this.canEditUntil,
+    this.isDeleted = false,
     this.replyToMessageId,
     this.replyToText,
     this.reactions,
@@ -41,12 +50,16 @@ class MessageModel {
     return {
       'text': text,
       'senderId': senderId,
+      'senderName': senderName,
       'receiverId': receiverId,
       'createdAt': createdAt,
       'isSeen': isSeen,
       'seenAt': seenAt,
       'isEdited': isEdited,
       'editedAt': editedAt,
+      'editCount': editCount,
+      'canEditUntil': canEditUntil,
+      'isDeleted': isDeleted,
       'replyToMessageId': replyToMessageId,
       'replyToText': replyToText,
       'reactions': reactions ?? {},
@@ -58,6 +71,7 @@ class MessageModel {
       id: id,
       text: map['text'] ?? '',
       senderId: map['senderId'] ?? '',
+      senderName: map['senderName'] ?? '',
       receiverId: map['receiverId'] ?? '',
       createdAt: (map['createdAt'] as Timestamp).toDate(),
       isSeen: map['isSeen'] ?? false,
@@ -68,6 +82,11 @@ class MessageModel {
       editedAt: map['editedAt'] != null
           ? (map['editedAt'] as Timestamp).toDate()
           : null,
+      editCount: map['editCount'] ?? 0,
+      canEditUntil: map['canEditUntil'] != null
+          ? (map['canEditUntil'] as Timestamp).toDate()
+          : null,
+      isDeleted: map['isDeleted'] ?? false,
       replyToMessageId: map['replyToMessageId'],
       replyToText: map['replyToText'],
       reactions: Map<String, String>.from(map['reactions'] ?? {}),

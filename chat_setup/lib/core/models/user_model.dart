@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class UserModel {
   final String id;
   final String name;
@@ -16,6 +18,9 @@ class UserModel {
   final int followersCount;
   final int followingCount;
 
+  final String plan;
+  final DateTime? planExpiry;
+
   UserModel({
     required this.profilePicture,
     required this.id,
@@ -33,6 +38,8 @@ class UserModel {
     this.postsCount = 0,
     this.followersCount = 0,
     this.followingCount = 0,
+    this.plan = 'free',
+    this.planExpiry,
   });
 
   factory UserModel.fromMap(String id, Map<String, dynamic> map) {
@@ -49,6 +56,10 @@ class UserModel {
       postsCount: map['postsCount'] ?? 0,
       followersCount: map['followersCount'] ?? 0,
       followingCount: map['followingCount'] ?? 0,
+      plan: map['plan'] ?? 'free',
+      planExpiry: map['planExpiry'] != null
+          ? (map['planExpiry'] as Timestamp).toDate()
+          : null,
     );
   }
 
@@ -65,6 +76,8 @@ class UserModel {
       'postsCount': postsCount,
       'followersCount': followersCount,
       'followingCount': followingCount,
+      'plan': plan,
+      'planExpiry': planExpiry,
     };
   }
 
@@ -84,6 +97,8 @@ class UserModel {
     int? postsCount,
     int? followersCount,
     int? followingCount,
+    String? plan,
+    DateTime? planExpiry,
   }) {
     return UserModel(
       id: id,
@@ -102,6 +117,8 @@ class UserModel {
       postsCount: postsCount ?? this.postsCount,
       followersCount: followersCount ?? this.followersCount,
       followingCount: followingCount ?? this.followingCount,
+      plan: plan ?? this.plan,
+      planExpiry: planExpiry ?? this.planExpiry,
     );
   }
 }
