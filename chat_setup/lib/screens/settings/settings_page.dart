@@ -21,19 +21,43 @@ class SettingsPage extends StatelessWidget {
           children: [
             const SizedBox(height: 8),
 
-            SwitchListTile(
-              title: const Text('Dark Mode'),
-              value: themeCtrl.isDark.value,
-              onChanged: (_) => themeCtrl.toggleTheme(),
+            ListTile(
+              title: const Text('المظهر (Dark Mode)'),
+              trailing: Switch(
+                value: themeCtrl.isDark.value,
+                onChanged: (_) => themeCtrl.toggleTheme(),
+              ),
+              leading: const Icon(Icons.brightness_4),
             ),
 
             const Divider(),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Text(
+                'الإشعارات',
+                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
+              ),
+            ),
 
             SwitchListTile(
-              title: const Text('الإشعارات'),
+              title: const Text('إشعارات الرسائل الخاصة'),
               value: settingsCtrl.notificationsEnabled.value,
               onChanged: settingsCtrl.toggleNotifications,
-              secondary: const Icon(Icons.notifications),
+              secondary: const Icon(Icons.message),
+            ),
+
+            SwitchListTile(
+              title: const Text('إشعارات المجموعات'),
+              value: settingsCtrl.groupNotificationsEnabled.value,
+              onChanged: settingsCtrl.toggleGroupNotifications,
+              secondary: const Icon(Icons.group),
+            ),
+
+            SwitchListTile(
+              title: const Text('إشعارات القنوات'),
+              value: settingsCtrl.channelNotificationsEnabled.value,
+              onChanged: settingsCtrl.toggleChannelNotifications,
+              secondary: const Icon(Icons.podcasts),
             ),
 
             SwitchListTile(

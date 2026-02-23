@@ -43,6 +43,13 @@ service cloud.firestore {
       match /messages/{messageId} {
         allow read: if isSignedIn();
         allow create: if isSignedIn() && (request.auth.uid in get(/databases/$(database)/documents/channels/$(channelId)).data.admins || request.auth.uid == get(/databases/$(database)/documents/channels/$(channelId)).data.ownerId);
+
+        // Message Editing Rules: 5 minutes limit, max 3 edits
+        allow update: if isSignedIn()
+                      && request.auth.uid == resource.data.senderId
+                      && request.time < resource.data.canEditUntil
+                      && (resource.data.editCount == null || resource.data.editCount < 3)
+                      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['text', 'isEdited', 'editedAt', 'editCount']);
       }
     }
 
@@ -54,7 +61,13 @@ service cloud.firestore {
       match /messages/{messageId} {
         allow read: if isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.members;
         allow create: if isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.members;
-        allow update: if isSignedIn() && request.auth.uid == resource.data.senderId;
+
+        // Message Editing Rules: 5 minutes limit, max 3 edits
+        allow update: if isSignedIn()
+                      && request.auth.uid == resource.data.senderId
+                      && request.time < resource.data.canEditUntil
+                      && (resource.data.editCount == null || resource.data.editCount < 3)
+                      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['text', 'isEdited', 'editedAt', 'editCount']);
       }
     }
 
@@ -71,7 +84,7 @@ service cloud.firestore {
 
     match /followers/{userId}/users/{followerId} {
       allow read: if isSignedIn();
-      allow write: if isSignedIn(); // Users can add themselves to followers via batch
+      allow write: if isSignedIn() && request.auth.uid == followerId;
     }
   }
 }
