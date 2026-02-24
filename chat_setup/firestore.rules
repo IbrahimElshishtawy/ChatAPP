@@ -13,7 +13,11 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read: if isSignedIn();
+      allow read: if isSignedIn() && (
+        userId == request.auth.uid ||
+        resource.data.privacySettings.profileVisibility == 'everyone' ||
+        (resource.data.privacySettings.profileVisibility == 'contacts' && exists(/databases/$(database)/documents/following/$(userId)/users/$(request.auth.uid)))
+      );
       allow write: if isOwner(userId);
     }
 
@@ -24,7 +28,9 @@ service cloud.firestore {
 
       match /messages/{messageId} {
         allow read: if isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.members;
-        allow create: if isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.members;
+        allow create: if isSignedIn()
+                      && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.members
+                      && !(request.auth.uid in get(/databases/$(database)/documents/users/$(request.resource.data.receiverId)).data.get('blockedUsers', []));
 
         // Message Editing Rules: 5 minutes limit, max 3 edits
         allow update: if isSignedIn()

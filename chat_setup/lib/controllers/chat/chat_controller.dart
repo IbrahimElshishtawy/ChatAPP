@@ -1,8 +1,10 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import '../../core/models/message_model.dart';
+import '../../core/models/chat_model.dart';
 import '../../core/services/chat_service.dart';
 import '../../core/services/FileUploadService.dart';
 import '../../core/services/AudioRecordingService.dart';
@@ -287,6 +289,24 @@ class ChatController extends GetxController {
       userId: myId,
       deleted: deleted,
     );
+  }
+
+  Future<void> updateChatSettings(String chatId, Map<String, dynamic> userSettings) async {
+    final myId = uid;
+    if (myId == null) return;
+
+    await FirebaseFirestore.instance.collection('chats').doc(chatId).set({
+      'settings': {
+        myId: userSettings,
+      }
+    }, SetOptions(merge: true));
+  }
+
+  Future<void> toggleMute(String chatId, bool mute) async {
+    final myId = uid;
+    if (myId == null) return;
+
+    await updateChatSettings(chatId, {'muted': mute});
   }
 
   // ======================

@@ -49,6 +49,10 @@ class UserController extends GetxController {
     user.value = await _service.getUser(uid);
   }
 
+  Future<UserModel?> getUser(String uid) async {
+    return await _service.getUser(uid);
+  }
+
   /// 👥 كل المستخدمين (ما عدا أنا)
   Future<void> loadAllUsers(String myUid) async {
     final users = await _service.getAllUsers();
@@ -210,5 +214,71 @@ class UserController extends GetxController {
         print('Error updating profile links: $e');
       }
     }
+  }
+
+  // Blocking logic
+  Future<void> blockUser(String userId) async {
+    if (user.value == null) return;
+    final blocked = List<String>.from(user.value!.blockedUsers)..add(userId);
+    final updated = user.value!.copyWith(blockedUsers: blocked);
+    await _service.updateUser(updated);
+    user.value = updated;
+  }
+
+  Future<void> unblockUser(String userId) async {
+    if (user.value == null) return;
+    final blocked = List<String>.from(user.value!.blockedUsers)..remove(userId);
+    final updated = user.value!.copyWith(blockedUsers: blocked);
+    await _service.updateUser(updated);
+    user.value = updated;
+  }
+
+  Future<void> blockCall(String userId) async {
+    if (user.value == null) return;
+    final blocked = List<String>.from(user.value!.blockedCalls)..add(userId);
+    final updated = user.value!.copyWith(blockedCalls: blocked);
+    await _service.updateUser(updated);
+    user.value = updated;
+  }
+
+  Future<void> unblockCall(String userId) async {
+    if (user.value == null) return;
+    final blocked = List<String>.from(user.value!.blockedCalls)..remove(userId);
+    final updated = user.value!.copyWith(blockedCalls: blocked);
+    await _service.updateUser(updated);
+    user.value = updated;
+  }
+
+  Future<void> blockGroup(String groupId) async {
+    if (user.value == null) return;
+    final blocked = List<String>.from(user.value!.blockedGroups)..add(groupId);
+    final updated = user.value!.copyWith(blockedGroups: blocked);
+    await _service.updateUser(updated);
+    user.value = updated;
+  }
+
+  Future<void> unblockGroup(String groupId) async {
+    if (user.value == null) return;
+    final blocked = List<String>.from(user.value!.blockedGroups)..remove(groupId);
+    final updated = user.value!.copyWith(blockedGroups: blocked);
+    await _service.updateUser(updated);
+    user.value = updated;
+  }
+
+  Future<void> updatePrivacySettings(Map<String, dynamic> settings) async {
+    if (user.value == null) return;
+    final updated = user.value!.copyWith(privacySettings: settings);
+    await _service.updateUser(updated);
+    user.value = updated;
+  }
+
+  Future<void> deleteUserAccount() async {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) return;
+
+    // In a real app, you'd also delete user data from Firestore and Storage
+    await _firestore.collection('users').doc(uid).delete();
+    await _auth.currentUser?.delete();
+    clear();
   }
 }

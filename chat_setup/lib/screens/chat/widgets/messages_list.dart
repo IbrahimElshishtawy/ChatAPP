@@ -1,5 +1,7 @@
 import 'package:chat_setup/controllers/chat/chat_controller.dart';
+import 'package:chat_setup/controllers/user/user_controller.dart';
 import 'package:chat_setup/core/models/message_model.dart';
+import 'package:chat_setup/core/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -104,16 +106,19 @@ class MessagesList extends StatelessWidget {
                     ),
                     if (!isMe) const SizedBox(width: 8),
                     if (!isMe)
-                      CircleAvatar(
-                        radius: 18,
-                        backgroundColor: Colors.grey.shade300,
-                        child: Text(
-                          message.senderName.isNotEmpty
-                              ? message.senderName[0].toUpperCase()
-                              : (message.senderId.isNotEmpty
-                                  ? message.senderId[0].toUpperCase()
-                                  : '?'),
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                      GestureDetector(
+                        onTap: () => _showUserInfo(context, message.senderId),
+                        child: CircleAvatar(
+                          radius: 18,
+                          backgroundColor: Colors.grey.shade300,
+                          child: Text(
+                            message.senderName.isNotEmpty
+                                ? message.senderName[0].toUpperCase()
+                                : (message.senderId.isNotEmpty
+                                    ? message.senderId[0].toUpperCase()
+                                    : '?'),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ),
                   ],
@@ -175,6 +180,40 @@ class MessagesList extends StatelessWidget {
               }
             },
             child: const Text('حفظ'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showUserInfo(BuildContext context, String userId) async {
+    final userCtrl = Get.find<UserController>();
+    final UserModel? user = await userCtrl.getUser(userId); // Assuming this exists or using loadUser
+
+    if (user == null) return;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(user.name),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (user.profilePicture != null)
+              CircleAvatar(
+                radius: 40,
+                backgroundImage: NetworkImage(user.profilePicture!),
+              ),
+            const SizedBox(height: 10),
+            Text('الاسم المستعار: ${user.nickname ?? "لا يوجد"}'),
+            Text('رقم الهاتف: ${user.phone ?? "غير متوفر"}'),
+            Text('الوصف: ${user.description ?? "لا يوجد وصف"}'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('إغلاق'),
           ),
         ],
       ),

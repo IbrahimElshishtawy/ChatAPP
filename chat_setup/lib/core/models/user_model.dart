@@ -4,6 +4,7 @@ class UserModel {
   final String id;
   final String name;
   final String? email;
+  final String? nickname;
   final String? description;
   final String? websiteLink;
   final String? phone;
@@ -22,11 +23,17 @@ class UserModel {
   final String plan;
   final DateTime? planExpiry;
 
+  final List<String> blockedUsers;
+  final List<String> blockedCalls;
+  final List<String> blockedGroups;
+  final Map<String, dynamic> privacySettings;
+
   UserModel({
     required this.profilePicture,
     required this.id,
     required this.name,
     this.email,
+    this.nickname,
     this.description,
     this.websiteLink,
     this.phone,
@@ -42,6 +49,10 @@ class UserModel {
     this.followingCount = 0,
     this.plan = 'free',
     this.planExpiry,
+    this.blockedUsers = const [],
+    this.blockedCalls = const [],
+    this.blockedGroups = const [],
+    this.privacySettings = const {},
   });
 
   factory UserModel.fromMap(String id, Map<String, dynamic> map) {
@@ -49,6 +60,7 @@ class UserModel {
       id: id,
       name: map['name'] ?? '',
       email: map['email'],
+      nickname: map['nickname'],
       phone: map['phone'],
       description: map['description'],
       websiteLink: map['websiteLink'],
@@ -63,6 +75,10 @@ class UserModel {
       planExpiry: map['planExpiry'] != null
           ? (map['planExpiry'] as Timestamp).toDate()
           : null,
+      blockedUsers: List<String>.from(map['blockedUsers'] ?? []),
+      blockedCalls: List<String>.from(map['blockedCalls'] ?? []),
+      blockedGroups: List<String>.from(map['blockedGroups'] ?? []),
+      privacySettings: Map<String, dynamic>.from(map['privacySettings'] ?? {}),
     );
   }
 
@@ -70,6 +86,7 @@ class UserModel {
     return {
       'name': name,
       'email': email,
+      'nickname': nickname,
       'phone': phone,
       'role': role,
       'description': description,
@@ -82,12 +99,17 @@ class UserModel {
       'followingCount': followingCount,
       'plan': plan,
       'planExpiry': planExpiry,
+      'blockedUsers': blockedUsers,
+      'blockedCalls': blockedCalls,
+      'blockedGroups': blockedGroups,
+      'privacySettings': privacySettings,
     };
   }
 
   UserModel copyWith({
     String? name,
     String? email,
+    String? nickname,
     String? phone,
     String? role,
     String? username,
@@ -104,11 +126,16 @@ class UserModel {
     int? followingCount,
     String? plan,
     DateTime? planExpiry,
+    List<String>? blockedUsers,
+    List<String>? blockedCalls,
+    List<String>? blockedGroups,
+    Map<String, dynamic>? privacySettings,
   }) {
     return UserModel(
       id: id,
       name: name ?? this.name,
       email: email ?? this.email,
+      nickname: nickname ?? this.nickname,
       phone: phone ?? this.phone,
       role: role ?? this.role,
       description: description ?? this.description,
@@ -125,6 +152,10 @@ class UserModel {
       followingCount: followingCount ?? this.followingCount,
       plan: plan ?? this.plan,
       planExpiry: planExpiry ?? this.planExpiry,
+      blockedUsers: blockedUsers ?? this.blockedUsers,
+      blockedCalls: blockedCalls ?? this.blockedCalls,
+      blockedGroups: blockedGroups ?? this.blockedGroups,
+      privacySettings: privacySettings ?? this.privacySettings,
     );
   }
 }

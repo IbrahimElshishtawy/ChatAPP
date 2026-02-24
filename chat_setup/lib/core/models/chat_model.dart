@@ -1,33 +1,44 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class MessageModel {
-  final String text;
-  final String senderId;
-  final DateTime createdAt;
-  final bool isSeen;
+enum ChatType { direct, group, channel }
 
-  MessageModel({
-    required this.text,
-    required this.senderId,
-    required this.createdAt,
-    required this.isSeen,
+class ChatModel {
+  final String id;
+  final List<String> members;
+  final String lastMessage;
+  final DateTime? lastMessageTime;
+  final ChatType type;
+  final Map<String, dynamic> settings; // per-user settings: {uid: {muted: bool, visibility: string, ...}}
+
+  ChatModel({
+    required this.id,
+    required this.members,
+    required this.lastMessage,
+    this.lastMessageTime,
+    required this.type,
+    this.settings = const {},
   });
 
   Map<String, dynamic> toMap() {
     return {
-      'text': text,
-      'senderId': senderId,
-      'createdAt': createdAt,
-      'isSeen': isSeen,
+      'members': members,
+      'lastMessage': lastMessage,
+      'lastMessageTime': lastMessageTime,
+      'type': type.name,
+      'settings': settings,
     };
   }
 
-  factory MessageModel.fromMap(Map<String, dynamic> map) {
-    return MessageModel(
-      text: map['text'] ?? '',
-      senderId: map['senderId'],
-      createdAt: (map['createdAt'] as Timestamp).toDate(),
-      isSeen: map['isSeen'] ?? false,
+  factory ChatModel.fromMap(String id, Map<String, dynamic> map) {
+    return ChatModel(
+      id: id,
+      members: List<String>.from(map['members'] ?? []),
+      lastMessage: map['lastMessage'] ?? '',
+      lastMessageTime: map['lastMessageTime'] != null
+          ? (map['lastMessageTime'] as Timestamp).toDate()
+          : null,
+      type: ChatType.values.byName(map['type'] ?? 'direct'),
+      settings: Map<String, dynamic>.from(map['settings'] ?? {}),
     );
   }
 }
