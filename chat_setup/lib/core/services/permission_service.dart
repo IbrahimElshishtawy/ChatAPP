@@ -24,4 +24,14 @@ class PermissionService {
     if (user.plan == 'pro') return 1000;
     return 50; // Free limit
   }
+
+  static bool canMakeCall(UserModel user) {
+    if (user.role == 'admin') return true;
+    if (user.plan == 'pro') return true;
+    return true;
+  }
+
+  static bool canSendMedia(UserModel user) {
+    return true;
+  }
 }

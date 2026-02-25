@@ -14,6 +14,7 @@ class UserModel {
   final String backgroundImage;
   final String? username;
   final String? profilePicture;
+  final String? website;
   final int postsCount;
   final int followersCount;
   final int followingCount;
@@ -23,6 +24,7 @@ class UserModel {
 
   UserModel({
     required this.profilePicture,
+    this.website,
     required this.id,
     required this.name,
     this.email,
@@ -52,6 +54,7 @@ class UserModel {
       role: map['role'] ?? 'user',
       username: map['username'],
       profilePicture: map['profilePicture'],
+      website: map['website'],
       backgroundImage: map['backgroundImage'] ?? '',
       postsCount: map['postsCount'] ?? 0,
       followersCount: map['followersCount'] ?? 0,
@@ -72,6 +75,7 @@ class UserModel {
       'description': description,
       'username': username,
       'profilePicture': profilePicture,
+      'website': website,
       'backgroundImage': backgroundImage,
       'postsCount': postsCount,
       'followersCount': followersCount,
@@ -88,6 +92,7 @@ class UserModel {
     String? role,
     String? username,
     String? profilePicture,
+    String? website,
     String? linkedin,
     String? facebook,
     String? description,
@@ -108,6 +113,7 @@ class UserModel {
       role: role ?? this.role,
       description: description ?? this.description,
       profilePicture: profilePicture ?? this.profilePicture,
+      website: website ?? this.website,
       username: username ?? this.username,
       linkedin: linkedin ?? this.linkedin,
       facebook: facebook ?? this.facebook,

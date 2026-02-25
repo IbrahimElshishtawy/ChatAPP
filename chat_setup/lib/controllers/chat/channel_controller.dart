@@ -59,4 +59,22 @@ class ChannelController extends GetxController {
 
   Stream<QuerySnapshot> getChannelMessages(String channelId) =>
       _service.getChannelMessages(channelId);
+
+  Future<void> subscribe(String channelId) async {
+    final myId = uid;
+    if (myId == null) return;
+    await _service.subscribeToChannel(channelId, myId);
+  }
+
+  Future<void> unsubscribe(String channelId) async {
+    final myId = uid;
+    if (myId == null) return;
+    await _service.unsubscribeFromChannel(channelId, myId);
+  }
+
+  Future<bool> isSubscribed(String channelId) async {
+    final myId = uid;
+    if (myId == null) return false;
+    return await _service.isSubscribed(channelId, myId);
+  }
 }

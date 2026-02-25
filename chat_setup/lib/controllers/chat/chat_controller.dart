@@ -40,6 +40,72 @@ class ChatController extends GetxController {
   }
 
   // ======================
+  // Message Actions
+  // ======================
+
+  Future<void> forwardMessage({
+    required String targetChatId,
+    required MessageModel originalMessage,
+  }) async {
+    final myId = uid;
+    if (myId == null) return;
+    await _service.forwardMessage(
+      targetChatId: targetChatId,
+      originalMessage: originalMessage,
+      senderId: myId,
+    );
+  }
+
+  Future<void> deleteMessageForMe({
+    required String chatId,
+    required String messageId,
+  }) async {
+    final myId = uid;
+    if (myId == null) return;
+    await _service.deleteMessageForMe(
+      chatId: chatId,
+      messageId: messageId,
+      userId: myId,
+    );
+  }
+
+  Future<void> deleteMessageForEveryone({
+    required String chatId,
+    required String messageId,
+  }) async {
+    await _service.deleteMessageForEveryone(
+      chatId: chatId,
+      messageId: messageId,
+    );
+  }
+
+  Future<void> reportMessage({
+    required String chatId,
+    required String messageId,
+    required String reason,
+  }) async {
+    final myId = uid;
+    if (myId == null) return;
+    await _service.reportMessage(
+      chatId: chatId,
+      messageId: messageId,
+      reporterId: myId,
+      reason: reason,
+    );
+  }
+
+  Future<void> shareWebsite(String chatId, String websiteUrl, List<String> members) async {
+    final myId = uid;
+    if (myId == null) return;
+    await _service.shareWebsiteLink(
+      chatId: chatId,
+      senderId: myId,
+      websiteUrl: websiteUrl,
+      members: members,
+    );
+  }
+
+  // ======================
   // Chat lifecycle
   // ======================
   Future<String> openChat(String otherUserId) async {

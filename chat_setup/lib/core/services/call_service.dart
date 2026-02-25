@@ -34,6 +34,14 @@ class CallService {
     await _calls.doc(callId).update({'status': status.name});
   }
 
+  Future<void> endCall(String callId) async {
+    await updateStatus(callId, CallStatus.ended);
+  }
+
+  Future<void> rejectCall(String callId) async {
+    await updateStatus(callId, CallStatus.rejected);
+  }
+
   Stream<List<CallModel>> callHistory(String uid) {
     return _calls
         .where(

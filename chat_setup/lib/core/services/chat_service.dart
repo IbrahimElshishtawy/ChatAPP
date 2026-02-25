@@ -84,6 +84,74 @@ class ChatService {
     await chatRef.collection('messages').add(messageData);
   }
 
+  Future<void> shareWebsiteLink({
+    required String chatId,
+    required String senderId,
+    required String websiteUrl,
+    required List<String> members,
+  }) async {
+    await sendMessage(
+      chatId: chatId,
+      message: MessageModel(
+        id: '',
+        text: 'My website: $websiteUrl',
+        senderId: senderId,
+        receiverId: '',
+        createdAt: DateTime.now(),
+        isSeen: false,
+      ),
+      members: members,
+    );
+  }
+
+  Future<void> sendMediaMessage({
+    required String chatId,
+    required String senderId,
+    required String mediaUrl,
+    required String mediaType,
+    required List<String> members,
+    String text = '',
+  }) async {
+    final message = MessageModel(
+      id: '',
+      text: text,
+      mediaUrl: mediaUrl,
+      mediaType: mediaType,
+      senderId: senderId,
+      receiverId: '',
+      createdAt: DateTime.now(),
+      isSeen: false,
+    );
+
+    await sendMessage(
+      chatId: chatId,
+      message: message,
+      members: members,
+    );
+  }
+
+  Future<void> forwardMessage({
+    required String targetChatId,
+    required MessageModel originalMessage,
+    required String senderId,
+  }) async {
+    final targetChatRef = _chats.doc(targetChatId);
+
+    final newMessageData = originalMessage.toMap();
+    newMessageData['senderId'] = senderId;
+    newMessageData['createdAt'] = FieldValue.serverTimestamp();
+    newMessageData['isForwarded'] = true;
+    newMessageData['isSeen'] = false;
+    newMessageData['seenAt'] = null;
+
+    await targetChatRef.collection('messages').add(newMessageData);
+
+    await targetChatRef.update({
+      'lastMessage': originalMessage.text,
+      'lastMessageTime': FieldValue.serverTimestamp(),
+    });
+  }
+
   Future<void> editMessage({
     required String chatId,
     required String messageId,
@@ -148,6 +216,27 @@ class ChatService {
     await batch.commit();
   }
 
+  Future<void> markMessagesAsDelivered(String chatId, String myId) async {
+    final q = await _chats
+        .doc(chatId)
+        .collection('messages')
+        .where('senderId', isNotEqualTo: myId)
+        .where('isDelivered', isEqualTo: false)
+        .limit(200)
+        .get();
+
+    if (q.docs.isEmpty) return;
+
+    final batch = _firestore.batch();
+    for (final d in q.docs) {
+      batch.update(d.reference, {
+        'isDelivered': true,
+        'deliveredAt': FieldValue.serverTimestamp(),
+      });
+    }
+    await batch.commit();
+  }
+
   // ======================
   // Typing
   // ======================
@@ -202,6 +291,54 @@ class ChatService {
     await _chats.doc(chatId).set({
       'deletedFor': {userId: deleted},
     }, SetOptions(merge: true));
+  }
+
+  // ======================
+  // Message Actions (Delete/Report)
+  // ======================
+
+  Future<void> deleteMessageForMe({
+    required String chatId,
+    required String messageId,
+    required String userId,
+  }) async {
+    await _chats.doc(chatId).collection('messages').doc(messageId).update({
+      'deletedFor': FieldValue.arrayUnion([userId]),
+    });
+  }
+
+  Future<void> deleteMessageForEveryone({
+    required String chatId,
+    required String messageId,
+    String deletedText = 'Message deleted',
+  }) async {
+    await _chats.doc(chatId).collection('messages').doc(messageId).update({
+      'isDeleted': true,
+      'text': deletedText,
+      'mediaUrl': null,
+      'mediaType': null,
+    });
+  }
+
+  Future<void> reportMessage({
+    required String chatId,
+    required String messageId,
+    required String reporterId,
+    required String reason,
+  }) async {
+    // 1) Mark message as reported
+    await _chats.doc(chatId).collection('messages').doc(messageId).update({
+      'isReported': true,
+    });
+
+    // 2) Store report in a separate collection
+    await _firestore.collection('reports').add({
+      'chatId': chatId,
+      'messageId': messageId,
+      'reporterId': reporterId,
+      'reason': reason,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
   }
 
   // ======================
