@@ -18,7 +18,8 @@ service cloud.firestore {
         resource.data.privacySettings.profileVisibility == 'everyone' ||
         (resource.data.privacySettings.profileVisibility == 'contacts' && exists(/databases/$(database)/documents/following/$(userId)/users/$(request.auth.uid)))
       );
-      allow write: if isOwner(userId);
+      allow write: if isOwner(userId) && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['isVerified', 'role']));
+      allow update: if isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
     match /chats/{chatId} {
@@ -91,6 +92,12 @@ service cloud.firestore {
     match /followers/{userId}/users/{followerId} {
       allow read: if isSignedIn();
       allow write: if isSignedIn() && request.auth.uid == followerId;
+    }
+
+    match /verification_requests/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
   }
 }

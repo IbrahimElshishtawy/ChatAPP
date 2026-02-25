@@ -7,6 +7,11 @@ class UserModel {
   final String? nickname;
   final String? description;
   final String? websiteLink;
+  final String? industry;
+  final String? company;
+  final String? jobTitle;
+  final String? professionalBio;
+  final bool isVerified;
   final String? phone;
   final String role;
   final String? linkedin;
@@ -53,6 +58,11 @@ class UserModel {
     this.blockedCalls = const [],
     this.blockedGroups = const [],
     this.privacySettings = const {},
+    this.industry,
+    this.company,
+    this.jobTitle,
+    this.professionalBio,
+    this.isVerified = false,
   });
 
   factory UserModel.fromMap(String id, Map<String, dynamic> map) {
@@ -64,6 +74,11 @@ class UserModel {
       phone: map['phone'],
       description: map['description'],
       websiteLink: map['websiteLink'],
+      industry: map['industry'],
+      company: map['company'],
+      jobTitle: map['jobTitle'],
+      professionalBio: map['professionalBio'],
+      isVerified: map['isVerified'] ?? false,
       role: map['role'] ?? 'user',
       username: map['username'],
       profilePicture: map['profilePicture'],
@@ -91,6 +106,11 @@ class UserModel {
       'role': role,
       'description': description,
       'websiteLink': websiteLink,
+      'industry': industry,
+      'company': company,
+      'jobTitle': jobTitle,
+      'professionalBio': professionalBio,
+      'isVerified': isVerified,
       'username': username,
       'profilePicture': profilePicture,
       'backgroundImage': backgroundImage,
@@ -118,6 +138,11 @@ class UserModel {
     String? facebook,
     String? description,
     String? websiteLink,
+    String? industry,
+    String? company,
+    String? jobTitle,
+    String? professionalBio,
+    bool? isVerified,
     String? instagram,
     String? whatsapp,
     String? backgroundImage,
@@ -140,6 +165,11 @@ class UserModel {
       role: role ?? this.role,
       description: description ?? this.description,
       websiteLink: websiteLink ?? this.websiteLink,
+      industry: industry ?? this.industry,
+      company: company ?? this.company,
+      jobTitle: jobTitle ?? this.jobTitle,
+      professionalBio: professionalBio ?? this.professionalBio,
+      isVerified: isVerified ?? this.isVerified,
       profilePicture: profilePicture ?? this.profilePicture,
       username: username ?? this.username,
       linkedin: linkedin ?? this.linkedin,

@@ -272,6 +272,37 @@ class UserController extends GetxController {
     user.value = updated;
   }
 
+  Future<void> updateProfessionalDetails({
+    String? industry,
+    String? company,
+    String? jobTitle,
+    String? professionalBio,
+  }) async {
+    if (user.value == null) return;
+
+    final updated = user.value!.copyWith(
+      industry: industry,
+      company: company,
+      jobTitle: jobTitle,
+      professionalBio: professionalBio,
+    );
+    await _service.updateUser(updated);
+    user.value = updated;
+  }
+
+  Future<void> requestVerification(String reason) async {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) return;
+
+    await _firestore.collection('verification_requests').doc(uid).set({
+      'uid': uid,
+      'name': user.value?.name,
+      'reason': reason,
+      'status': 'pending',
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+  }
+
   Future<void> deleteUserAccount() async {
     final uid = _auth.currentUser?.uid;
     if (uid == null) return;
