@@ -40,4 +40,69 @@ class ChannelService {
         .orderBy('createdAt', descending: true)
         .snapshots();
   }
+
+  /// 🔔 Subscribe
+  Future<void> subscribeToChannel(String channelId, String userId) async {
+    final batch = _firestore.batch();
+
+    batch.set(
+      _channels.doc(channelId).collection('subscribers').doc(userId),
+      {'timestamp': FieldValue.serverTimestamp()},
+    );
+
+    batch.update(_channels.doc(channelId), {
+      'subscribersCount': FieldValue.increment(1),
+    });
+
+    await batch.commit();
+  }
+
+  /// 🔕 Unsubscribe
+  Future<void> unsubscribeFromChannel(String channelId, String userId) async {
+    final batch = _firestore.batch();
+
+    batch.delete(
+      _channels.doc(channelId).collection('subscribers').doc(userId),
+    );
+
+    batch.update(_channels.doc(channelId), {
+      'subscribersCount': FieldValue.increment(-1),
+    });
+
+    await batch.commit();
+  }
+
+  /// 🔍 Is Subscribed
+  Future<bool> isSubscribed(String channelId, String userId) async {
+    final doc = await _channels
+        .doc(channelId)
+        .collection('subscribers')
+        .doc(userId)
+        .get();
+    return doc.exists;
+  }
+
+  /// 👑 Add Admin
+  Future<void> addChannelAdmin(String channelId, String userId) async {
+    await _channels.doc(channelId).update({
+      'admins': FieldValue.arrayUnion([userId]),
+    });
+  }
+
+  /// 👨‍💼 Remove Admin
+  Future<void> removeChannelAdmin(String channelId, String userId) async {
+    await _channels.doc(channelId).update({
+      'admins': FieldValue.arrayRemove([userId]),
+    });
+  }
+
+  /// 📝 Update Channel Info
+  Future<void> updateChannelInfo(String channelId, Map<String, dynamic> data) async {
+    await _channels.doc(channelId).update(data);
+  }
+
+  /// ❌ Delete Channel
+  Future<void> deleteChannel(String channelId) async {
+    await _channels.doc(channelId).delete();
+  }
 }

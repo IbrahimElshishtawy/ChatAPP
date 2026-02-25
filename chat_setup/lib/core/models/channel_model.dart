@@ -6,6 +6,8 @@ class ChannelModel {
   final String? description;
   final String ownerId;
   final List<String> admins;
+  final int subscribersCount;
+  final bool isPublic;
   final DateTime createdAt;
   final String? lastMessage;
   final DateTime? lastMessageTime;
@@ -16,6 +18,8 @@ class ChannelModel {
     this.description,
     required this.ownerId,
     required this.admins,
+    this.subscribersCount = 0,
+    this.isPublic = true,
     required this.createdAt,
     this.lastMessage,
     this.lastMessageTime,
@@ -27,6 +31,8 @@ class ChannelModel {
       'description': description,
       'ownerId': ownerId,
       'admins': admins,
+      'subscribersCount': subscribersCount,
+      'isPublic': isPublic,
       'createdAt': createdAt,
       'lastMessage': lastMessage,
       'lastMessageTime': lastMessageTime,
@@ -40,6 +46,8 @@ class ChannelModel {
       description: map['description'],
       ownerId: map['ownerId'] ?? '',
       admins: List<String>.from(map['admins'] ?? []),
+      subscribersCount: map['subscribersCount'] ?? 0,
+      isPublic: map['isPublic'] ?? true,
       createdAt: (map['createdAt'] as Timestamp).toDate(),
       lastMessage: map['lastMessage'],
       lastMessageTime: map['lastMessageTime'] != null
